@@ -23,6 +23,25 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+/// Todo: try paring metadata here
+process PARSE_METADATA {
+    
+    debug true
+
+    input: 
+        path(submission_base_path) 
+
+    output:
+        path('*samplesheet.csv')   , emit: input_samplesheet 
+
+    script:
+    """
+        echo $submission_base_path
+        mkdir -p $params.outdir"/grzqc_output/"
+        metadata_to_samplesheet.py $submission_base_path $params.outdir"/grzqc_output/"
+    """
+}
+
 workflow PIPELINE_INITIALISATION {
 
     take:
@@ -31,7 +50,7 @@ workflow PIPELINE_INITIALISATION {
     monochrome_logs   // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
+    submission_base_path             //  string: Path to submission base path
 
     main:
 
@@ -69,11 +88,17 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     //
+    // PROCESS : Parse metadata.json to create the samplesheet which is provided as input to the PIPELINE_INITIALISATION workflow
+    //
+    //submission_base_path.view()
+    PARSE_METADATA (submission_base_path)
+
+    //
     // Create channel from input file provided through params.input
     //
 
     Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+        .fromList(samplesheetToList(submission_base_path, "${projectDir}/assets/schema_input.json"))
         .map {
             meta, fastq_1, fastq_2, bed_file, reference ->
                 if (!fastq_2) {

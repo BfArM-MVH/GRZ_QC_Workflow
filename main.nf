@@ -43,7 +43,7 @@ params.fasta = getGenomeAttribute('fasta')
 workflow NFCORE_GRZQC {
 
     take:
-    samplesheet // channel: samplesheet read in from --input
+    samplesheet // channel: samplesheet created by parsing metadata.json file
 
     main:
 
@@ -74,7 +74,7 @@ workflow {
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.submission_base_path
     )
 
     //
