@@ -23,7 +23,7 @@ def extract_data(json_data: Dict, submission_base_path) -> List[List[str]]:
     donors = json_data['donors']
 
     for donor in donors:
-        
+
         case_id = donor.get('caseId', '')
         print(case_id)
         lab_data_list = donor.get('labData', [])
@@ -34,7 +34,7 @@ def extract_data(json_data: Dict, submission_base_path) -> List[List[str]]:
             lab_data_name = lab_data.get('labDataName', '').replace(' ', '_')
             libraryType = lab_data.get('libraryType', [])
             sequence_data = lab_data.get('sequenceData', [])
-            
+
             #print(sequence_data)
             #for sequence_data in sequence_data_list:
             #print("----------Sequence data---------------")
@@ -70,7 +70,6 @@ def extract_data(json_data: Dict, submission_base_path) -> List[List[str]]:
 def main():
     parser = argparse.ArgumentParser(description='Extract data from GRZ schema JSON and create a CSV file.')
     parser.add_argument('submission_base_path', help='Complete path to the root directory of the submission')
-    parser.add_argument('output_path', help='Complete path to the root directory of the submission')
     args = parser.parse_args()
 
     # Check if the submission base path exists
@@ -78,10 +77,10 @@ def main():
         print(f"Error: The submission base path '{args.submission_base_path}' does not exist.")
         return
 
-    metadata_file = args.submission_base_path+"metadata/metadata.json"
-    output_file = args.output_path+"grzqc_samplesheet.csv"
+    metadata_file = args.submission_base_path+"/metadata/metadata.json"
+    output_file = "grzqc_samplesheet.csv"
     #print(metadata_file)
-    
+
     try:
         with open(metadata_file, 'r') as f:
             json_data = json.load(f)
@@ -91,8 +90,8 @@ def main():
     except FileNotFoundError:
         print(f"Error: The file '{metadata_file}' was not found.")
         return
-    
-    
+
+
 
     #print(json_data['submission']['submissionDate'])
     extracted_data = extract_data(json_data, args.submission_base_path)

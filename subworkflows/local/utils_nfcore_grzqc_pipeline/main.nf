@@ -25,20 +25,18 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 
 /// Todo: try paring metadata here
 process PARSE_METADATA {
-    
+
     debug true
 
-    input: 
-        path(submission_base_path) 
+    input:
+        path(submission_base_path)
 
     output:
-        path('*samplesheet.csv')   , emit: input_samplesheet 
+        path('*samplesheet.csv')   , emit: samplesheet
 
     script:
     """
-        echo $submission_base_path
-        mkdir -p $params.outdir"/grzqc_output/"
-        metadata_to_samplesheet.py $submission_base_path $params.outdir"/grzqc_output/"
+        metadata_to_samplesheet.py $submission_base_path
     """
 }
 
@@ -71,7 +69,7 @@ workflow PIPELINE_INITIALISATION {
     //
     UTILS_NFSCHEMA_PLUGIN (
         workflow,
-        validate_params,
+        false,
         null
     )
 
@@ -90,21 +88,29 @@ workflow PIPELINE_INITIALISATION {
     //
     // PROCESS : Parse metadata.json to create the samplesheet which is provided as input to the PIPELINE_INITIALISATION workflow
     //
-    //submission_base_path.view()
-    PARSE_METADATA (submission_base_path)
+
+    Channel.fromPath(params.submission_base_path, checkIfExists: true)
+        .set { ch_submission_base_path }
+    //
+    // PARSE_METADATA
+    //
+    PARSE_METADATA(ch_submission_base_path)
 
     //
     // Create channel from input file provided through params.input
     //
 
-    Channel
-        .fromList(samplesheetToList(submission_base_path, "${projectDir}/assets/schema_input.json"))
+    PARSE_METADATA.out.samplesheet
+        .splitCsv(header: true, strip: true)
+        .map { row ->
+            [[id:row.sample], row.fastq_1, row.fastq_2, row.bed_file, row.reference]
+        }
         .map {
-            meta, fastq_1, fastq_2, bed_file, reference ->
+            meta, fastq_1, fastq_2, bed_file, reference  ->
                 if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ], bed_file, reference]
+                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ], bed_file, reference ]
                 } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] , bed_file, reference]
+                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ], bed_file, reference ]
                 }
         }
         .groupTuple()
@@ -112,8 +118,8 @@ workflow PIPELINE_INITIALISATION {
             validateInputSamplesheet(samplesheet)
         }
         .map {
-            meta, fastqs, bed_file, reference ->
-                return [ meta, fastqs.flatten(), bed_file, reference ]
+            meta, fastqs ->
+                return [ meta, fastqs.flatten() ]
         }
         .set { ch_samplesheet }
 
