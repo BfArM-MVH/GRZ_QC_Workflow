@@ -1,0 +1,299 @@
+[
+  {
+    "libraryType": "panel",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 200,
+      "readLength": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 30,
+        "fractionBasesAbove": 0.85
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 100,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "panel",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor-only",
+    "thresholds": {
+      "meanDepthOfCoverage": 200,
+      "readLength": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 30,
+        "fractionBasesAbove": 0.85
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 100,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wes",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 200,
+      "readLength": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 30,
+        "fractionBasesAbove": 0.85
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 100,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wes",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor-only",
+    "thresholds": {
+      "meanDepthOfCoverage": 200,
+      "readLength": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 30,
+        "fractionBasesAbove": 0.85
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 100,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wes",
+    "sequenceSubtype": "germline",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 100,
+      "readLength": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 30,
+        "fractionBasesAbove": 0.85
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 30,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wgs",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 100,
+      "readLength": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 30,
+        "fractionBasesAbove": 0.85
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 30,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wgs",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor-only",
+    "thresholds": {
+      "meanDepthOfCoverage": 100,
+      "readLength": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 30,
+        "fractionBasesAbove": 0.85
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 30,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wgs",
+    "sequenceSubtype": "germline",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 30,
+      "readLength": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 30,
+        "fractionBasesAbove": 0.85
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 20,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wgs",
+    "sequenceSubtype": "germline",
+    "genomicStudySubtype": "germline-only",
+    "thresholds": {
+      "meanDepthOfCoverage": 30,
+      "readLength": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 30,
+        "fractionBasesAbove": 0.85
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 20,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "panel_lr",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 200,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 20,
+        "fractionBasesAbove": 0.8
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 100,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "panel_lr",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor-only",
+    "thresholds": {
+      "meanDepthOfCoverage": 200,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 20,
+        "fractionBasesAbove": 0.8
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 100,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wes_lr",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 200,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 20,
+        "fractionBasesAbove": 0.8
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 100,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wes_lr",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor-only",
+    "thresholds": {
+      "meanDepthOfCoverage": 200,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 20,
+        "fractionBasesAbove": 0.8
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 100,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wes_lr",
+    "sequenceSubtype": "germline",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 20,
+        "fractionBasesAbove": 0.8
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 30,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wgs_lr",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 20,
+        "fractionBasesAbove": 0.8
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 30,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wgs_lr",
+    "sequenceSubtype": "somatic",
+    "genomicStudySubtype": "tumor-only",
+    "thresholds": {
+      "meanDepthOfCoverage": 100,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 20,
+        "fractionBasesAbove": 0.8
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 30,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wgs_lr",
+    "sequenceSubtype": "germline",
+    "genomicStudySubtype": "tumor+germline",
+    "thresholds": {
+      "meanDepthOfCoverage": 30,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 20,
+        "fractionBasesAbove": 0.8
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 20,
+        "fractionAbove": 0.8
+      }
+    }
+  },
+  {
+    "libraryType": "wgs_lr",
+    "sequenceSubtype": "germline",
+    "genomicStudySubtype": "germline-only",
+    "thresholds": {
+      "meanDepthOfCoverage": 30,
+      "fractionBasesAboveQualityThreshold": {
+        "qualityThreshold": 20,
+        "fractionBasesAbove": 0.8
+      },
+      "targetedRegionsAboveMinCoverage": {
+        "minCoverage": 20,
+        "fractionAbove": 0.8
+      }
+    }
+  }
+]

@@ -75,20 +75,17 @@ workflow PIPELINE_INITIALISATION {
     Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map {
-            meta, fastq_1, fastq_2, bed_file, reference ->
+            meta, fastq_1, fastq_2, bed_file ->
                 if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ], bed_file, reference]
+                    return [ meta + [ single_end:true ], [ fastq_1 ], bed_file]
                 } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] , bed_file, reference]
+                    return [ meta + [ single_end:false ], [ fastq_1, fastq_2 ] , bed_file]
                 }
         }
         .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
         .map {
-            meta, fastqs, bed_file, reference ->
-                return [ meta, fastqs.flatten(), bed_file, reference ]
+            meta, fastqs, bed_file ->
+                return [ meta, fastqs.flatten(), bed_file ]
         }
         .set { ch_samplesheet }
 
@@ -159,16 +156,19 @@ def validateInputParameters() {
 //
 // Validate channels from input samplesheet
 //
+//
+// Validate channels from input samplesheet
+//
 def validateInputSamplesheet(input) {
     def (metas, fastqs) = input[1..2]
-    def (bed_file, reference) = input[3..4]
+
     // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
     def endedness_ok = metas.collect{ meta -> meta.single_end }.unique().size == 1
     if (!endedness_ok) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
     }
 
-    return [ metas[0], fastqs, bed_file, reference]
+    return [ metas[0], fastqs ]
 }
 //
 // Get attribute from genome config file e.g. fasta

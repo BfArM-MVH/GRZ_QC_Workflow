@@ -1,6 +1,9 @@
 channels:
-  - conda-forge
-  - bioconda
+- conda-forge
+- bioconda
 dependencies:
-  - pandas
-  - openpyxl
+- pip
+- pip:
+  - gzip-utils==2020.7.15
+  - openpyxl==3.1.5
+  - pandas==2.2.3

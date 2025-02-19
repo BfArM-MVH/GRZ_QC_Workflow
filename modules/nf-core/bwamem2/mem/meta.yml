@@ -1,4 +1,4 @@
-name: bwa_mem
+name: bwamem2_mem
 description: Performs fastq alignment to a fasta reference using BWA
 keywords:
   - mem
@@ -11,12 +11,12 @@ keywords:
 tools:
   - bwa:
       description: |
-        BWA is a software package for mapping DNA sequences against
+        BWA-mem2 is a software package for mapping DNA sequences against
         a large reference genome, such as the human genome.
-      homepage: http://bio-bwa.sourceforge.net/
-      documentation: https://bio-bwa.sourceforge.net/bwa.shtml
+      homepage: https://github.com/bwa-mem2/bwa-mem2
+      documentation: http://www.htslib.org/doc/samtools.html
       arxiv: arXiv:1303.3997
-      licence: ["GPL-3.0-or-later"]
+      licence: ["MIT"]
       identifier: ""
 input:
   - - meta:
@@ -32,72 +32,84 @@ input:
   - - meta2:
         type: map
         description: |
-          Groovy Map containing reference information.
-          e.g. [ id:'test', single_end:false ]
+          Groovy Map containing reference/index information
+          e.g. [ id:'test' ]
     - index:
         type: file
         description: BWA genome index files
-        pattern: "Directory containing BWA index *.{amb,ann,bwt,pac,sa}"
+        pattern: "Directory containing BWA index *.{0132,amb,ann,bwt.2bit.64,pac}"
   - - meta3:
         type: map
         description: |
-          Groovy Map containing sample information
-          e.g. [ id:'test', single_end:false ]
+          Groovy Map containing reference information
+          e.g. [ id:'genome' ]
     - fasta:
         type: file
         description: Reference genome in FASTA format
-        pattern: "*.{fasta,fa}"
+        pattern: "*.{fa,fasta,fna}"
   - - sort_bam:
         type: boolean
         description: use samtools sort (true) or samtools view (false)
         pattern: "true or false"
 output:
+  - sam:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+      - "*.sam":
+          type: file
+          description: Output SAM file containing read alignments
+          pattern: "*.{sam}"
   - bam:
       - meta:
-          type: file
-          description: Output BAM file containing read alignments
-          pattern: "*.{bam}"
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
       - "*.bam":
           type: file
           description: Output BAM file containing read alignments
           pattern: "*.{bam}"
   - cram:
       - meta:
-          type: file
-          description: Output CRAM file containing read alignments
-          pattern: "*.{cram}"
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
       - "*.cram":
           type: file
           description: Output CRAM file containing read alignments
           pattern: "*.{cram}"
-  - csi:
-      - meta:
-          type: file
-          description: Optional index file for BAM file
-          pattern: "*.{csi}"
-      - "*.csi":
-          type: file
-          description: Optional index file for BAM file
-          pattern: "*.{csi}"
   - crai:
       - meta:
-          type: file
-          description: Optional index file for CRAM file
-          pattern: "*.{crai}"
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
       - "*.crai":
           type: file
-          description: Optional index file for CRAM file
+          description: Index file for CRAM file
           pattern: "*.{crai}"
+  - csi:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+      - "*.csi":
+          type: file
+          description: Index file for BAM file
+          pattern: "*.{csi}"
   - versions:
       - versions.yml:
           type: file
           description: File containing software versions
           pattern: "versions.yml"
 authors:
-  - "@drpatelh"
-  - "@jeremy1805"
+  - "@maxulysse"
   - "@matthdsm"
 maintainers:
-  - "@drpatelh"
-  - "@jeremy1805"
+  - "@maxulysse"
   - "@matthdsm"

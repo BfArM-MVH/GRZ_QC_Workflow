@@ -3,24 +3,23 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { CAT_FASTQ              } from '../modules/nf-core/cat/fastq/main'
-include { FASTQC                 } from '../modules/nf-core/fastqc/main'
-include { FASTP                 } from '../modules/nf-core/fastp/main'
-include { BWA_MEM                } from '../modules/nf-core/bwa/mem/main'
-include { BWA_INDEX              } from '../modules/nf-core/bwa/index/main'
-include { FASTQ_ALIGN_BWA        } from '../subworkflows/nf-core/fastq_align_bwa/main'
-include { SAMTOOLS_SORT          } from '../modules/nf-core/samtools/sort/main'
-include { SAMTOOLS_INDEX         } from '../modules/nf-core/samtools/index/main'
-include { MOSDEPTH               } from '../modules/nf-core/mosdepth/main'
-include { MOSDEPTH as MOSDEPTH_TARGET   } from '../modules/nf-core/mosdepth/main'
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_grzqc_pipeline'
-
+include { CAT_FASTQ              } from '../modules/nf-core/cat/fastq'
+include { FASTQC                 } from '../modules/nf-core/fastqc'
+include { FASTP                  } from '../modules/nf-core/fastp'
+include { MULTIQC                } from '../modules/nf-core/multiqc'
 include { COMPARE_THRESHOLD      } from '../modules/local/compare_threshold'
 include { MERGE_REPORTS          } from '../modules/local/merge_reports'
+include { FASTQ_ALIGN_BWA as FASTQ_ALIGN_BWA_HG38 } from '../subworkflows/nf-core/fastq_align_bwa'
+include { FASTQ_ALIGN_BWA as FASTQ_ALIGN_BWA_HG37 } from '../subworkflows/nf-core/fastq_align_bwa'
+include { BWAMEM2_INDEX  as  BWAMEM2_INDEX_HG38   } from '../modules/nf-core/bwamem2/index/main'
+include { BWAMEM2_INDEX  as  BWAMEM2_INDEX_HG37   } from '../modules/nf-core/bwamem2/index/main'
+include { MOSDEPTH_MOSDEPTH_TARGET as MOSDEPTH_MOSDEPTH_TARGET_HG38 } from '../subworkflows/local/mosdepth_mosdepth_target'
+include { MOSDEPTH_MOSDEPTH_TARGET as MOSDEPTH_MOSDEPTH_TARGET_HG37 } from '../subworkflows/local/mosdepth_mosdepth_target'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -36,12 +35,31 @@ workflow GRZQC {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
+    // create reference channels
+    fasta_37       = Channel.fromPath(params.fasta_37, checkIfExists: true)
+                    .map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
+    fasta_38        = Channel.fromPath(params.fasta_38, checkIfExists: true)
+                    .map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
+
+    rep_genes_38  = Channel.fromPath(params.rep_genes_hg38, checkIfExists: true).collect()
+
+    rep_genes_37  = Channel.fromPath(params.rep_genes_hg19, checkIfExists: true).collect()
+
+    bwa_index_37    = params.bwa_index_37   ? Channel.fromPath(params.bwa_index_37, checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
+                                            : Channel.empty()
+
+    bwa_index_38    = params.bwa_index_38   ? Channel.fromPath(params.bwa_index_38, checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
+                                            : Channel.empty()
+
+    thresholds  = Channel.fromPath("${projectDir}/assets/thresholds.json", checkIfExists: true).collect()
+
+    ch_samplesheet.view()
     // Creating merge fastq channel from samplesheet
     ch_samplesheet.map{
-        meta, fastqs, bed_file, reference -> tuple(meta, fastqs)
+        meta, fastqs, bed_file -> tuple(meta, fastqs)
     }.branch {
             meta, fastqs ->
-                single_sample_paired_end  : fastqs.size() == 2
+                single_sample_paired_end  : fastqs.size() < 2 | fastqs.size() == 2
                     return [ meta, fastqs.flatten() ]
                 multiple_sample_paired_end: fastqs.size() > 2
                     return [ meta, fastqs.flatten() ]
@@ -49,84 +67,29 @@ workflow GRZQC {
             ch_fastqs
         }
 
-    // Creating bed_file channel from samplesheet : Only taking the first bed file in case there are multiple samples from the same patient
-    ch_samplesheet.map{
-        meta, fastqs, bed_file, reference -> tuple(meta, bed_file.first())
-    }set{
-            ch_bed_file
-        }
-
-
-    // Create BWA_index channels for BWA_MEM
-    ch_samplesheet.map{
-        meta, fastqs, bed_file, reference -> tuple(meta, reference.first())
-    }.branch {
-            meta, reference ->
-                ref_37  : (reference == "GRCh37" || reference == "hg19")
-                    return [ meta, params.bwa_index_37 ]
-                ref_38  : (reference == "GRCh38" || reference == "hg38")
-                    return [ meta, params.bwa_index_38 ]
-        }.set{
-        ch_reference_ind
-        }
-
-    ch_reference_ind.ref_37.mix(
-        ch_reference_ind.ref_38
-    ).set{
-        ch_bwa_index
-    }
-
-    // Create bed channels for Mosdepth on ~ 400 representative genes
-    ch_samplesheet.map{
-        meta, fastqs, bed_file, reference -> tuple(meta, reference.first())
-    }.branch {
-            meta, reference ->
-                rep_genes_hg19  : (reference == "GRCh37" || reference == "hg19")
-                    return [ meta, params.rep_genes_hg19 ]
-                rep_genes_hg38  : (reference == "GRCh38" || reference == "hg38")
-                    return [ meta, params.rep_genes_hg38 ]
-        }.set{
-        ch_rep_genes_by_ref
-        }
-
-    ch_rep_genes_by_ref.rep_genes_hg19.mix(
-        ch_rep_genes_by_ref.rep_genes_hg38
-    ).set{
-        ch_rep_genes
-    }
-
-    // Create fasta channels for BWA_MEM
-    ch_samplesheet.map{
-        meta, fastqs, bed_file, reference -> tuple(meta, reference.first())
-    }.branch {
-            meta, reference ->
-                ref_37  : (reference == "GRCh37" || reference == "hg19")
-                    return [ meta, params.fasta_37 ]
-                ref_38  : (reference == "GRCh38" || reference == "hg38")
-                    return [ meta, params.fasta_38 ]
-        }.set{
-        ch_fasta_ind
-        }
-
-
-    ch_fasta_ind.ref_37.mix(
-        ch_fasta_ind.ref_38
-    ).set{
-        ch_fasta
-    }
-
-
     //
     // MODULE: Concatenate FastQ files from same sample if required
     //
     CAT_FASTQ (
         ch_fastqs.multiple_sample_paired_end
     )
-    .reads
-    .mix(ch_fastqs.single_sample_paired_end)
-    .set { ch_cat_fastq }
+    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first())
 
-    // 
+    CAT_FASTQ.out.reads
+        .mix(ch_fastqs.single_sample_paired_end)
+        .set { ch_cat_fastq }
+
+
+    //
+    // MODULE: Run FastQC
+    //
+    FASTQC (
+        ch_cat_fastq
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
+    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    //
     // MODULE: FASTP
     //
     save_trimmed_fail = false
@@ -138,76 +101,120 @@ workflow GRZQC {
         save_trimmed_fail,
         save_merged
     )
-    ch_fastp_json = FASTP.out.json
-        .map { meta, json -> tuple(meta, json) }
 
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect{ meta, json -> json })
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect{ meta, html -> html })
     ch_versions = ch_versions.mix(FASTP.out.versions.first())
 
+    // branch out samples per reference
+    ch_cat_fastq.branch{
+        def meta = it[0]
+        hg38: meta.reference == "GRCh38" || meta.reference == "hg38"
+        hg37: meta.reference == "GRCh37" || meta.reference == "hg19"
+        other:false
+    }.set{input_samples}
 
-    FASTQ_ALIGN_BWA (
-        ch_cat_fastq, ch_bwa_index, true, ch_fasta
-    )
-    ch_bam = FASTQ_ALIGN_BWA.out.bam
-    ch_bai = FASTQ_ALIGN_BWA.out.bai
-
-    // Is there a better way to do this, i.e join more than 2 channels into one in one step?
-    ch_mosdepth_input_1 = ch_bam.join(ch_bai, by: 0).map { meta, file1, file2 -> tuple(meta, file1, file2) }
-    ch_mosdepth_input = ch_mosdepth_input_1.join(ch_bed_file, by: 0).map { meta, file1, file2, bed_file -> tuple(meta, file1, file2, bed_file) }
-    //
-    // MODULE: MOSDEPTH, get average coverage
-    //
-    MOSDEPTH (
-        ch_mosdepth_input, ch_fasta
-    )
-    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.summary_txt.map{meta, file -> file}.collect())
-
-    ch_versions = ch_versions.mix(MOSDEPTH.out.versions.first())
-
-    //
-    // MODULE: MOSDEPTH, get coverage on target genes
-    //
-    ch_mosdepth_target_genes_input_1 = ch_bam.join(ch_bai, by: 0).map { meta, file1, file2 -> tuple(meta, file1, file2) }
-    ch_mosdepth_target_genes_input = ch_mosdepth_input_1.join(ch_rep_genes, by: 0).map { meta, file1, file2, bed_file -> tuple(meta, file1, file2, bed_file) }
-    MOSDEPTH_TARGET  (
-        ch_mosdepth_target_genes_input, ch_fasta
-    )
-
-    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH_TARGET.out.summary_txt.map{meta, file -> file}.collect())
-
-    //
-    // MODULE: Compare coverage with thresholds: writing the results file 
-    // input: FASTP Q30 ratio + mosdepth all genes + mosdepth target genes
-    //
-    ch_mosdepth_summary = MOSDEPTH.out.summary_txt
-        .join(MOSDEPTH_TARGET.out.regions_bed, by: 0)
-        .map { meta, summary, bed -> tuple(meta, summary, bed) }
-    
-    ch_fastp_mosdepth_merged = ch_fastp_json
-        .join(ch_mosdepth_summary, by: 0)
-        .map { meta, json, summary, bed -> 
-            tuple(meta, json, summary, bed)
+    ch_bams = Channel.empty()
+    // bwa index creation might be dropped
+    if (!params.bwa_index_38){
+        BWAMEM2_INDEX_HG38(fasta_38)
+        ch_versions = ch_versions.mix(BWAMEM2_INDEX_HG38.out.versions.first())
+        bwa_index_38 = BWAMEM2_INDEX_HG38.out.index
     }
 
-    csv_ch = COMPARE_THRESHOLD(
-        ch_fastp_mosdepth_merged
+    // hg38 alignment analysis
+    FASTQ_ALIGN_BWA_HG38 (
+        input_samples.hg38,
+        bwa_index_38,
+        true,
+        fasta_38
     )
-    
+    ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA_HG38.out.versions.first())
+    ch_bams = ch_bams
+                .mix(FASTQ_ALIGN_BWA_HG38.out.bam
+                    .join(FASTQ_ALIGN_BWA_HG38.out.bai, by:0))
+
+    // bwa index creation might be dropped
+    if (!params.bwa_index_37){
+        BWAMEM2_INDEX_HG37(fasta_37)
+        ch_versions = ch_versions.mix(BWAMEM2_INDEX_HG38.out.versions.first())
+        bwa_index_37 = BWAMEM2_INDEX_HG37.out.index
+    }
+    // hg37 alignment analysis
+    FASTQ_ALIGN_BWA_HG37 (
+        input_samples.hg37,
+        bwa_index_37,
+        true,
+        fasta_37
+    )
+    ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA_HG37.out.versions.first())
+    ch_bams = ch_bams
+                .mix(FASTQ_ALIGN_BWA_HG37.out.bam
+                    .join(FASTQ_ALIGN_BWA_HG37.out.bai, by:0))
+
+    // prepare mosdepth inputs
+    ch_samplesheet
+        .map{meta, fastqs, bed_file -> tuple(meta, bed_file.first())}
+        .join(ch_bams, by:0)
+        .map{meta, bed_file, bam, bai -> tuple(meta, bam, bai, bed_file )}
+        .branch{
+            def meta = it[0]
+            hg38: meta.reference == "GRCh38" || meta.reference == "hg38"
+            hg37: meta.reference == "GRCh37" || meta.reference == "hg19"
+            other:false
+        }
+        .set{ch_mosdepth_input}
+
+    // hg38 mosdepth analysis
+    MOSDEPTH_MOSDEPTH_TARGET_HG38(
+        ch_mosdepth_input.hg38,
+        fasta_38,
+        rep_genes_38
+    )
+    ch_versions = ch_versions.mix(MOSDEPTH_MOSDEPTH_TARGET_HG38.out.ch_versions.first())
+    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH_MOSDEPTH_TARGET_HG38.out.ch_multiqc_files)
+
+
+    // hg37 mosdepth analysis
+    MOSDEPTH_MOSDEPTH_TARGET_HG37(
+        ch_mosdepth_input.hg37,
+        fasta_37,
+        rep_genes_37
+    )
+    ch_versions = ch_versions.mix(MOSDEPTH_MOSDEPTH_TARGET_HG37.out.ch_versions.first())
+    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH_MOSDEPTH_TARGET_HG37.out.ch_multiqc_files)
+
+
+    // collect the results for comparison
+
+    MOSDEPTH_MOSDEPTH_TARGET_HG37.out.summary_txt.mix(
+        MOSDEPTH_MOSDEPTH_TARGET_HG38.out.summary_txt
+    ).set{ch_mosdepth_summary}
+
+    MOSDEPTH_MOSDEPTH_TARGET_HG37.out.regions_bed.mix(
+        MOSDEPTH_MOSDEPTH_TARGET_HG38.out.regions_bed
+    ).set{ch_mosdepth_target_regions}
+
+    ch_mosdepth_summary.join(ch_mosdepth_target_regions, by:0)
+        .join(FASTP.out.json, by:0)
+        .map{meta, summary, json, bed -> tuple(meta, json, summary,bed)}
+        .set{ch_fastp_mosdepth_merged}
+
+    //
+    // MODULE: Compare coverage with thresholds: writing the results file
+    // input: FASTP Q30 ratio + mosdepth all genes + mosdepth target genes
+    //
+    COMPARE_THRESHOLD(
+        ch_fastp_mosdepth_merged,
+        thresholds
+    )
+    ch_versions = ch_versions.mix(COMPARE_THRESHOLD.out.versions)
+
     //
     // MODULE: Merge Reports
     //
-    csvs_ch = csv_ch.result_csv.collect()
-    MERGE_REPORTS(csvs_ch)
-    
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        ch_cat_fastq
-    )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    MERGE_REPORTS(COMPARE_THRESHOLD.out.result_csv.collect())
+    ch_versions = ch_versions.mix(MERGE_REPORTS.out.versions)
 
     //
     // Collate and save software versions
@@ -219,7 +226,6 @@ workflow GRZQC {
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
-
 
     //
     // MODULE: MultiQC
@@ -263,7 +269,7 @@ workflow GRZQC {
 
     emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
-    
+
 }
 
 /*

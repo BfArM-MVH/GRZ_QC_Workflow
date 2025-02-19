@@ -54,10 +54,11 @@
             },
             "reference": {
                 "type": "string",
-		        "pattern": "GRCh38|GRCh37|hg19|hg38",
-                "errorMessage": "The reference genome has to be either hg19/38 or GRCh37/38"
+                "pattern": "GRCh38|GRCh37|hg19|hg38",
+                "errorMessage": "The reference genome has to be either hg19/38 or GRCh37/38",
+                "meta": ["reference"]
             }
         },
-        "required": ["sample", "libraryType", "sequenceSubtype","genomicStudySubtype", "fastq_1", "reference"]
+        "required": ["sample", "fastq_1"]
     }
 }

@@ -1,28 +1,36 @@
-//
-// Collect all result files produced by COMPARE_THRESHOLD into an array
-//
+
 process MERGE_REPORTS {
-    publishDir "${params.outdir}/results", mode: 'copy'
 
     conda "${moduleDir}/environment.yml"
-    container "community.wave.seqera.io/library/pip_openpyxl_pandas:abdd97f3f86df268"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ed/ed624a85396ad8cfe079da9b0bf12bf9822bbebcbbe926c24bb49906665ed4be/data' :
+        'community.wave.seqera.io/library/pip_gzip-utils_openpyxl_pandas:b1a85fb63f75244d' }"
 
     input:
-      path csv_files 
+        path (csv_files)
 
     output:
-      path "merged_result.csv"
-      path "merged_result.xlsx"
+        path "merged_result.csv"
+        path "merged_result.xlsx"
+        path('versions.yml')      , emit: versions
 
     script:
     """
-    #!/usr/bin/env python3
-    import pandas as pd
-    # concat all csv files
-    files = "${csv_files.join(' ')}".split()
-    dfs = [pd.read_csv(f) for f in files]
-    df_merged = pd.concat(dfs, ignore_index=True)
-    df_merged.to_csv("merged_result.csv", index=False)
-    df_merged.to_excel("merged_result.xlsx", index=False)
+    merge_reports.py $csv_files
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
+    """
+    stub:
+    """
+    touch merged_result.csv
+    touch merged_result.xlsx
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+    END_VERSIONS
     """
 }
