@@ -10,3 +10,6 @@ testing*
 null/
 run_grzqc_docker.sh
 slurm*
+grzqc_output/
+.nf-test/
+.nf-test.log

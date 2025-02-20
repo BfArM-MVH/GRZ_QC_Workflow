@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/grzqc/master/nextflow_schema.json",
     "title": "nf-core/grzqc pipeline parameters",
-    "description": "QC pipeline for 2% of data that will be submitted to the GRZ: Map and calulate coverage",
+    "description": "Quality Control pipeline for the data that will be submitted to the GRZ: Map and calculate coverage",
     "type": "object",
     "$defs": {
         "input_output_options": {
@@ -55,16 +55,6 @@
                     "fa_icon": "fas fa-book",
                     "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
                 },
-                "fasta": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
-                },
                 "igenomes_ignore": {
                     "type": "boolean",
                     "description": "Do not load the iGenomes reference config.",
@@ -82,27 +72,37 @@
                 },
                 "bwa_index_37": {
                     "type": "string",
-                    "description": "Path to the grc37 bwa index.",
+                    "format": "file-path",
+                    "description": "Path to the GRCh37 BWAMEM2 index.",
                     "fa_icon": "fas fa-book",
-                    "help_text": "Path to the grc37 bwa index."
+                    "help_text": "Path to the GRCh37 BWAMEM2 index. This parameter will be automatically created if not specified."
                 },
                 "fasta_37": {
                     "type": "string",
-                    "description": "Path to the grc37 bwa index.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "Path to the grc37 bwa index."
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+                    "description": "Path to HG37 FASTA genome file.",
+                    "help_text": "This parameter is *mandatory* automatically",
+                    "fa_icon": "far fa-file-code"
                 },
                 "bwa_index_38": {
                     "type": "string",
-                    "description": "Path to the grc37 bwa index.",
+                    "format": "file-path",
+                    "description": "Path to the GRCh38 BWAMEM2 index.",
                     "fa_icon": "fas fa-book",
-                    "help_text": "Path to the grc37 bwa index."
+                    "help_text": "Path to the GRCh38 BWAMEM2 index. This parameter will be automatically created if not specified."
                 },
                 "fasta_38": {
                     "type": "string",
-                    "description": "Path to the grc37 bwa index.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "Path to the grc37 bwa index."
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+                    "description": "Path to HG38 FASTA genome file.",
+                    "help_text": "This parameter is *mandatory* automatically",
+                    "fa_icon": "far fa-file-code"
                 },
                 "rep_genes_hg19": {
                     "type": "string",
@@ -115,12 +115,6 @@
                     "description": "Path to the hg38 bed file of ~ 400 representative target genes.",
                     "fa_icon": "fas fa-book",
                     "help_text": "Path to the hg38 bed file of ~ 400 representative target genes."
-                },
-                "thresholds_json": {
-                    "type": "string",
-                    "description": "Path to the reads qualtity threshold json file.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "Path to the reads qualtity threshold json file."
                 }
             }
         },
