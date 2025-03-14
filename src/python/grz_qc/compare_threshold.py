@@ -196,8 +196,11 @@ def main(args=None):
         dtypes={"coverage": "float64"},
     )
     # Compute the fraction of the target regions that have a coverage above the threshold
-    targeted_regions_above_min_coverage = (
-        (mosdepth_target_regions_df["coverage"] > min_coverage).mean().item()
+    if mosdepth_target_regions_df.empty:
+        targeted_regions_above_min_coverage = 0
+    else:
+        targeted_regions_above_min_coverage = (
+            (mosdepth_target_regions_df["coverage"] > min_coverage).mean().item()
     )
 
     ### Perform the quality check
