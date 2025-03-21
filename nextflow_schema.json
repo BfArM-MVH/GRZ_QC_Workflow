@@ -10,8 +10,16 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": ["input", "outdir", "genome"],
             "properties": {
+                "genome": {
+                    "type": "string",
+                    "description": "Name of genome reference.",
+                    "default": "hg38",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "hg38 or hg19: User have to define genome",
+                    "enum": ["hg38", "hg19"]
+                },
                 "input": {
                     "type": "string",
                     "format": "file-path",
@@ -49,51 +57,28 @@
             "fa_icon": "fas fa-dna",
             "description": "Reference genome related files and options required for the workflow.",
             "properties": {
-                "bwa_index_37": {
+                "bwa": {
                     "type": "string",
-                    "description": "Path to the GRCh37 BWAMEM2 index.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "Path to the GRCh37 BWAMEM2 index. This parameter will be automatically created if not specified."
+                    "fa_icon": "fas fa-copy",
+                    "description": "Path to BWA mem indices.",
+                    "help_text": "If none provided, will be generated automatically from the FASTA reference."
                 },
-                "fasta_37": {
+                "fasta": {
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to GRCh37 FASTA genome file.",
+                    "description": "Path to FASTA genome file.",
                     "help_text": "This parameter is *mandatory* automatically",
                     "fa_icon": "far fa-file-code"
                 },
-                "bwa_index_38": {
+                "target": {
                     "type": "string",
-                    "description": "Path to the GRCh38 BWAMEM2 index.",
+                    "description": "Path to the target bed file of ~ 400 representative target genes.",
                     "fa_icon": "fas fa-book",
-                    "help_text": "Path to the GRCh38 BWAMEM2 index. This parameter will be automatically created if not specified."
+                    "help_text": "Path to the target bed file of ~ 400 representative target genes."
                 },
-                "fasta_38": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to GRCh38 FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* automatically",
-                    "fa_icon": "far fa-file-code"
-                },
-                "rep_genes_hg19": {
-                    "type": "string",
-                    "description": "Path to the hg19 bed file of ~ 400 representative target genes.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "Path to the hg19 bed file of ~ 400 representative target genes."
-                },
-                "rep_genes_hg38": {
-                    "type": "string",
-                    "description": "Path to the hg38 bed file of ~ 400 representative target genes.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "Path to the hg38 bed file of ~ 400 representative target genes."
-                }
-                ,
                 "thresholds": {
                     "type": "string",
                     "description": "Path to thresholds.json file.",

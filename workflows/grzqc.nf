@@ -15,12 +15,9 @@ include { MULTIQC                } from '../modules/nf-core/multiqc'
 include { CONVERT_BED_CHROM      } from '../modules/local/convert_bed_chrom'
 include { COMPARE_THRESHOLD      } from '../modules/local/compare_threshold'
 include { MERGE_REPORTS          } from '../modules/local/merge_reports'
-include { FASTQ_ALIGN_BWA as FASTQ_ALIGN_BWA_HG38 } from '../subworkflows/nf-core/fastq_align_bwa'
-include { FASTQ_ALIGN_BWA as FASTQ_ALIGN_BWA_HG37 } from '../subworkflows/nf-core/fastq_align_bwa'
-include { BWAMEM2_INDEX  as  BWAMEM2_INDEX_HG38   } from '../modules/nf-core/bwamem2/index/main'
-include { BWAMEM2_INDEX  as  BWAMEM2_INDEX_HG37   } from '../modules/nf-core/bwamem2/index/main'
-include { MOSDEPTH as MOSDEPTH_HG38 } from '../modules/nf-core/mosdepth'
-include { MOSDEPTH as MOSDEPTH_HG37 } from '../modules/nf-core/mosdepth'
+include { FASTQ_ALIGN_BWA        } from '../subworkflows/nf-core/fastq_align_bwa'
+include { BWAMEM2_INDEX          } from '../modules/nf-core/bwamem2/index/main'
+include { MOSDEPTH               } from '../modules/nf-core/mosdepth'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,35 +35,29 @@ workflow GRZQC {
     ch_multiqc_files = Channel.empty()
 
     // create reference channels
-    fasta_37       = Channel.fromPath(params.fasta_37, checkIfExists: true)
-                    .map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
-    fasta_38        = Channel.fromPath(params.fasta_38, checkIfExists: true)
-                    .map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
 
-    bwa_index_37    = params.bwa_index_37   ? Channel.fromPath(params.bwa_index_37 , checkIfExists: true, type: 'dir').map{ file -> tuple([id: "hg19"], file) }.collect()
-                                            : Channel.empty()
+    fasta    = params.fasta ? Channel.fromPath(params.fasta, checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
+                            : Channel.fromPath("s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/${params.genome}/Sequence/WholeGenomeFasta/genome.fa", checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
 
-    bwa_index_38    = params.bwa_index_38   ? Channel.fromPath(params.bwa_index_38 , checkIfExists: true, type: 'dir').map{ file -> tuple([id: "hg38"], file) }.collect()
-                                            : Channel.empty()
+    bwa      = params.bwa   ? Channel.fromPath(params.bwa ).map{ it -> [ [id:'bwa'], it ] }.collect()
+                            : Channel.empty()
 
-    if (!params.thresholds){
-        thresholds  = Channel.fromPath("${projectDir}/assets/default_files/thresholds.json", checkIfExists: true).collect()
+    thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true).collect()
+                                    : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json").collect()
+
+    if (!params.target){
+        if(params.genome == "hg38"){
+            target  = Channel.fromPath("${projectDir}/assets/default_files/hg38_440_omim_genes.bed", checkIfExists: true).collect()
+
+        }else{
+            target  = Channel.fromPath("${projectDir}/assets/default_files/hg19_439_omim_genes.bed", checkIfExists: true).collect()
+        }
     } else {
-        thresholds  = Channel.fromPath(params.thresholds, checkIfExists: true).collect()
-    }
-    if (!params.rep_genes_hg38){
-        rep_genes_38  = Channel.fromPath("${projectDir}/assets/default_files/hg38_440_omim_genes.bed", checkIfExists: true).collect()
-    } else {
-        rep_genes_38  = Channel.fromPath(params.rep_genes_hg38, checkIfExists: true).collect()
-    }
-    if (!params.rep_genes_hg19){
-        rep_genes_37  = Channel.fromPath("${projectDir}/assets/default_files/hg19_439_omim_genes.bed", checkIfExists: true).collect()
-    } else {
-        rep_genes_37  = Channel.fromPath(params.rep_genes_hg19, checkIfExists: true).collect()
+        target  = Channel.fromPath(params.target, checkIfExists: true).collect()
     }
 
-    chrom_mapping_37 = Channel.value(file("${projectDir}/assets/default_files/hg19_NCBI2UCSC.txt"))
-    chrom_mapping_38 = Channel.value(file("${projectDir}/assets/default_files/hg38_NCBI2UCSC.txt"))
+
+    mapping_chrom = Channel.fromPath("${projectDir}/assets/default_files/${params.genome}_NCBI2UCSC.txt").collect()
 
 
     // Creating merge fastq channel from samplesheet
@@ -121,60 +112,36 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect{ meta, html -> html })
     ch_versions = ch_versions.mix(FASTP.out.versions.first())
 
-    // branch out samples per reference
-    ch_cat_fastq.branch{
-        def meta = it[0]
-        hg38: meta.reference == "GRCh38" || meta.reference == "hg38"
-        hg37: meta.reference == "GRCh37" || meta.reference == "hg19"
-        other:false
-    }.set{input_samples}
 
     ch_bams = Channel.empty()
+
     // bwa index creation might be dropped
 
-    if (!params.bwa_index_38){
-        BWAMEM2_INDEX_HG38(fasta_38)
-        ch_versions = ch_versions.mix(BWAMEM2_INDEX_HG38.out.versions.first())
-        bwa_index_38 = BWAMEM2_INDEX_HG38.out.index
+    if (!params.bwa){
+        BWAMEM2_INDEX(fasta)
+        ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions.first())
+        bwa = BWAMEM2_INDEX.out.index
     }
 
     // hg38 alignment analysis
-    FASTQ_ALIGN_BWA_HG38 (
-        input_samples.hg38,
-        bwa_index_38,
+    FASTQ_ALIGN_BWA (
+        ch_cat_fastq,
+        bwa,
         true,
-        fasta_38
+        fasta
     )
-    ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA_HG38.out.versions.first())
-    ch_bams = ch_bams
-                .mix(FASTQ_ALIGN_BWA_HG38.out.bam
-                    .join(FASTQ_ALIGN_BWA_HG38.out.bai, by:0))
+    ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA.out.versions.first())
 
-    // bwa index creation might be dropped
-    if (!params.bwa_index_37){
-        BWAMEM2_INDEX_HG37(fasta_37)
-        ch_versions = ch_versions.mix(BWAMEM2_INDEX_HG38.out.versions.first())
-        bwa_index_37 = BWAMEM2_INDEX_HG37.out.index
-    }
-    // hg37 alignment analysis
-    FASTQ_ALIGN_BWA_HG37 (
-        input_samples.hg37,
-        bwa_index_37,
-        true,
-        fasta_37
-    )
-    ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA_HG37.out.versions.first())
-    ch_bams = ch_bams
-                .mix(FASTQ_ALIGN_BWA_HG37.out.bam
-                    .join(FASTQ_ALIGN_BWA_HG37.out.bai, by:0))
+    ch_bams =  FASTQ_ALIGN_BWA.out.bam.join(FASTQ_ALIGN_BWA.out.bai, by:0)
 
-    // prepare mosdepth inputs               
-    // Prepare bed files 
+
+    // prepare mosdepth inputs
+    // Prepare bed files
     // for WGS: defined bed files of ~400 genes
-    // for WES and panel: extract bed from samplesheet and 
+    // for WES and panel: extract bed from samplesheet and
     //      do the conversion with the correct mapping file (if it is NCBI format, covert it to UCSC).
-    // for both cases different file required for hg38 and hg19 
-    
+    // for both cases different file required for hg38 and hg19
+
     ch_samplesheet_target = ch_samplesheet.filter { meta, fastqs, bed_file ->
         meta.libraryType in ["wes", "panel", "wes_lr", "panel_lr"]
     }
@@ -185,83 +152,44 @@ workflow GRZQC {
     // --- For target samples: prepare bed for conversion ---
     ch_samplesheet_target.map { meta, fastqs, bed_file ->
         def bed = bed_file.first()
-        def mapping = (meta.reference == "GRCh38" || meta.reference == "hg38") ? chrom_mapping_38.getVal():
-                      ((meta.reference == "GRCh37" || meta.reference == "hg19") ? chrom_mapping_37.getVal(): null)
-        return tuple(meta, bed, mapping)
+        return tuple(meta, bed)
     }.set{ch_bed_for_conversion_target}
 
     // for WES and panel, run the conversion process: if the bed file has NCBI-style names, they will be converted.
     CONVERT_BED_CHROM(
-        ch_bed_for_conversion_target
+        ch_bed_for_conversion_target,
+        mapping_chrom
     )
     ch_converted_bed = CONVERT_BED_CHROM.out.converted_bed
     ch_versions = ch_versions.mix(CONVERT_BED_CHROM.out.versions)
 
     // Prepare mosdepth inputs for target samples
     ch_mosdepth_input_target = ch_samplesheet_target
-        .map { meta, fastqs, bed_file -> tuple(meta, bed_file.first()) }
+        .map { meta, fastqs, bed_file -> [meta] }
         .join(ch_bams, by: 0)
         .join(ch_converted_bed, by: 0)
-        .map { joined ->
-            def meta = joined[0]
-            // original bed is ignored; we use the converted version
-            def bam = joined[2]
-            def bai = joined[3]
-            def converted_bed = joined[4]
-            return tuple(meta, bam, bai, converted_bed)
-        }
+
 
     // --- Prepare mosdepth inputs for WGS samples ---
     ch_mosdepth_input_wgs = ch_samplesheet_wgs
-        .map { meta, fastqs, bed_file -> tuple(meta, bed_file.first()) }
+        .map { meta, fastqs, bed_file -> [meta] }
         .join(ch_bams, by: 0)
-        .map { joined ->
-            def meta = joined[0]
-            def bam = joined[2]
-            def bai = joined[3]
-            // For WGS, we use rep_genes of ~400 genes:
-            def rep_genes = (meta.reference == "GRCh38" || meta.reference == "hg38") ? rep_genes_38.getVal() :
-                            ((meta.reference == "GRCh37" || meta.reference == "hg19") ? rep_genes_37.getVal() : null)
-            return tuple(meta, bam, bai, rep_genes)
-        }
+        .combine(target)
 
     // --- Merge the two sets of mosdepth inputs ---
     ch_mosdepth_input_target
         .mix(ch_mosdepth_input_wgs)
-        .branch {
-            def meta = it[0]
-            hg38: meta.reference == "GRCh38" || meta.reference == "hg38"
-            hg37: meta.reference == "GRCh37" || meta.reference == "hg19"
-            other: false
-        }.set{ch_mosdepth_input}
+        .set{ch_mosdepth_input}
 
-    // hg38 mosdepth analysis
-    MOSDEPTH_HG38(
-        ch_mosdepth_input.hg38,
-        fasta_38,
+    MOSDEPTH(
+        ch_mosdepth_input,
+        fasta,
     )
-    ch_versions = ch_versions.mix(MOSDEPTH_HG38.out.versions.first())
-    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH_HG38.out.summary_txt.map{meta, file -> file}.collect())
-
-    // hg37 mosdepth analysis
-    MOSDEPTH_HG37(
-        ch_mosdepth_input.hg37,
-        fasta_37,
-    )
-    ch_versions = ch_versions.mix(MOSDEPTH_HG37.out.versions.first())
-    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH_HG37.out.summary_txt.map{meta, file -> file}.collect())
+    ch_versions = ch_versions.mix(MOSDEPTH.out.versions.first())
+    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.summary_txt.map{meta, file -> file}.collect())
 
     // collect the results for comparison
-
-    MOSDEPTH_HG37.out.summary_txt.mix(
-        MOSDEPTH_HG38.out.summary_txt
-    ).set{ch_mosdepth_summary}
-
-    MOSDEPTH_HG37.out.regions_bed.mix(
-        MOSDEPTH_HG38.out.regions_bed
-    ).set{ch_mosdepth_target_regions}
-
-    ch_mosdepth_summary.join(ch_mosdepth_target_regions, by:0)
+    MOSDEPTH.out.summary_txt.join(MOSDEPTH.out.regions_bed, by:0)
         .join(FASTP.out.json, by:0)
         .map{meta, summary, json, bed -> tuple(meta, json, summary,bed)}
         .set{ch_fastp_mosdepth_merged}

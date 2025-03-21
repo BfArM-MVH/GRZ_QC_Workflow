@@ -6,11 +6,12 @@ process CONVERT_BED_CHROM {
         'community.wave.seqera.io/library/pip_gzip-utils_openpyxl_pandas:cd97ba68cc5b8463' }"
 
     input:
-      tuple val(meta), path(bed_file), path(mapping_file)
-      
+    tuple val(meta), path(bed_file)
+    path(mapping_file)
+
     output:
-      tuple val(meta), path("*.converted_bed.bed") , emit: converted_bed
-      path('versions.yml')      , emit: versions
+    tuple val(meta), path("*.converted_bed.bed") , emit: converted_bed
+    path('versions.yml')      , emit: versions
 
     script:
     """

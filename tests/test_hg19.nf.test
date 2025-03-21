@@ -1,9 +1,9 @@
 nextflow_pipeline {
 
-    name "Test pipeline"
+    name "Test pipeline with hg19"
     script "../main.nf"
     tag "pipeline"
-    config "../conf/test.config"
+    config "../conf/test_hg19.config"
 
     test("test case") {
 
