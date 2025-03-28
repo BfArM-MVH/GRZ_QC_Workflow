@@ -70,6 +70,12 @@ jobs:
         run: |
           nextflow run main.nf -profile test_hg38,docker
 
+      - name: Save workflow reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextflow-pipeline-info
+          path: tests/output/pipeline_info/*
+
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
         if: always() # always run even if the previous step fails
