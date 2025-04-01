@@ -8,9 +8,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
-include { paramsSummaryMap          } from 'plugin/nf-schema'
-include { samplesheetToList         } from 'plugin/nf-schema'
+// include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
+// include { paramsSummaryMap          } from 'plugin/nf-schema'
+// include { samplesheetToList         } from 'plugin/nf-schema'
 include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
 include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
 include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
@@ -31,8 +31,9 @@ workflow PIPELINE_INITIALISATION {
     monochrome_logs   // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
-
+    // submission_basepath             //  string: Path to input samplesheet
+    input
+    
     main:
 
     ch_versions = Channel.empty()
@@ -47,14 +48,14 @@ workflow PIPELINE_INITIALISATION {
         workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1
     )
 
-    //
-    // Validate parameters and generate parameter summary to stdout
-    //
-    UTILS_NFSCHEMA_PLUGIN (
-        workflow,
-        validate_params,
-        null
-    )
+    // //
+    // // Validate parameters and generate parameter summary to stdout
+    // //
+    // UTILS_NFSCHEMA_PLUGIN (
+    //     workflow,
+    //     validate_params,
+    //     null
+    // )
 
     //
     // Check config provided to the pipeline
@@ -73,7 +74,11 @@ workflow PIPELINE_INITIALISATION {
     //
 
     Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+        .fromPath(params.input)
+        .splitCsv(header: true, strip: true)
+        .map { row ->
+            [[id:row.sample], row.fastq_1, row.fastq_2, row.bed_file]
+        }
         .map {
             meta, fastq_1, fastq_2, bed_file ->
                 if (!fastq_2) {
@@ -112,7 +117,9 @@ workflow PIPELINE_COMPLETION {
     multiqc_report  //  string: Path to MultiQC report
 
     main:
-    summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
+    // summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
+    summary_params = [:]
+    def multiqc_reports = multiqc_report.toList()
 
     //
     // Completion email and summary
