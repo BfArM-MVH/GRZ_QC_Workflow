@@ -169,6 +169,13 @@ workflow GRZQC {
         def bed = bed_file.first()
         return tuple(meta, bed)
     }.set{ch_bed_for_conversion_target}
+    
+    ch_samplesheet.map { println "ch_samplesheet: $it"; it }.view()
+    ch_samplesheet_target.map { println "ch_samplesheet_target: $it"; it }.view()
+    ch_bed_for_conversion_target.map { println "ch_bed_for_conversion_target: $it"; it }.view()
+    mapping_chrom.map { println "mapping_chrom: $it"; it }.view()
+
+
 
     // for WES and panel, run the conversion process: if the bed file has NCBI-style names, they will be converted.
     CONVERT_BED_CHROM (

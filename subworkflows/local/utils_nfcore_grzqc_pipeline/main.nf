@@ -16,6 +16,7 @@ include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
 include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
+include { METADATA_TO_SAMPLESHEET      } from '../../../modules/local/metadata_to_samplesheet'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,6 +65,11 @@ workflow PIPELINE_INITIALISATION {
         nextflow_cli_args
     )
 
+    METADATA_TO_SAMPLESHEET(
+        params.submission_basepath,
+    )
+
+
     //
     // Custom validation for pipeline parameters
     //
@@ -73,8 +79,7 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
 
-    Channel
-        .fromPath(params.input)
+    METADATA_TO_SAMPLESHEET.out.samplesheet
         .splitCsv(header: true, strip: true)
         .map { row ->
             [[id:row.sample], row.fastq_1, row.fastq_2, row.bed_file]
@@ -88,6 +93,9 @@ workflow PIPELINE_INITIALISATION {
                 }
         }
         .groupTuple()
+        // .map { samplesheet ->
+        //     validateInputSamplesheet(samplesheet)
+        // }
         .map {
             meta, fastqs, bed_file ->
                 return [ meta, fastqs.flatten(), bed_file ]

@@ -67,8 +67,7 @@ workflow {
         params.monochrome_logs,
         args,
         params.outdir,
-        // params.submission_basepath
-        params.input
+        params.submission_basepath
     )
 
     //
