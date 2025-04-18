@@ -58,7 +58,7 @@ def extract_data(
     donors = json_data["donors"]
 
     for donor in donors:
-        case_id = donor.get("tanG", "")
+        case_id = donor.get("donorPseudonym", "")
         lab_data = donor.get("labData", [])
 
         for lab_datum in lab_data:
@@ -144,7 +144,6 @@ def parse_args(args=None):
         "submission_base_path",
         help="Path to the submission base directory",
     )
-    parser.add_argument("output_file", help="Output path of the samplesheet CSV file")
     parser.add_argument(
         "--submission_metadata_json",
         help="Path to the submission metadata JSON file",
@@ -157,7 +156,7 @@ def main(args=None):
     args = parse_args(args)
 
     submission_base_path = Path(args.submission_base_path)
-    output_file = Path(args.output_file)
+    output_file = "grzqc_samplesheet.csv"
     # Set default metadata file path if not provided
     metadata_file = (
         Path(args.submission_metadata_json)

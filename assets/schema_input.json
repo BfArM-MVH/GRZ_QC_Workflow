@@ -8,8 +8,15 @@
         "type": "object",
         "properties": {
             "sample": {
-                "type": "string",
-                "pattern": "^\\S+$",
+                "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^\\S+$"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
@@ -58,8 +65,8 @@
             },
             "reference": {
                 "type": "string",
-                "pattern": "GRCh38|GRCh37|hg19|hg38",
-                "errorMessage": "The reference genome has to be either hg19/38 or GRCh37/38",
+                "pattern": "GRCh38|GRCh37",
+                "errorMessage": "The reference genome has to be either GRCh37 or GRCh38",
                 "meta": ["reference"]
             }
         },

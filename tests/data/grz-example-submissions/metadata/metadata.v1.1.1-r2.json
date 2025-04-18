@@ -1,69 +1,84 @@
 {
+    "$schema": "https://raw.githubusercontent.com/BfArM-MVH/MVGenomseq/refs/tags/v1.1.1/GRZ/grz-schema.json",
     "submission": {
         "submissionDate": "2024-11-08",
         "submissionType": "initial",
-        "tanG": "a2f6c3e91b6d4227c9e5f2b1c8f4e1b3",
+        "tanG": "a2b6c3d9e8f7123456789abcdef0123456789abcdef0123456789abcdef01234",
         "localCaseId": "CASE12345",
+        "coverageType": "GKV",
         "submitterId": "123456789",
         "genomicDataCenterId": "GRZM00123",
         "clinicalDataNodeId": "KDKM00456",
+        "diseaseType": "oncological",
         "genomicStudyType": "single",
-        "genomicStudySubtype": "germline-only",
+        "genomicStudySubtype": "tumor-only",
         "labName": "Genomics Lab Humangenetik MRI"
     },
     "donors": [
         {
-            "tanG": "b3d1f9e52c4f4e8b9d79a29c5b7f3a1c",
-            "sex": "other",
-            "relation": "self",
-            "mvConsentDate": "2023-06-15",
-            "mvConsentPresentedDate": "2023-06-10",
-            "mvConsentVersion": "1.0",
-            "mvConsentScope": {
-                "consentMvSequencing": true,
-                "consentCaseIdentification": true,
-                "consentReIdentification": true
+            "donorPseudonym": "a2b6c3d9e8f7123456789abcdef0123456789abcdef0123456789abcdef01234",
+            "gender": "other",
+            "relation": "index",
+            "mvConsent": {
+                "presentationDate": "2023-06-10",
+                "version": "1.0",
+                "scope": [
+                    {
+                        "type": "permit",
+                        "date": "2023-06-10",
+                        "domain": "mvSequencing"
+                    }
+                ]
             },
-            "researchConsentDate": "2023-06-20",
-            "researchConsentPresentedDate": "2023-06-18",
-            "researchConsentVersion": "2.1",
+            "researchConsents": [
+                {
+                    "schemaVersion": "2025.0.1",
+                    "presentationDate": "2023-06-10",
+                    "scope": {}
+                }
+            ],
             "labData": [
                 {
-                    "labDataName": "Blood DNA normal",
+                    "labDataName": "Tumor DNA sample",
                     "tissueOntology": {
                         "name": "UBERON",
                         "version": "1.5"
                     },
-                    "tissueTypeId": "UBERON:0000178",
-                    "tissueTypeName": "blood",
+                    "tissueTypeId": "UBERON:0002112",
+                    "tissueTypeName": "tumor",
                     "sampleDate": "2023-06-21",
-                    "sampleConservation": "fresh-tissue",
+                    "sampleConservation": "cryo-frozen",
                     "sequenceType": "dna",
-                    "sequenceSubtype": "germline",
-                    "fragmentationMethod": "sonication",
-                    "libraryType": "wes",
+                    "sequenceSubtype": "somatic",
+                    "fragmentationMethod": "enzymatic",
+                    "libraryType": "panel",
                     "libraryPrepKit": "Nextera Rapid Capture Exome",
                     "libraryPrepKitManufacturer": "Illumina",
                     "sequencerModel": "NovaSeq 6000",
                     "sequencerManufacturer": "Illumina",
-                    "kitName": "Nextera Rapid Capture Exome",
-                    "kitManufacturer": "Illumina",
-                    "enrichmentKitManufacturer": "Illumina",
-                    "enrichmentKitDescription": "Nextera Rapid Capture Exome",
-                    "barcode": "NA12345",
+                    "kitName": "KAPA Hyper Prep",
+                    "kitManufacturer": "Kapa Biosystems",
+                    "enrichmentKitManufacturer": "other",
+                    "enrichmentKitDescription": "KAPA Hyper Prep Kit",
+                    "barcode": "NA67891",
                     "sequencingLayout": "paired-end",
+                    "tumorCellCount": [
+                        {
+                            "count": 75,
+                            "method": "bioinformatics"
+                        }
+                    ],
                     "sequenceData": {
                         "bioinformaticsPipelineName": "DNASeq_Pipeline_XYZ",
                         "bioinformaticsPipelineVersion": "v3.4.1",
-                        "referenceGenome": "GRCh38",
+                        "referenceGenome": "GRCh37",
                         "percentBasesAboveQualityThreshold": {
-                                "minimumQuality": 50,
-                                "percent": 88
+                                "minimumQuality": 30,
+                                "percent": 80
                         },
-                        "meanDepthOfCoverage": 40,
-                        "minCoverage": 30,
-                        "targetedRegionsAboveMinCoverage": 0.9,
-                        "readLength": 150,
+                        "meanDepthOfCoverage": 200,
+                        "minCoverage": 100,
+                        "targetedRegionsAboveMinCoverage": 0.8,
                         "nonCodingVariants": true,
                         "callerUsed": [
                             {
@@ -76,9 +91,10 @@
                                 "filePath": "donor_001/NIST7035_1_R1.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
-                                "fileChecksum": "e55206fdaece7f13d793c43a7728f7bfcb83279b0d0b554cd6b848e8813271d4",
-                                "fileSizeInBytes": 1914722761,
+                                "fileChecksum": "db53fb6c3bf25292880245e5375d636cc711a4e2c7226302cb599e341f9ce5a7",
+                                "fileSizeInBytes": 3343564,
                                 "readOrder": "R1",
+                                "readLength": 101,
                                 "flowcellId": "NIST7035",
                                 "laneId": "1"
                             },
@@ -86,9 +102,10 @@
                                 "filePath": "donor_001/NIST7035_1_R2.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
-                                "fileChecksum": "55a0e7068f804870ed9f19d4eb9a7a914c6ef70898160b1477323c279069900d",
-                                "fileSizeInBytes": 1954935121,
+                                "fileChecksum": "e40aa2eadbbdbae958258a79d1f6c005a539f878466539f1e6d98a38faddca14",
+                                "fileSizeInBytes": 3454821,
                                 "readOrder": "R2",
+                                "readLength": 101,
                                 "flowcellId": "NIST7035",
                                 "laneId": "1"
                             },
@@ -96,9 +113,10 @@
                                 "filePath": "donor_001/NIST7035_2_R1.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
-                                "fileChecksum": "ee63276bc53db0a427a50cda1103078283cad36c3083da61b8791230458cc65a",
-                                "fileSizeInBytes": 1962477139,
+                                "fileChecksum": "21eb0497dbae3e74268d64ac543c2ad145d66bf044da5d0b0b021ffed978a792",
+                                "fileSizeInBytes": 3414245,
                                 "readOrder": "R1",
+                                "readLength": 101,
                                 "flowcellId": "NIST7035",
                                 "laneId": "2"
                             },
@@ -106,27 +124,21 @@
                                 "filePath": "donor_001/NIST7035_2_R2.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
-                                "fileChecksum": "fcc374556b1b4c9f4c02fd0c296157a84f7c7b206073742f417a4ce1c41e472c",
-                                "fileSizeInBytes": 2001172486,
+                                "fileChecksum": "be172173202fe25b0e2f9ed049f3e945b089255a108e09e519453c6757a0b860",
+                                "fileSizeInBytes": 3518760,
                                 "readOrder": "R2",
+                                "readLength": 101,
                                 "flowcellId": "NIST7035",
                                 "laneId": "2"
-                            },
-                            {
-                                "filePath": "donor_001/NIST7035_gatk.vcf.gz",
-                                "fileType": "vcf",
-                                "checksumType": "sha256",
-                                "fileChecksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                                "fileSizeInBytes": 0,
-                                "flowcellId": "NIST7035"
                             },
                             {
                                 "filePath": "donor_001/NIST7086_1_R1.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
-                                "fileChecksum": "6ac9d8c547bfcd8cdd6b7a5b3ab95d7ae81e7c505aef18658a8e3ee1a0224324",
-                                "fileSizeInBytes": 2037956271,
+                                "fileChecksum": "4274af6f6f3bf401560ed2ec36898fb1e22a0edd1210c4b0baddacca1b2eb8d2",
+                                "fileSizeInBytes": 3434391,
                                 "readOrder": "R1",
+                                "readLength": 101,
                                 "flowcellId": "NIST7086",
                                 "laneId": "1"
                             },
@@ -134,9 +146,10 @@
                                 "filePath": "donor_001/NIST7086_1_R2.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
-                                "fileChecksum": "850783a1cb8234737906a36cb9678e83c94db6d5960a9484b8beec72f3497dbf",
-                                "fileSizeInBytes": 2081364133,
+                                "fileChecksum": "3eeb3bc967504cb5da80ac7f110b3cc7d2d22c65fcd110e893fdabbae0b3c455",
+                                "fileSizeInBytes": 3549275,
                                 "readOrder": "R2",
+                                "readLength": 101,
                                 "flowcellId": "NIST7086",
                                 "laneId": "1"
                             },
@@ -144,9 +157,10 @@
                                 "filePath": "donor_001/NIST7086_2_R1.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
-                                "fileChecksum": "ee039623aeebffb59308c632a1ce10a76e3e117ed79a981db635acc690344429",
-                                "fileSizeInBytes": 2083510543,
+                                "fileChecksum": "b91f63257559cfdad340379c501e86a433b2e4f18283afdc86604716cd0e0287",
+                                "fileSizeInBytes": 3512101,
                                 "readOrder": "R1",
+                                "readLength": 101,
                                 "flowcellId": "NIST7086",
                                 "laneId": "2"
                             },
@@ -154,27 +168,26 @@
                                 "filePath": "donor_001/NIST7086_2_R2.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
-                                "fileChecksum": "1abe7d228b505daafdd43429d8da1de7cdcacdd8b9ae5bfadbd06e56ec435e56",
-                                "fileSizeInBytes": 2125471805,
+                                "fileChecksum": "5d8651810559e24351fc33e7980b24352cf5348a3bd7de252d743e336f31fa99",
+                                "fileSizeInBytes": 3624408,
                                 "readOrder": "R2",
+                                "readLength": 101,
                                 "flowcellId": "NIST7086",
                                 "laneId": "2"
-                            },
-                            {
-                                "filePath": "donor_001/NIST7086_gatk.vcf.gz",
-                                "fileType": "vcf",
-                                "checksumType": "sha256",
-                                "fileChecksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                                "fileSizeInBytes": 0,
-                                "flowcellId": "NIST7086"
                             },
                             {
                                 "filePath": "donor_001/panel.bed.gz",
                                 "fileType": "bed",
                                 "checksumType": "sha256",
-                                "fileChecksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                                "fileSizeInBytes": 0,
-                                "flowcellId": "NIST7086"
+                                "fileChecksum": "69331dfa69eb89e64178a055a225e4127921a27e7646143c451cc81a7c16bb7e",
+                                "fileSizeInBytes": 11841
+                            },
+                            {
+                                "filePath": "donor_001/panel_vcf.vcf",
+                                "fileType": "vcf",
+                                "checksumType": "sha256",
+                                "fileChecksum": "e377833f186c015374a1c642b5ecc3b1e49c9f694701272b456d92660845a4b1",
+                                "fileSizeInBytes": 37893
                             }
                         ]
                     }

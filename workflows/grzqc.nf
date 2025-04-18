@@ -30,44 +30,105 @@ include { FASTQ_ALIGN_BWA_MARKDUPLICATES  } from '../subworkflows/local/fastq_al
 workflow GRZQC {
 
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
-    main:
+    ch_samplesheet // channel: samplesheet created by parsing metadata.json file
+    ch_genome        
 
+    main:
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
+    // match fa and fasta exntensions
+    def fastaExts = [ 'genome.fa', 'genome.fasta' ]
+    def faiExts   = [ 'genome.fa.fai', 'genome.fasta.fai' ]
+
     // create reference channels
-    if(params.genome == "GRCh38"){
+    if( params.reference_path ) {
+        
+        fasta = ch_genome
+            .map { genome ->
+            def candidates = fastaExts.collect { ext -> file("${params.reference_path}/${genome}/${ext}")}
+            def f = candidates.find { it.exists() }            
+            if( !f ) 
+                error "Reference FASTA missing: $f"
+            tuple( [ id: f.baseName ], f)
+            }
 
-        fasta   = params.fasta ? Channel.fromPath(params.fasta, checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
-                            : Channel.fromPath("s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/genome.fa", checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
+        fai = ch_genome
+            .map { genome ->
+            def candidates = faiExts.collect { ext -> file("${params.reference_path}/${genome}/${ext}")}
+            def f = candidates.find { it.exists() }            
+            if( !f ) 
+                error "Reference FASTA missing: $f"
+            tuple( [ id: f.baseName ], f)
+            }
 
-        target  = params.target ? Channel.fromPath(params.target, checkIfExists: true).collect()
-                            : Channel.fromPath("${projectDir}/assets/default_files/hg38_440_omim_genes.bed", checkIfExists: true).collect()
-
-        mapping_chrom = Channel.fromPath("${projectDir}/assets/default_files/hg38_NCBI2UCSC.txt").collect()
+        bwa = ch_genome
+            .map { genome ->
+            def f = file("${params.reference_path}/${genome}/bwamem2")
+            if( !f.exists() ) error "BWA binary missing: $f"
+            tuple('bwa', f)
+            }
 
     }else{
 
-        fasta   = params.fasta ? Channel.fromPath(params.fasta, checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
-                            : Channel.fromPath("s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa", checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
+        fasta = params.fasta ?
+            // 1) user has supplied --fasta: load that single file
+            Channel
+            .fromPath(params.fasta, checkIfExists: true)
+            .map { file -> tuple([ id: file.baseName ], file) }
+        :
+            // 2) no --fasta: pick default by genome
+            ch_genome
+            .flatMap { genome ->
+                def defaultFasta = genome == 'GRCh38'
+                    ? "s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/genome.fa"
+                    : "s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
+                def f = file(defaultFasta)
+                if( !f.exists() )    error "Default genome on ignomes s3 missing: $f"
+                return f        
+            }
+            .map { file -> tuple([ id: file.baseName ], file) }
+                    
+        bwa         = params.bwa        ? Channel.fromPath(params.bwa ).map{ it -> [ [id:'bwa'], it ] }
+                                        : Channel.empty()
 
-        target  = params.target ? Channel.fromPath(params.target, checkIfExists: true).collect()
-                            : Channel.fromPath("${projectDir}/assets/default_files/hg19_439_omim_genes.bed", checkIfExists: true).collect()
+        fai         = params.fai        ? Channel.fromPath(params.fai, checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }
+                                        : Channel.empty()
+    }  
 
-        mapping_chrom = Channel.fromPath("${projectDir}/assets/default_files/hg19_NCBI2UCSC.txt").collect()
-
+    // TARGET BED channel
+    if( params.target ) {
+        target = Channel.fromPath(params.target, checkIfExists: true)
+    } else {
+        target = ch_genome
+                        .flatMap { genome ->
+                        def defaultTargetCh = genome == 'GRCh38'
+                            ? "${projectDir}/assets/default_files/hg38_440_omim_genes.bed"
+                            : "${projectDir}/assets/default_files/hg19_439_omim_genes.bed"
+                        def f = file(defaultTargetCh)
+                        if( !f.exists() )    error "Default target BED missing: $f"
+                        return f            
+                        }
     }
 
-    bwa         = params.bwa        ? Channel.fromPath(params.bwa ).map{ it -> [ [id:'bwa'], it ] }.collect()
-                                    : Channel.empty()
+    // CHROMOSOME‐NAME MAPPING channel
+    if( params.mapping_chrom ) {
+        mapping_chrom = Channel.fromPath(params.mapping_chrom, checkIfExists: true)
+    } else {
+        mapping_chrom = ch_genome
+                            .flatMap { genome ->
+                            def defaultMappingCh = genome == 'GRCh38'
+                                ? "${projectDir}/assets/default_files/hg38_NCBI2UCSC.txt"
+                                : "${projectDir}/assets/default_files/hg19_NCBI2UCSC.txt"
+                            def f = file(defaultMappingCh)
+                            if( !f.exists() )    error "Default mapping-chrom file missing: $f"
+                            return f                                   
+                            }
+    }
 
-    fai         = params.fai        ? Channel.fromPath(params.fai, checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
-                                    : Channel.empty()
-
-    thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true).collect()
-                                    : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json").collect()
-
+    // create thresholds channels
+    thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true)
+                                    : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json")
 
     // Creating merge fastq channel from samplesheet
 
@@ -123,7 +184,7 @@ workflow GRZQC {
 
     ch_bams = Channel.empty()
 
-    if (!params.bwa){
+    if (!params.bwa && !params.reference_path){
 
         BWAMEM2_INDEX(
             fasta)
@@ -132,7 +193,7 @@ workflow GRZQC {
         bwa = BWAMEM2_INDEX.out.index
     }
 
-    if (!params.fai)
+    if (!params.fai && !params.reference_path)
     {
         // Create sequence fai files for picard markduplicates
         //
@@ -155,7 +216,8 @@ workflow GRZQC {
         SAVE_REFERENCE(
             fasta,
             fai,
-            bwa
+            bwa,
+            ch_genome
         )
     }
 
@@ -181,7 +243,6 @@ workflow GRZQC {
     // for WES and panel: extract bed from samplesheet and
     //      do the conversion with the correct mapping file (if it is NCBI format, covert it to UCSC).
     // for both cases different file required for hg38 and hg19
-
     ch_samplesheet_target = ch_samplesheet.filter { meta, fastqs, bed_file ->
         meta.libraryType in ["wes", "panel", "wes_lr", "panel_lr"]
     }

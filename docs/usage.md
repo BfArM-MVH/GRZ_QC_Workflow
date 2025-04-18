@@ -1,20 +1,41 @@
 # nf-core/grzqc: Usage
 
-## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/grzqc/usage](https://nf-co.re/grzqc/usage)
+The input requires either 
 
-> _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
+  `--submission_basepath` for GRZ submission folder
 
-## Introduction
+or with a samplesheet
 
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
-
+  `--submission_basepath` and `--genome` for broader use
+  
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. The samplesheet requires the following columns `sample`,`labDataName`,`libraryType`,`sequenceSubtype`,`genomicStudySubtype`,`fastq_1`,`fastq_2`,`bed_file`. The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. 
+
+You will need to give `--genome` for either "GRCh37" or"GRCh38" when using samplesheet as input.
 
 ```bash
---input '[path to samplesheet file]'
+nextflow run main.nf \
+    -profile conda \
+    --outdir "${output_basepath}/grzqc_output/" \
+    --input "samplesheet.csv" \
+    --genome "GRCh37" # or"GRCh38"
 ```
+
+### Full samplesheet
+
+A final samplesheet file consisting of both single- and paired-end data may look something like [this example samplesheet](../tests/data/grzqc_samplesheet.csv). This is for 1 sample, which has been sequenced four times.
+
+| Column    | Description                                                                                                                                                                            |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `labDataName`        | not mandatory |
+| `libraryType`        | Must be one of the followings: panel,wgs,wes,panel_lr,wgs_lr,wes_lr |
+| `sequenceSubtype`    | Must be either somatic or germline |
+| `genomicStudySubtype`| Must be either tumor+germline, tumor-only or germline-only |
+| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `bed_file`| Target region for WES and Panel with the extension ".bed.gz" or ".bed". Empty for WGS |
 
 ### Multiple runs of the same sample
 
@@ -27,30 +48,57 @@ CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
 CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 ```
 
-### Full samplesheet
+## Reference files
 
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
+You can use refernces files with `nextflow run main.nf --reference_path "your/reference/path/references"`. Your refernce folder needs a directory stucture like this, with subdirectory of both GRCh37 and GRCh38. In each subdirectory, it contains a genome file, a genome index file and a folder with bwamem index. The advantage to use `--reference_path` is that the pipeline can automatically use the right genome reference, you do not have to check the genome version in your GRZ submission beforehand.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
-
-```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
+```bash
+$ tree .
+.
+├── GRCh37
+│   ├── bwamem2
+│   │   ├── genome.0123
+│   │   ├── genome.amb
+│   │   ├── genome.ann
+│   │   ├── genome.bwt.2bit.64
+│   │   └── genome.pac
+│   ├── genome.fa
+│   └── genome.fa.fai
+└── GRCh38
+    ├── bwamem2
+    │   ├── genome.0123
+    │   ├── genome.amb
+    │   ├── genome.ann
+    │   ├── genome.bwt.2bit.64
+    │   └── genome.pac
+    ├── genome.fa
+    └── genome.fa.fai
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+The other option is to set `--fasta`, `--fai`, `--bwa` individually, or prepare config a file like this:
 
-An [example samplesheet](../tests/data/samplesheet.csv) has been provided with the pipeline.
+```bash
+    fasta = "your/path/to/reference/GRCh37/genome.fa"
+    fai   = "your/path/to/reference/GRCh37/genome.fa.fai"
+    bwa   = "your/path/to/reference/GRCh37/bwamem2"
+```
+
+You can also set only the genome file with `--fasta <genome file>`. The pipeline will prepare the genome index and bwa index automatically.
+
+Of note, `--fasta`, `--fai`, `--bwa` will only be considered when `--reference_path` is not given. 
+
+| Parameters                                   | Description                                                             |
+| -------------------------------------------- | ----------------------------------------------------------------------- |
+| `save_reference`                             | save reference when `--save_reference true` , default null              |
+| `save_reference_path`                        | save reference path, default `${outdir}`                                |
+| `reference_path`                             | reference path , default null                                           |
+| `fasta`                                      | genome fasta path , only use when reference path is null , default null |
+| `fai`                                        | genome fai path , only use when reference path is null , default null   |
+| `bwa`                                        | bwamem index path , only use when reference path is null , default null |
+
+## BAM input
+
+to be done.
 
 ## Running the pipeline
 
@@ -82,7 +130,7 @@ Do not use `-c <file>` to specify parameters as this will result in errors. Cust
 The above pipeline run specified with a params file in yaml format:
 
 ```bash
-nextflow run nf-core/grzqc -profile docker -params-file params.yaml
+nextflow run BfArM-MVH/GRZ_QC_Workflow -profile docker -params-file params.yaml
 ```
 
 with:
@@ -101,7 +149,7 @@ You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-c
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull nf-core/grzqc
+nextflow pull BfArM-MVH/GRZ_QC_Workflow
 ```
 
 ### Reproducibility

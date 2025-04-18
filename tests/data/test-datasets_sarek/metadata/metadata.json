@@ -1,0 +1,219 @@
+{
+    "$schema": "https://raw.githubusercontent.com/BfArM-MVH/MVGenomseq/refs/tags/v1.1.1/GRZ/grz-schema.json",
+    "submission": {
+        "submissionDate": "2024-11-08",
+        "submissionType": "initial",
+        "tanG": "s1",
+        "localCaseId": "CASE12345",
+        "coverageType": "GKV",
+        "submitterId": "123456789",
+        "genomicDataCenterId": "GRZM00123",
+        "clinicalDataNodeId": "KDKM00456",
+        "diseaseType": "oncological",
+        "genomicStudyType": "single",
+        "genomicStudySubtype": "tumor+germline",
+        "labName": "Genomics Lab Humangenetik MRI"
+    },
+    "donors": [
+        {
+            "donorPseudonym": "s1",
+            "gender": "other",
+            "relation": "index",
+            "mvConsent": {
+                "presentationDate": "2023-06-10",
+                "version": "1.0",
+                "scope": [
+                    {
+                        "type": "permit",
+                        "date": "2023-06-10",
+                        "domain": "mvSequencing"
+                    }
+                ]
+            },
+            "researchConsents": [
+                {
+                    "schemaVersion": "2025.0.1",
+                    "presentationDate": "2023-06-10",
+                    "scope": {}
+                }
+            ],
+            "labData": [
+                {
+                    "labDataName": "Blood DNA sample",
+                    "tissueOntology": {
+                        "name": "UBERON",
+                        "version": "1.5"
+                    },
+                    "tissueTypeId": "UBERON:0002112",
+                    "tissueTypeName": "germline",
+                    "sampleDate": "2023-06-21",
+                    "sampleConservation": "cryo-frozen",
+                    "sequenceType": "dna",
+                    "sequenceSubtype": "somatic",
+                    "fragmentationMethod": "enzymatic",
+                    "libraryType": "wes",
+                    "libraryPrepKit": "Nextera Rapid Capture Exome",
+                    "libraryPrepKitManufacturer": "Illumina",
+                    "sequencerModel": "NovaSeq 6000",
+                    "sequencerManufacturer": "Illumina",
+                    "kitName": "KAPA Hyper Prep",
+                    "kitManufacturer": "Kapa Biosystems",
+                    "enrichmentKitManufacturer": "other",
+                    "enrichmentKitDescription": "KAPA Hyper Prep Kit",
+                    "barcode": "NA67891",
+                    "sequencingLayout": "paired-end",
+                    "tumorCellCount": [
+                        {
+                            "count": 75,
+                            "method": "bioinformatics"
+                        }
+                    ],
+                    "sequenceData": {
+                        "bioinformaticsPipelineName": "DNASeq_Pipeline_XYZ",
+                        "bioinformaticsPipelineVersion": "v3.4.1",
+                        "referenceGenome": "GRCh38",
+                        "percentBasesAboveQualityThreshold": {
+                                "minimumQuality": 30,
+                                "percent": 80
+                        },
+                        "meanDepthOfCoverage": 200,
+                        "minCoverage": 100,
+                        "targetedRegionsAboveMinCoverage": 0.8,
+                        "nonCodingVariants": true,
+                        "callerUsed": [
+                            {
+                                "name": "GATK",
+                                "version": "4.2.0"
+                            }
+                        ],
+                        "files": [
+                            {
+                                "filePath": "donor_001/tiny_n_L001_R1_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3343564,
+                                "readOrder": "R1",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "1"
+                            },
+                            {
+                                "filePath": "donor_001/tiny_n_L001_R2_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3343564,
+                                "readOrder": "R2",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "1"
+                            },
+                            {
+                                "filePath": "donor_001/tiny_n_L002_R1_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3414245,
+                                "readOrder": "R1",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "2"
+                            },
+                            {
+                                "filePath": "donor_001/tiny_n_L002_R2_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3518760,
+                                "readOrder": "R2",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "2"
+                            },
+                            {
+                                "filePath": "donor_001/tiny_n_L004_R1_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3434391,
+                                "readOrder": "R1",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "4"
+                            },
+                            {
+                                "filePath": "donor_001/tiny_n_L004_R2_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3549275,
+                                "readOrder": "R2",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "4"
+                            },
+                            {
+                                "filePath": "donor_001/tiny_n_L007_R1_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3434391,
+                                "readOrder": "R1",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "7"
+                            },
+                            {
+                                "filePath": "donor_001/tiny_n_L007_R2_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3549275,
+                                "readOrder": "R2",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "7"
+                            },                            {
+                                "filePath": "donor_001/tiny_n_L008_R1_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3434391,
+                                "readOrder": "R1",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "8"
+                            },
+                            {
+                                "filePath": "donor_001/tiny_n_L008_R2_xxx.fastq.gz",
+                                "fileType": "fastq",
+                                "checksumType": "sha256",
+                                "fileChecksum": "",
+                                "fileSizeInBytes": 3549275,
+                                "readOrder": "R2",
+                                "readLength": 101,
+                                "flowcellId": "",
+                                "laneId": "8"
+                            },
+                            {
+                                "filePath": "donor_001/target.bed",
+                                "fileType": "bed",
+                                "checksumType": "sha256",
+                                "fileChecksum": "69331dfa69eb89e64178a055a225e4127921a27e7646143c451cc81a7c16bb7e",
+                                "fileSizeInBytes": 11841
+                            },
+                            {
+                                "filePath": "donor_001/panel_vcf.vcf",
+                                "fileType": "vcf",
+                                "checksumType": "sha256",
+                                "fileChecksum": "e377833f186c015374a1c642b5ecc3b1e49c9f694701272b456d92660845a4b1",
+                                "fileSizeInBytes": 37893
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

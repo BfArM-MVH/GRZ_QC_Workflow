@@ -11,6 +11,7 @@ process SAVE_REFERENCE {
     tuple val(meta),  path(fasta)
     tuple val(meta2), path(fai)
     tuple val(meta3), path(index)
+    val(genome)
 
     output:
     tuple val(meta), path("reference"), emit: reference
@@ -19,10 +20,10 @@ process SAVE_REFERENCE {
     """
     #!/bin/bash
 
-    mkdir -p reference/${params.genome}
-    cp $fasta reference/${params.genome}
-    cp $fai reference/${params.genome}
-    cp -r $index reference/${params.genome}
+    mkdir -p reference/${genome}
+    cp $fasta reference/${genome}
+    cp $fai reference/${genome}
+    cp -r $index reference/${genome}
 
 
     cat <<-END_VERSIONS > versions.yml
