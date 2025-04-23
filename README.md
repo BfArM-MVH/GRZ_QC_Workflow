@@ -8,9 +8,9 @@
 
 ## Introduction
 
-This workflow is designed to compute [quality metrics as required by BfArM](https://www.bfarm.de/SharedDocs/Downloads/DE/Forschung/modellvorhaben-genomsequenzierung/Qs-durch-GRZ.pdf?__blob=publicationFile) for genome data centers (*Genomrechenzentren, GRZ*) and serves as a **reference implementation** for all **Leistungserbringer (LEs)**.
+This workflow is designed to compute [quality metrics as required by BfArM](https://www.bfarm.de/SharedDocs/Downloads/DE/Forschung/modellvorhaben-genomsequenzierung/Qs-durch-GRZ.pdf?__blob=publicationFile) for **genome data centers (Genomrechenzentren, GRZs)** and serves as a **reference implementation** for all **Leistungserbringer (LEs)**.
 
-> ### ⚠ Disclaimer
+> [!IMPORTANT]
 > - Please note that we are neither permitted nor able to provide direct support for running this QC workflow in hospitals.
 > - Leistungserbringer are not required to use this specific workflow to calculate metrics. Any method that produces reasonably matching results can be used. This workflow will be used by the GRZ's to validate the reported metrics.
 > - Features such as running on pre-mapped reads are not part of the official requirements, but are offered as helpful additions when feasible.
