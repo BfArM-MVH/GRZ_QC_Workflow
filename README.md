@@ -19,9 +19,9 @@ This workflow is designed to compute [quality metrics as required by BfArM](http
 This workflow is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) and [`FASTP`](https://github.com/OpenGene/fastp))
-2. Alignment using ([`BWAMEM2`](https://github.com/bwa-mem2/bwa-mem2))
-3. MarkDuplicates using ([`Picard`](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard))
-4. Coverage calculation by ([`Mosdepth`](https://github.com/brentp/mosdepth))
+2. Alignment using [`BWAMEM2`](https://github.com/bwa-mem2/bwa-mem2)
+3. MarkDuplicates using [`Picard`](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard)
+4. Coverage calculation by [`Mosdepth`](https://github.com/brentp/mosdepth)
 5. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
 Details on the coverage calculation of different library types can be found in the [documentation](docs/details.md).
