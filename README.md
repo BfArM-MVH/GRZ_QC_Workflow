@@ -13,7 +13,7 @@ This workflow is designed to compute [quality metrics as required by BfArM](http
 > [!IMPORTANT]
 > - Leistungserbringer are not required to use this specific workflow to calculate metrics. Any method that produces reasonably matching results can be used. This workflow will be used by the GRZ's to validate the reported metrics.
 > - Please note that we are neither permitted nor able to provide direct support for running this QC workflow in hospitals.
-> - Features such as running on pre-mapped reads are not part of the official requirements, but are offered as helpful additions when feasible.
+> - Features such as running on pre-mapped reads are not part of the official requirements, but are offered as helpful additions for LEs when feasible.
 > - We greatly appreciate collaboration and encourage contributions to help improve the workflow.
 
 This workflow is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
