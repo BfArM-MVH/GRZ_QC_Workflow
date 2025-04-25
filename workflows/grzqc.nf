@@ -293,7 +293,8 @@ workflow GRZQC {
         fasta,
     )
     ch_versions = ch_versions.mix(MOSDEPTH.out.versions.first())
-    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.summary_txt.map{meta, file -> file}.collect())
+    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.map{meta, file -> file}.collect())
+    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.map{meta, file -> file}.collect())
 
     // collect the results for comparison
     MOSDEPTH.out.summary_txt.join(MOSDEPTH.out.regions_bed, by:0)

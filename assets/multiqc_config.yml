@@ -5,8 +5,16 @@ report_comment: >
 
 run_modules:
   - fastqc
+  - fastp
   - mosdepth
 
+module_order:
+  - fastqc:
+      name: "FastQC"
+  - fastp:
+      name: "FastP"
+  - mosdepth:
+      name: "Mosdepth"
 
 report_section_order:
   "nf-core-grzqc-methods-description":
