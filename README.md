@@ -55,6 +55,8 @@ nextflow run main.nf \
     --submission_basepath "${submission_basepath}" 
 ```
 
+Depending on the resouces on your machine and your task, it is recommanded to edit [custom config file](conf/custom.config) and run with `-c conf/custom.config`, see [estimated resource requirements for WGS](#estimated-resource-requirements) and [nextflow documentation](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+
 ## Prepare reference files
 With the above code, the pipeline can automatically download the necessary _reference genomes_ and creates an _BWA index_ from them.
 However, when running this pipeline multiple times on different submissions, the download and indexing steps create _unnecessary overhead_.
@@ -94,7 +96,7 @@ nextflow run main.nf \
     --reference_path "your/reference/path/references"
 ```
 
-This approach lets the pipeline automatically use the correct reference files — it is helpful when you submit have multiple runs containing both GRCh37 and GRCh38. If you decide to skip the test runs and prepare references files by yourself, please read this [documentation](docs/usage.md#reference-files) to have the right directory structure.
+This approach lets the pipeline automatically use the correct reference files — it is helpful when you have multiple runs containing both GRCh37 and GRCh38. If you decide to skip the test runs and prepare references files by yourself, please read this [documentation](docs/usage.md#reference-files) to have the right directory structure.
 
 Alternatively, one can prepare a config file for each genome. You can also change the lines in `conf/grzqc_GRCh37.config` and `conf/grzqc_GRCh38.config` to point the files to the correct path.
 
@@ -128,9 +130,9 @@ Output :
 | `genomicStudySubtype`                        | Genomic study subtype, e.g., `tumor+germline`                           |
 | `meanDepthOfCoverage`                        | Mean depth of coverage                                                  |
 | `meanDepthOfCoverageRequired`                | Mean depth of coverage required to pass QC                              |
-| `fractionBasesAboveQualityThreshold`         | Fraction of bases passing the quality threshold                         |
+| `percentBasesAboveQualityThreshold`          | Fraction of bases passing the quality threshold                         |
 | `qualityThreshold`                           | The quality threshold to pass                                           |
-| `fractionBasesAboveQualityThresholdRequired` | Fraction of bases above the quality threshold required to pass QC       |
+| `percentBasesAboveQualityThresholdRequired`  | Fraction of bases above the quality threshold required to pass QC       |
 | `targetedRegionsAboveMinCoverage`            | Fraction of targeted regions above minimum coverage                     |
 | `minCoverage`                                | Minimum coverage for target regions                                     |
 | `targetedRegionsAboveMinCoverageRequired`    | Fraction of targeted regions above minimum coverage required to pass QC |
