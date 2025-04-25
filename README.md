@@ -61,7 +61,7 @@ nextflow run main.nf \
     --submission_basepath "${submission_basepath}"
 ```
 
-Depending on the resouces on your machine and your task, it is recommanded to edit [custom config file](conf/custom.config) and run with `-c conf/custom.config`, see [estimated resource requirements for WGS](#estimated-resource-requirements) and [nextflow documentation](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+Depending on the resouces on your machine and your task, it is recommanded to create and and run with your own config file, see [estimated resource requirements for WGS](#estimated-resource-requirements) and [nextflow documentation](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
 ## Prepare reference files
 With the above code, the pipeline can automatically download the necessary _reference genomes_ and creates an _BWA index_ from them.
