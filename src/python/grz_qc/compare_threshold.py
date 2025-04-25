@@ -155,16 +155,16 @@ def main(args=None):
     row_name = "total_region" if args.libraryType in ["panel", "wes","panel_lr", "wes_lr"] else "total"
     mean_depth_of_coverage = df.loc[df["chrom"] == row_name, "mean"].item()
 
-    # --- Determine 'fractionBasesAboveQualityThreshold' ---
+    # --- Determine 'percentBasesAboveQualityThreshold' ---
 
     # Base quality threshold
-    quality_threshold = thresholds["fractionBasesAboveQualityThreshold"][
+    quality_threshold = thresholds["percentBasesAboveQualityThreshold"][
         "qualityThreshold"
     ]
-    # Minimum fraction of bases above the quality threshold required to pass the validation
-    fraction_bases_above_quality_threshold_required = thresholds[
-        "fractionBasesAboveQualityThreshold"
-    ]["fractionBasesAbove"]
+    # Minimum percentage of bases above the quality threshold required to pass the validation
+    percent_bases_above_quality_threshold_required = thresholds[
+        "percentBasesAboveQualityThreshold"
+    ]["percentBasesAbove"]
 
     # read fastp json file
     with open(args.fastp_json, "r") as f:
@@ -174,11 +174,12 @@ def main(args=None):
     if f"q{quality_threshold}_rate" not in fastp_filtering_stats:
         raise ValueError(
             f"'q{quality_threshold}_rate' not found in fastp summary!\n"
-            f"-> Could not determine fractionBasesAboveQualityThreshold for 'qualityThreshold': {quality_threshold}."
+            f"-> Could not determine percentBasesAboveQualityThreshold for 'qualityThreshold': {quality_threshold}."
         )
     fraction_bases_above_quality_threshold = fastp_filtering_stats[
         f"q{quality_threshold}_rate"
     ]
+    percent_bases_above_quality_threshold = fraction_bases_above_quality_threshold * 100
 
     # --- Determine 'targetedRegionsAboveMinCoverage' ---
 
@@ -208,8 +209,8 @@ def main(args=None):
         True
         if (
             mean_depth_of_coverage >= mean_depth_of_converage_required
-            and fraction_bases_above_quality_threshold
-            >= fraction_bases_above_quality_threshold_required
+            and percent_bases_above_quality_threshold
+            >= percent_bases_above_quality_threshold_required
             and targeted_regions_above_min_coverage
             >= targeted_regions_above_min_coverage_required
         )
@@ -226,12 +227,12 @@ def main(args=None):
             "genomicStudySubtype": [args.genomicStudySubtype],
             "meanDepthOfCoverage": [mean_depth_of_coverage],
             "meanDepthOfCoverageRequired": [mean_depth_of_converage_required],
-            "fractionBasesAboveQualityThreshold": [
-                fraction_bases_above_quality_threshold
+            "percentBasesAboveQualityThreshold": [
+                percent_bases_above_quality_threshold
             ],
             "qualityThreshold": [quality_threshold],
-            "fractionBasesAboveQualityThresholdRequired": [
-                fraction_bases_above_quality_threshold_required
+            "percentBasesAboveQualityThresholdRequired": [
+                percent_bases_above_quality_threshold_required
             ],
             "targetedRegionsAboveMinCoverage": [targeted_regions_above_min_coverage],
             "minCoverage": [min_coverage],

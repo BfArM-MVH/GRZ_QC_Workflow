@@ -136,9 +136,9 @@ Output :
 | `genomicStudySubtype`                        | Genomic study subtype, e.g., `tumor+germline`                           |
 | `meanDepthOfCoverage`                        | Mean depth of coverage                                                  |
 | `meanDepthOfCoverageRequired`                | Mean depth of coverage required to pass QC                              |
-| `percentBasesAboveQualityThreshold`          | Fraction of bases passing the quality threshold                         |
+| `percentBasesAboveQualityThreshold`          | Percent of bases passing the quality threshold                         |
 | `qualityThreshold`                           | The quality threshold to pass                                           |
-| `percentBasesAboveQualityThresholdRequired`  | Fraction of bases above the quality threshold required to pass QC       |
+| `percentBasesAboveQualityThresholdRequired`  | Percent of bases above the quality threshold required to pass QC       |
 | `targetedRegionsAboveMinCoverage`            | Fraction of targeted regions above minimum coverage                     |
 | `minCoverage`                                | Minimum coverage for target regions                                     |
 | `targetedRegionsAboveMinCoverageRequired`    | Fraction of targeted regions above minimum coverage required to pass QC |

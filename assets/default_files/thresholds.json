@@ -6,9 +6,9 @@
     "thresholds": {
       "meanDepthOfCoverage": 200,
       "readLength": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 30,
-        "fractionBasesAbove": 0.85
+        "percentBasesAbove": 85
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 100,
@@ -23,9 +23,9 @@
     "thresholds": {
       "meanDepthOfCoverage": 200,
       "readLength": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 30,
-        "fractionBasesAbove": 0.85
+        "percentBasesAbove": 85
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 100,
@@ -40,9 +40,9 @@
     "thresholds": {
       "meanDepthOfCoverage": 200,
       "readLength": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 30,
-        "fractionBasesAbove": 0.85
+        "percentBasesAbove": 85
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 100,
@@ -57,9 +57,9 @@
     "thresholds": {
       "meanDepthOfCoverage": 200,
       "readLength": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 30,
-        "fractionBasesAbove": 0.85
+        "percentBasesAbove": 85
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 100,
@@ -74,9 +74,9 @@
     "thresholds": {
       "meanDepthOfCoverage": 100,
       "readLength": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 30,
-        "fractionBasesAbove": 0.85
+        "percentBasesAbove": 85
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 30,
@@ -91,9 +91,9 @@
     "thresholds": {
       "meanDepthOfCoverage": 100,
       "readLength": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 30,
-        "fractionBasesAbove": 0.85
+        "percentBasesAbove": 85
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 30,
@@ -108,9 +108,9 @@
     "thresholds": {
       "meanDepthOfCoverage": 100,
       "readLength": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 30,
-        "fractionBasesAbove": 0.85
+        "percentBasesAbove": 85
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 30,
@@ -125,9 +125,9 @@
     "thresholds": {
       "meanDepthOfCoverage": 30,
       "readLength": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 30,
-        "fractionBasesAbove": 0.85
+        "percentBasesAbove": 85
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 20,
@@ -142,9 +142,9 @@
     "thresholds": {
       "meanDepthOfCoverage": 30,
       "readLength": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 30,
-        "fractionBasesAbove": 0.85
+        "percentBasesAbove": 85
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 20,
@@ -158,9 +158,9 @@
     "genomicStudySubtype": "tumor+germline",
     "thresholds": {
       "meanDepthOfCoverage": 200,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 20,
-        "fractionBasesAbove": 0.8
+        "percentBasesAbove": 80
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 100,
@@ -174,9 +174,9 @@
     "genomicStudySubtype": "tumor-only",
     "thresholds": {
       "meanDepthOfCoverage": 200,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 20,
-        "fractionBasesAbove": 0.8
+        "percentBasesAbove": 80
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 100,
@@ -190,9 +190,9 @@
     "genomicStudySubtype": "tumor+germline",
     "thresholds": {
       "meanDepthOfCoverage": 200,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 20,
-        "fractionBasesAbove": 0.8
+        "percentBasesAbove": 80
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 100,
@@ -206,9 +206,9 @@
     "genomicStudySubtype": "tumor-only",
     "thresholds": {
       "meanDepthOfCoverage": 200,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 20,
-        "fractionBasesAbove": 0.8
+        "percentBasesAbove": 80
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 100,
@@ -222,9 +222,9 @@
     "genomicStudySubtype": "tumor+germline",
     "thresholds": {
       "meanDepthOfCoverage": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 20,
-        "fractionBasesAbove": 0.8
+        "percentBasesAbove": 80
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 30,
@@ -238,9 +238,9 @@
     "genomicStudySubtype": "tumor+germline",
     "thresholds": {
       "meanDepthOfCoverage": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 20,
-        "fractionBasesAbove": 0.8
+        "percentBasesAbove": 80
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 30,
@@ -254,9 +254,9 @@
     "genomicStudySubtype": "tumor-only",
     "thresholds": {
       "meanDepthOfCoverage": 100,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 20,
-        "fractionBasesAbove": 0.8
+        "percentBasesAbove": 80
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 30,
@@ -270,9 +270,9 @@
     "genomicStudySubtype": "tumor+germline",
     "thresholds": {
       "meanDepthOfCoverage": 30,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 20,
-        "fractionBasesAbove": 0.8
+        "percentBasesAbove": 80
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 20,
@@ -286,9 +286,9 @@
     "genomicStudySubtype": "germline-only",
     "thresholds": {
       "meanDepthOfCoverage": 30,
-      "fractionBasesAboveQualityThreshold": {
+      "percentBasesAboveQualityThreshold": {
         "qualityThreshold": 20,
-        "fractionBasesAbove": 0.8
+        "percentBasesAbove": 80
       },
       "targetedRegionsAboveMinCoverage": {
         "minCoverage": 20,
