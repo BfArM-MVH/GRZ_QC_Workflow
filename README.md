@@ -92,14 +92,14 @@ rm -rf ${projectDir}/tests/results
 ```
 
 ## Use reference files
-There are different options to use prepared reference files to avoid rerunning the genome downloading and bwamem indexing steps. The easiest way is to use `reference_path` parameter. If you ran the both tests above successfully, you shall see references files for both GRCh38 and GRCh37 in _your/desired/reference/path_/references. And you can run:
+There are different options to use prepared reference files to avoid rerunning the genome downloading and bwamem indexing steps. The easiest way is to use `--reference_path` parameter. If you ran the both tests above successfully, you shall see references files for both GRCh38 and GRCh37 in _your/desired/reference/path_/reference. And you can run:
 
 ```bash
 nextflow run main.nf \
     -profile docker \
     --outdir "${output_basepath}/grzqc_output/" \
     --submission_basepath "${submission_basepath}" \
-    --reference_path "your/reference/path/references"
+    --reference_path "your/reference/path/reference"
 ```
 
 This approach lets the pipeline automatically use the correct reference files — it is helpful when you have multiple runs containing both GRCh37 and GRCh38. If you decide to skip the test runs and prepare references files by yourself, please read this [documentation](docs/usage.md#reference-files) to have the right directory structure.
