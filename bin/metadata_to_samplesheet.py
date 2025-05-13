@@ -1,1 +1,0 @@
-../src/python/grz_qc/metadata_to_samplesheet.py

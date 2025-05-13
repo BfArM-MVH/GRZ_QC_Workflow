@@ -1,0 +1,92 @@
+name: fastplong
+description: Perform adapter/quality trimming and QC on long sequencing reads (ONT, PacBio, etc.)
+keywords:
+  - trimming
+  - quality control
+  - fastq
+  - long reads
+tools:
+  - fastplong:
+      description: |
+        Ultrafast preprocessing and quality control for long reads (Nanopore, PacBio, Cyclone, etc.). A streamlined alternative to fastp, optimised for high-error-rate long-read data.
+      documentation: https://github.com/OpenGene/fastplong
+      doi: 10.1002/imt2.107
+      licence: ["MIT"]
+      identifier: biotools:fastplong
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information. Use 'single_end: true' for single-end reads.
+          e.g. [ id:'test', single_end:true ]
+    - reads:
+        type: file
+        description: |
+          Input FASTQ file. Gzip-compressed files are supported.
+        pattern: "*.{fastq.gz,fastq}"
+  - - adapter_fasta:
+        type: file
+        description: |
+          Optional FASTA file containing adapter sequences to trim.
+        pattern: "*.{fasta,fa,fna}"
+  - - discard_trimmed_pass:
+        type: boolean
+        description: |
+          If true, no reads that pass trimming thresholds will be written. Only reports will be generated.
+  - - save_trimmed_fail:
+        type: boolean
+        description: |
+          If true, reads that fail filtering will be saved to a file ending in `*.fail.fastq.gz`.
+
+output:
+  - reads:
+      - meta:
+          type: map
+          description: Sample information map
+      - "*.fastplong.fastq.gz":
+          type: file
+          description: Trimmed and filtered reads
+          pattern: "*fastplong.fastq.gz"
+  - json:
+      - meta:
+          type: map
+          description: Sample information map
+      - "*.json":
+          type: file
+          description: QC report in JSON format
+          pattern: "*.json"
+  - html:
+      - meta:
+          type: map
+          description: Sample information map
+      - "*.html":
+          type: file
+          description: QC report in HTML format
+          pattern: "*.html"
+  - log:
+      - meta:
+          type: map
+          description: Sample information map
+      - "*.log":
+          type: file
+          description: Log file generated during trimming
+          pattern: "*.log"
+  - reads_fail:
+      - meta:
+          type: map
+          description: Sample information map
+      - "*.fail.fastq.gz":
+          type: file
+          description: Reads that failed quality/trimming filters
+          pattern: "*fail.fastq.gz"
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+
+authors:
+  - "@Lupphes"
+maintainers:
+  - "@Lupphes"
