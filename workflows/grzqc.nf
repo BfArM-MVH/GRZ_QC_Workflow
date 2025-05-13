@@ -246,23 +246,27 @@ workflow GRZQC {
     ch_samplesheet_target = ch_samplesheet.filter { meta, fastqs, bed_file ->
         meta.libraryType in ["wes", "panel", "wes_lr", "panel_lr"]
     }
+
     ch_samplesheet_wgs = ch_samplesheet.filter { meta, fastqs, bed_file ->
         meta.libraryType in ["wgs", "wgs_lr"]
     }
 
     // --- For target samples: prepare bed for conversion ---
-    ch_samplesheet_target.map { meta, fastqs, bed_file ->
-        def bed = bed_file.first()
-        return tuple(meta, bed)
+    ch_samplesheet_target
+    .flatMap { meta, fastqs, bed_list ->
+        bed_list.unique().collect { bedPath ->
+            tuple(meta, file(bedPath))
+        }
     }.set{ch_bed_for_conversion_target}
-
+   
     //
     // MODULE: CONVERT_BED_CHROM
     //
     // for WES and panel, run the conversion process: if the bed file has NCBI-style names, they will be converted.
+    ch_convert_inputs = ch_bed_for_conversion_target.combine(mapping_chrom)
+
     CONVERT_BED_CHROM (
-        ch_bed_for_conversion_target,
-        mapping_chrom
+        ch_convert_inputs
     )
     ch_converted_bed = CONVERT_BED_CHROM.out.converted_bed
     ch_versions = ch_versions.mix(CONVERT_BED_CHROM.out.versions)
