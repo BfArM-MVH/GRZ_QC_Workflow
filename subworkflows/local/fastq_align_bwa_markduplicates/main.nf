@@ -51,5 +51,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     bai      = PICARD_MARKDUPLICATES.out.bai      // channel: [ val(meta), path(bai) ]
     cram     = PICARD_MARKDUPLICATES.out.cram      // channel: [ val(meta), path(cram) ]
     metrics  = PICARD_MARKDUPLICATES.out.metrics      // channel: [ val(meta), path(metrics) ]
+    flagstat = BAM_SORT_STATS_SAMTOOLS.out.flagstat      // channel: [ val(meta), path(flagstat) ]
+    stat     = BAM_SORT_STATS_SAMTOOLS.out.stats      // channel: [ val(meta), path(stats) ]
     versions = ch_versions                          // channel: [ path(versions.yml) ]
 }

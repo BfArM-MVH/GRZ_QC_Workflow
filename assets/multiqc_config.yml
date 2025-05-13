@@ -6,6 +6,8 @@ report_comment: >
 run_modules:
   - fastqc
   - fastp
+  - picard
+  - samtools
   - mosdepth
 
 module_order:
@@ -13,6 +15,10 @@ module_order:
       name: "FastQC"
   - fastp:
       name: "FastP"
+  - samtools:
+      name: "samtools"
+  - picard:
+      name: "picard markduplicates"
   - mosdepth:
       name: "Mosdepth"
 
