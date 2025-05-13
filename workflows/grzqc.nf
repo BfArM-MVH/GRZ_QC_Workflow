@@ -127,9 +127,9 @@ workflow GRZQC {
     }
 
     // create thresholds channels
-    thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true)
+    ch_thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true)
                                     : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json")
-
+    
     // Creating merge fastq channel from samplesheet
 
     ch_samplesheet.map{
@@ -312,9 +312,10 @@ workflow GRZQC {
     //Compare coverage with thresholds: writing the results file
     // input: FASTP Q30 ratio + mosdepth all genes + mosdepth target genes
     //
+    ch_comapre_inputs = ch_fastp_mosdepth_merged.combine(ch_thresholds)
+
     COMPARE_THRESHOLD(
-        ch_fastp_mosdepth_merged,
-        thresholds
+        ch_comapre_inputs
     )
     ch_versions = ch_versions.mix(COMPARE_THRESHOLD.out.versions)
 

@@ -7,8 +7,7 @@ process COMPARE_THRESHOLD {
         'community.wave.seqera.io/library/pip_gzip-utils_openpyxl_pandas:cd97ba68cc5b8463' }"
 
     input:
-    tuple val(meta), path(bed), path(summary), path(fastp_json)
-    path(thresholds)
+    tuple val(meta), path(bed), path(summary), path(fastp_json), path(thresholds)
 
     output:
     path('*.result.csv')      , emit: result_csv
