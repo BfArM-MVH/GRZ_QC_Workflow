@@ -214,7 +214,7 @@
                     }
                 },
                 {
-                    "labDataName": "Blood DNA sample subsample",
+                    "labDataName": "Blood DNA sample less samples",
                     "tissueOntology": {
                         "name": "UBERON",
                         "version": "1.5"
@@ -263,7 +263,7 @@
                         ],
                         "files": [
                             {
-                                "filePath": "donor_001/tiny_n_L001_R1_xxx.fastq.gz",
+                                "filePath": "donor_001/tiny_n_L008_R1_xxx.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
                                 "fileChecksum": "",
@@ -274,7 +274,7 @@
                                 "laneId": "1"
                             },
                             {
-                                "filePath": "donor_001/tiny_n_L001_R2_xxx.fastq.gz",
+                                "filePath": "donor_001/tiny_n_L008_R2_xxx.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
                                 "fileChecksum": "",
@@ -283,28 +283,6 @@
                                 "readLength": 101,
                                 "flowcellId": "",
                                 "laneId": "1"
-                            },
-                            {
-                                "filePath": "donor_001/tiny_n_L002_R1_xxx.fastq.gz",
-                                "fileType": "fastq",
-                                "checksumType": "sha256",
-                                "fileChecksum": "",
-                                "fileSizeInBytes": 3414245,
-                                "readOrder": "R1",
-                                "readLength": 101,
-                                "flowcellId": "",
-                                "laneId": "2"
-                            },
-                            {
-                                "filePath": "donor_001/tiny_n_L002_R2_xxx.fastq.gz",
-                                "fileType": "fastq",
-                                "checksumType": "sha256",
-                                "fileChecksum": "",
-                                "fileSizeInBytes": 3518760,
-                                "readOrder": "R2",
-                                "readLength": 101,
-                                "flowcellId": "",
-                                "laneId": "2"
                             },
                             {
                                 "filePath": "donor_001/tiny_n_L004_R1_xxx.fastq.gz",
