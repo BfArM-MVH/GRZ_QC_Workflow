@@ -37,16 +37,16 @@ workflow GRZQC {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
-    // match fa and fasta exntensions
-    def fastaExts = [ 'genome.fa', 'genome.fasta' ]
-    def faiExts   = [ 'genome.fa.fai', 'genome.fasta.fai' ]
+    // match fa and fasta extensions
+    def fastaExts = [ '.fa', '.fasta' ]
+    def faiExts   = [ '.fa.fai', '.fasta.fai' ]
 
     // create reference channels
     if( params.reference_path ) {
         
         fasta = ch_genome
             .map { genome ->
-            def candidates = fastaExts.collect { ext -> file("${params.reference_path}/${genome}/${ext}")}
+            def candidates = fastaExts.collect { ext -> file("${params.reference_path}/${genome}/*${ext}")}.flatten()
             def f = candidates.find { it.exists() }            
             if( !f ) 
                 error "Reference FASTA missing: $f"
@@ -55,7 +55,7 @@ workflow GRZQC {
 
         fai = ch_genome
             .map { genome ->
-            def candidates = faiExts.collect { ext -> file("${params.reference_path}/${genome}/${ext}")}
+            def candidates = faiExts.collect { ext -> file("${params.reference_path}/${genome}/*${ext}")}.flatten()
             def f = candidates.find { it.exists() }            
             if( !f ) 
                 error "Reference FASTA missing: $f"
@@ -75,7 +75,7 @@ workflow GRZQC {
             // 1) user has supplied --fasta: load that single file
             Channel
             .fromPath(params.fasta, checkIfExists: true)
-            .map { file -> tuple([ id: file.baseName ], file) }
+            .map { file -> tuple([ id: file.baseName ], file) }.collect()
         :
             // 2) no --fasta: pick default by genome
             ch_genome
@@ -87,18 +87,18 @@ workflow GRZQC {
                 if( !f.exists() )    error "Default genome on ignomes s3 missing: $f"
                 return f        
             }
-            .map { file -> tuple([ id: file.baseName ], file) }
+            .map { file -> tuple([ id: file.baseName ], file) }.collect()
                     
-        bwa         = params.bwa        ? Channel.fromPath(params.bwa ).map{ it -> [ [id:'bwa'], it ] }
+        bwa         = params.bwa        ? Channel.fromPath(params.bwa ).map{ it -> [ [id:'bwa'], it ] }.collect()
                                         : Channel.empty()
 
-        fai         = params.fai        ? Channel.fromPath(params.fai, checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }
+        fai         = params.fai        ? Channel.fromPath(params.fai, checkIfExists: true).map{ file -> tuple([id: file.getSimpleName()], file) }.collect()
                                         : Channel.empty()
     }  
 
     // TARGET BED channel
     if( params.target ) {
-        target = Channel.fromPath(params.target, checkIfExists: true)
+        target = Channel.fromPath(params.target, checkIfExists: true).collect()
     } else {
         target = ch_genome
                         .flatMap { genome ->
@@ -108,12 +108,12 @@ workflow GRZQC {
                         def f = file(defaultTargetCh)
                         if( !f.exists() )    error "Default target BED missing: $f"
                         return f            
-                        }
+                        }.collect()
     }
 
     // CHROMOSOME‐NAME MAPPING channel
     if( params.mapping_chrom ) {
-        mapping_chrom = Channel.fromPath(params.mapping_chrom, checkIfExists: true)
+        mapping_chrom = Channel.fromPath(params.mapping_chrom, checkIfExists: true).collect()
     } else {
         mapping_chrom = ch_genome
                             .flatMap { genome ->
@@ -123,12 +123,12 @@ workflow GRZQC {
                             def f = file(defaultMappingCh)
                             if( !f.exists() )    error "Default mapping-chrom file missing: $f"
                             return f                                   
-                            }
+                            }.collect()
     }
 
     // create thresholds channels
-    ch_thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true)
-                                    : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json")
+    ch_thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true).collect()
+                                    : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json").collect()
     
     // Creating merge fastq channel from samplesheet
 
@@ -150,7 +150,7 @@ workflow GRZQC {
     CAT_FASTQ (
         ch_fastqs.multiple_sample_paired_end
     )
-    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first())
+    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions)
 
     CAT_FASTQ.out.reads
         .mix(ch_fastqs.single_sample_paired_end)
@@ -163,7 +163,7 @@ workflow GRZQC {
         ch_cat_fastq
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    ch_versions = ch_versions.mix(FASTQC.out.versions)
 
     //
     // MODULE: FASTP
@@ -180,20 +180,20 @@ workflow GRZQC {
 
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect{ meta, json -> json })
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect{ meta, html -> html })
-    ch_versions = ch_versions.mix(FASTP.out.versions.first())
+    ch_versions = ch_versions.mix(FASTP.out.versions)
 
     ch_bams = Channel.empty()
 
-    if (!params.bwa && !params.reference_path){
+    if (!params.bwa || !params.reference_path){
 
         BWAMEM2_INDEX(
             fasta)
 
-        ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions.first())
+        ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
         bwa = BWAMEM2_INDEX.out.index
     }
 
-    if (!params.fai && !params.reference_path)
+    if (!params.fai || !params.reference_path)
     {
         // Create sequence fai files for picard markduplicates
         //
@@ -205,7 +205,7 @@ workflow GRZQC {
             false)
 
         fai = SAMTOOLS_FAIDX.out.fai
-        ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions.first())
+        ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
     }
 
     if (params.save_reference){
@@ -233,7 +233,7 @@ workflow GRZQC {
         fasta,
         fai
     )
-    ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.versions.first())
+    ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.versions)
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.stat.collect { meta,file -> file })
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.flagstat.collect { meta,file -> file })
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.metrics.collect { meta,file -> file })
@@ -299,7 +299,7 @@ workflow GRZQC {
         ch_mosdepth_input,
         fasta,
     )
-    ch_versions = ch_versions.mix(MOSDEPTH.out.versions.first())
+    ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
     ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.map{meta, file -> file}.collect())
     ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.map{meta, file -> file}.collect())
 
