@@ -64,7 +64,7 @@ workflow GRZQC {
 
         bwa = ch_genome
             .map { genome ->
-            def f = file("${params.reference_path}/${genome}/bwamem2")
+            def f = file("${params.reference_path}/${genome}/bwamem2/")
             if( !f.exists() ) error "BWA binary missing: $f"
             tuple('bwa', f)
             }
@@ -184,41 +184,37 @@ workflow GRZQC {
 
     ch_bams = Channel.empty()
 
-    if (!params.bwa || !params.reference_path){
 
-        BWAMEM2_INDEX(
-            fasta)
+    if ( !params.reference_path ) {
 
-        ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
-        bwa = BWAMEM2_INDEX.out.index
-    }
+        if ( !params.bwa ) {
+            BWAMEM2_INDEX(
+                fasta)
 
-    if (!params.fai || !params.reference_path)
-    {
-        // Create sequence fai files for picard markduplicates
-        //
-        // MODULE: SAMTOOLS_FAIDX
-        //
-        SAMTOOLS_FAIDX(
-            fasta,
-            [[],[]],
-            false)
+            ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
+            bwa = BWAMEM2_INDEX.out.index
+        }
+        if ( !params.fai ) {
+            SAMTOOLS_FAIDX(
+                fasta,
+                [[],[]],
+                false)
 
-        fai = SAMTOOLS_FAIDX.out.fai
-        ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
-    }
+            fai = SAMTOOLS_FAIDX.out.fai
+            ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
+        }
 
-    if (params.save_reference){
-        //save reference for the first run
-        //
-        // MODULE: SAVE_REFERENCE
-        //
-        SAVE_REFERENCE(
-            fasta,
-            fai,
-            bwa,
-            ch_genome
-        )
+        if ( params.save_reference ) {
+            // save reference for the first run
+            //
+            // MODULE: SAVE_REFERENCE
+            //
+            SAVE_REFERENCE(
+                fasta,
+                fai,
+                bwa,
+                ch_genome)
+        }
     }
 
     //
