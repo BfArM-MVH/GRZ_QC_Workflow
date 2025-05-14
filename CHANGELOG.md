@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - multiqc reports of mosdepth and fastp [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)
 - change fractionBasesAboveQualityThreshold to percentBasesAboveQualityThreshold following meta json file [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)
 - picard TMP_DIR [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)
+- reference reading and bug deleting saved bwa reference dir [#73](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/73)
 
 ### `Dependencies`
 
