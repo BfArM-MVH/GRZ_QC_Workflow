@@ -266,10 +266,10 @@ workflow GRZQC {
     // MODULE: CONVERT_BED_CHROM
     //
     // for WES and panel, run the conversion process: if the bed file has NCBI-style names, they will be converted.
-    ch_convert_inputs = ch_bed_for_conversion_target.combine(mapping_chrom)
 
     CONVERT_BED_CHROM (
-        ch_convert_inputs
+        ch_bed_for_conversion_target,
+        mapping_chrom
     )
     ch_converted_bed = CONVERT_BED_CHROM.out.converted_bed
     ch_versions = ch_versions.mix(CONVERT_BED_CHROM.out.versions)
@@ -315,10 +315,10 @@ workflow GRZQC {
     //Compare coverage with thresholds: writing the results file
     // input: FASTP Q30 ratio + mosdepth all genes + mosdepth target genes
     //
-    ch_comapre_inputs = ch_fastp_mosdepth_merged.combine(ch_thresholds)
 
     COMPARE_THRESHOLD(
-        ch_comapre_inputs
+        ch_fastp_mosdepth_merged,
+        ch_thresholds
     )
     ch_versions = ch_versions.mix(COMPARE_THRESHOLD.out.versions)
 
