@@ -14,7 +14,7 @@ process SAVE_REFERENCE {
     val(genome)
 
     output:
-    tuple val(meta), path("reference"), emit: reference
+    tuple val(meta), path("reference/${genome}"), emit: reference
 
     script:
     """
