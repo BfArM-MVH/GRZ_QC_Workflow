@@ -79,7 +79,7 @@ workflow {
 
     // first step: create samplesheet from metadata.json file
     METADATA_TO_SAMPLESHEET(
-        params.submission_basepath
+        Channel.fromPath(params.submission_basepath, checkIfExists: true)
     )
 
         ch_samplesheet = METADATA_TO_SAMPLESHEET.out.samplesheet
