@@ -1,0 +1,27 @@
+name: Linting
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel if a newer run is started
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Install NodeJS
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  #v4.4.0
+
+      - name: Install Prettier
+        run: npm install -g prettier
+
+      - name: Run Prettier --check
+        run: prettier --check .

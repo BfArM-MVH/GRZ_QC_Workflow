@@ -1,0 +1,75 @@
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths-ignore: ["docs/**"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  NXF_VER: '24.04.2'
+  MINI_TEST_VER: '0.1.0'
+  NXF_ANSI_LOG: false
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: "${{ matrix.test }} in ${{ matrix.environment }}"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    strategy:
+      matrix:
+        test:
+          - sarek
+          - panel
+          - wgs
+        environment:
+          - docker
+          - conda
+        exclude:
+          - test: sarek
+            environment: conda
+          - test: panel
+            environment: docker
+          - test: wgs
+            environment: docker
+
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830  # v3.1.1
+        with:
+          miniforge-version: latest
+          conda-remove-defaults: true
+          activate-environment: "grzqc"
+
+      - name: Set up Nextflow
+        run: conda install -c bioconda nextflow=${{ env.NXF_VER }}
+
+      - name: Download mini-test data
+        run: |
+          mkdir grz-mini-test-data
+          curl -L https://github.com/twrightsman/grz-mini-test-data/releases/download/version%2F${{ env.MINI_TEST_VER }}/references.tgz | tar -xzC grz-mini-test-data/
+          mkdir -p grz-mini-test-data/submissions/${{ matrix.test }}
+          curl -L https://github.com/twrightsman/grz-mini-test-data/releases/download/version%2F${{ env.MINI_TEST_VER }}/${{ matrix.test }}.tgz | tar -xzC grz-mini-test-data/submissions/${{ matrix.test }}
+        if: ${{ matrix.test != 'sarek' }}
+
+      - name: Run test
+        run: nextflow run main.nf -profile ${{ matrix.environment }},test_${{ matrix.test }}
+
+      - name: Save workflow reports
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: nextflow-pipeline-info_${{ matrix.test }}
+          path: 'tests/results/pipeline_info/*'

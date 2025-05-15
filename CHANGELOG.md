@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Save workflow reports from CI [#48](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/48)
 - update README about usage of costum config + update base.config for bwamem [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)
 - Add disclaimer clarifying the aim of this workflow [#61](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/61)
+- tests on small synthetic genomes + reads [#78](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/78)
 
 ### `Fixed`
 - multiqc reports of mosdepth and fastp [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)
