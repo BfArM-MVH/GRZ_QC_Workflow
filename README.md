@@ -11,6 +11,7 @@
 This workflow is designed to compute [quality metrics as required by BfArM](https://www.bfarm.de/SharedDocs/Downloads/DE/Forschung/modellvorhaben-genomsequenzierung/Qs-durch-GRZ.pdf?__blob=publicationFile) for **genome data centers (Genomrechenzentren, GRZs)** and serves as a **reference implementation** for all **Leistungserbringer (LEs)**.
 
 > [!IMPORTANT]
+>
 > - Leistungserbringer are not required to use this specific workflow to calculate metrics. Any method that produces reasonably matching results can be used. This workflow will be used by the GRZ's to validate the reported metrics.
 > - Please note that we are neither permitted nor able to provide direct support for running this QC workflow in hospitals.
 > - Features such as running on pre-mapped reads are not part of the official requirements, but are offered as helpful additions for LEs when feasible.
@@ -43,6 +44,7 @@ mkdir -p ${output_basepath}/grzqc_output
 ```
 
 ## Usage
+
 This pipeline needs one of the following two inputs:
 
 1. A submission base directory path with a folder structure following [GRZ submission standard](https://github.com/BfArM-MVH/grz-cli?tab=readme-ov-file#introduction). You can also check [test datasets](https://www.cmm.in.tum.de/public/grz-example-submissions/).
@@ -64,6 +66,7 @@ nextflow run main.nf \
 Depending on the resouces on your machine and your task, it is recommanded to create and and run with your own config file, see [estimated resource requirements for WGS](#estimated-resource-requirements) and [nextflow documentation](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
 ## Prepare reference files
+
 With the above code, the pipeline can automatically download the necessary _reference genomes_ and creates an _BWA index_ from them.
 However, when running this pipeline multiple times on different submissions, the download and indexing steps create _unnecessary overhead_.
 
@@ -92,6 +95,7 @@ rm -rf ${projectDir}/tests/results
 ```
 
 ## Use reference files
+
 There are different options to use prepared reference files to avoid rerunning the genome downloading and bwamem indexing steps. The easiest way is to use `--reference_path` parameter. If you ran the both tests above successfully, you shall see references files for both GRCh38 and GRCh37 in _your/desired/reference/path_/reference. And you can run:
 
 ```bash
@@ -111,6 +115,7 @@ Alternatively, one can prepare a config file for each genome. You can also chang
     fai   = "your/path/to/reference/GRCh37/genome.fa.fai"
     bwa   = "your/path/to/reference/GRCh37/bwamem2"
 ```
+
 and run
 
 ```bash
@@ -127,22 +132,22 @@ A more detailed description of reference files usage can be found [here](docs/us
 
 Output :
 
-| Column                                       | Description                                                             |
-| -------------------------------------------- | ----------------------------------------------------------------------- |
-| `sampleId`                                   | Sample ID                                                               |
-| `labDataName`                                | Lab data name                                                           |
-| `libraryType`                                | Library type, e.g., `wes` for whole-exome sequencing                    |
-| `sequenceSubtype`                            | Sequence subtype, e.g., `somatic` or `germline`                         |
-| `genomicStudySubtype`                        | Genomic study subtype, e.g., `tumor+germline`                           |
-| `meanDepthOfCoverage`                        | Mean depth of coverage                                                  |
-| `meanDepthOfCoverageRequired`                | Mean depth of coverage required to pass QC                              |
-| `percentBasesAboveQualityThreshold`          | Percent of bases passing the quality threshold                         |
-| `qualityThreshold`                           | The quality threshold to pass                                           |
-| `percentBasesAboveQualityThresholdRequired`  | Percent of bases above the quality threshold required to pass QC       |
-| `targetedRegionsAboveMinCoverage`            | Fraction of targeted regions above minimum coverage                     |
-| `minCoverage`                                | Minimum coverage for target regions                                     |
-| `targetedRegionsAboveMinCoverageRequired`    | Fraction of targeted regions above minimum coverage required to pass QC |
-| `passedQC`                                   | `true` when QC passed, otherwise `false`                                |
+| Column                                      | Description                                                             |
+| ------------------------------------------- | ----------------------------------------------------------------------- |
+| `sampleId`                                  | Sample ID                                                               |
+| `labDataName`                               | Lab data name                                                           |
+| `libraryType`                               | Library type, e.g., `wes` for whole-exome sequencing                    |
+| `sequenceSubtype`                           | Sequence subtype, e.g., `somatic` or `germline`                         |
+| `genomicStudySubtype`                       | Genomic study subtype, e.g., `tumor+germline`                           |
+| `meanDepthOfCoverage`                       | Mean depth of coverage                                                  |
+| `meanDepthOfCoverageRequired`               | Mean depth of coverage required to pass QC                              |
+| `percentBasesAboveQualityThreshold`         | Percent of bases passing the quality threshold                          |
+| `qualityThreshold`                          | The quality threshold to pass                                           |
+| `percentBasesAboveQualityThresholdRequired` | Percent of bases above the quality threshold required to pass QC        |
+| `targetedRegionsAboveMinCoverage`           | Fraction of targeted regions above minimum coverage                     |
+| `minCoverage`                               | Minimum coverage for target regions                                     |
+| `targetedRegionsAboveMinCoverageRequired`   | Fraction of targeted regions above minimum coverage required to pass QC |
+| `passedQC`                                  | `true` when QC passed, otherwise `false`                                |
 
 For more details about the output files and reports, please refer to the [output documentation](docs/output.md).
 

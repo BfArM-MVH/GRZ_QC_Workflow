@@ -6,9 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v1.0.0-rc1 - [29.04.2025]
 
 ### `Added`
+
 - Mark duplicates [#41](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/41)
 - decrease reference reading to one (either GRCh37 or GRCh38) [#36](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/36)
-- two inputs: metadata path or samplesheet  [#54](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/54)
+- two inputs: metadata path or samplesheet [#54](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/54)
 - observed resource usage on README [#35](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/35)
 - Save workflow reports from CI [#48](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/48)
 - update README about usage of costum config + update base.config for bwamem [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)
@@ -16,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - tests on small synthetic genomes + reads [#78](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/78)
 
 ### `Fixed`
+
 - multiqc reports of mosdepth and fastp [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)
 - change fractionBasesAboveQualityThreshold to percentBasesAboveQualityThreshold following meta json file [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)
 - picard TMP_DIR [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)

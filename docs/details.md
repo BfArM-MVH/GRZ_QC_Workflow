@@ -8,15 +8,15 @@ In short, the basic statistics of the alignment (number of reads, coverage, GC-c
 The pipeline uses branching logic to provide the correct BED file depending on the library type:
 
 - For WGS samples:
-The pipeline automatically selects the default BED file containing ~400 genes for the mosdepth run. Mosdepth calculates depths for both genome-wide and targeted regions in one run.
+  The pipeline automatically selects the default BED file containing ~400 genes for the mosdepth run. Mosdepth calculates depths for both genome-wide and targeted regions in one run.
 
 - For WES/Panel samples:
-The pipeline uses the target region BED file supplied in the submission metadata and converts it into UCSC-style if the chromosome names are in NCBI-style.
+  The pipeline uses the target region BED file supplied in the submission metadata and converts it into UCSC-style if the chromosome names are in NCBI-style.
 
-| **Library Type** | **input: BED File**                   | **Mean Coverage Calculation (`meanDepthOfCoverage`)**           | **per-base Coverage of Targeted Regions (to furthur calculate `percentBasesAboveQualityThreshold`)**                  |
-|------------------|------------------------------------|-----------------------------------------|----------------------------------------|
-| **WGS**          | Default representative genes, ([hg19](../assets/default_files/hg19_439_omim_genes.bed), [hg38](../assets/default_files/hg38_440_omim_genes.bed)) |  genome-wide average coverage           | Computed over a predefined set of ~400 gene regions         |
-| **WES/Panel**    | User-provided BED file                         | Average coverage on user-specified targets | Computed over the user-provided target regions              |
+| **Library Type** | **input: BED File**                                                                                                                              | **Mean Coverage Calculation (`meanDepthOfCoverage`)** | **per-base Coverage of Targeted Regions (to furthur calculate `percentBasesAboveQualityThreshold`)** |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **WGS**          | Default representative genes, ([hg19](../assets/default_files/hg19_439_omim_genes.bed), [hg38](../assets/default_files/hg38_440_omim_genes.bed)) | genome-wide average coverage                          | Computed over a predefined set of ~400 gene regions                                                  |
+| **WES/Panel**    | User-provided BED file                                                                                                                           | Average coverage on user-specified targets            | Computed over the user-provided target regions                                                       |
 
 ## MultiQC
 

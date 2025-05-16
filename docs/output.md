@@ -9,7 +9,7 @@ This document describes the output produced by the pipeline.
 **Output directory: `{outdir}/results/mosdepth/<sample>`**
 
 - `<sample>.mosdepth.summary.txt`
-  - A summary of mean depths per chromosome and within specified regions per chromosome.  
+  - A summary of mean depths per chromosome and within specified regions per chromosome.
 - `<sample>.regions.bed.gz`
   - per-base depth for chromosome and genome-wide, or targeted regions
 

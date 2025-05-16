@@ -1,16 +1,16 @@
 # nf-core/grzqc: Usage
 
-The input requires either 
+The input requires either
 
-  `--submission_basepath` for GRZ submission folder
+`--submission_basepath` for GRZ submission folder
 
 or with a samplesheet
 
-  `--submission_basepath` and `--genome` for broader use
-  
+`--submission_basepath` and `--genome` for broader use
+
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. The samplesheet requires the following columns `sample`,`labDataName`,`libraryType`,`sequenceSubtype`,`genomicStudySubtype`,`fastq_1`,`fastq_2`,`bed_file`. The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. 
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. The samplesheet requires the following columns `sample`,`labDataName`,`libraryType`,`sequenceSubtype`,`genomicStudySubtype`,`fastq_1`,`fastq_2`,`bed_file`. The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet.
 
 You will need to give `--genome` for either "GRCh37" or"GRCh38" when using samplesheet as input.
 
@@ -26,16 +26,16 @@ nextflow run main.nf \
 
 A final samplesheet file consisting of both single- and paired-end data may look something like [this example samplesheet](../tests/data/grzqc_samplesheet.csv). This is for 1 sample, which has been sequenced four times.
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `labDataName`        | not mandatory |
-| `libraryType`        | Must be one of the followings: panel,wgs,wes,panel_lr,wgs_lr,wes_lr |
-| `sequenceSubtype`    | Must be either somatic or germline |
-| `genomicStudySubtype`| Must be either tumor+germline, tumor-only or germline-only |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `bed_file`| Target region for WES and Panel with the extension ".bed.gz" or ".bed". Empty for WGS |
+| Column                | Description                                                                                                                                                                            |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`              | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `labDataName`         | not mandatory                                                                                                                                                                          |
+| `libraryType`         | Must be one of the followings: panel,wgs,wes,panel_lr,wgs_lr,wes_lr                                                                                                                    |
+| `sequenceSubtype`     | Must be either somatic or germline                                                                                                                                                     |
+| `genomicStudySubtype` | Must be either tumor+germline, tumor-only or germline-only                                                                                                                             |
+| `fastq_1`             | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2`             | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `bed_file`            | Target region for WES and Panel with the extension ".bed.gz" or ".bed". Empty for WGS                                                                                                  |
 
 ### Multiple runs of the same sample
 
@@ -85,16 +85,16 @@ The other option is to set `--fasta`, `--fai`, `--bwa` individually, or prepare 
 
 You can also set only the genome file with `--fasta <genome file>`. The pipeline will prepare the genome index and bwa index automatically.
 
-Of note, `--fasta`, `--fai`, `--bwa` will only be considered when `--reference_path` is not given. 
+Of note, `--fasta`, `--fai`, `--bwa` will only be considered when `--reference_path` is not given.
 
-| Parameters                                   | Description                                                             |
-| -------------------------------------------- | ----------------------------------------------------------------------- |
-| `save_reference`                             | save reference when `--save_reference true` , default false              |
-| `save_reference_path`                        | save reference path, default `${outdir}`                                |
-| `reference_path`                             | reference path , default null                                           |
-| `fasta`                                      | genome fasta path , only use when reference path is null , default null |
-| `fai`                                        | genome fai path , only use when reference path is null and fasta is also given, default null   |
-| `bwa`                                        | bwamem index path , only use when reference path is null and fasta is also given , default null |
+| Parameters            | Description                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| `save_reference`      | save reference when `--save_reference true` , default false                                     |
+| `save_reference_path` | save reference path, default `${outdir}`                                                        |
+| `reference_path`      | reference path , default null                                                                   |
+| `fasta`               | genome fasta path , only use when reference path is null , default null                         |
+| `fai`                 | genome fai path , only use when reference path is null and fasta is also given, default null    |
+| `bwa`                 | bwamem index path , only use when reference path is null and fasta is also given , default null |
 
 ## BAM input
 
@@ -236,7 +236,6 @@ To use a different container from the default container or conda environment spe
 ### Custom Tool Arguments
 
 A pipeline might not always support every possible argument or option of a particular tool used in pipeline. Fortunately, nf-core pipelines provide some freedom to users to insert additional parameters that the pipeline does not include by default.
-
 
 ### nf-core/configs
 
