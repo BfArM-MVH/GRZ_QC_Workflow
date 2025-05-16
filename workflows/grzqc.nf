@@ -37,6 +37,26 @@ workflow GRZQC {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
+    //
+    // conflicting parameters
+    //
+    // Error if BWA or FAI is given without FASTA and reference_path is not present
+    if ((params.bwa || params.fai) && !params.fasta && !params.reference_path) {
+        println "\033[1;31mERROR:\033[0m 'bwa' or 'fai' is provided, but 'fasta' is not present. Please provide a valid FASTA file."
+        System.exit(1)
+    }
+    // Warning if reference_path is provided together with fasta, fai, or bwa
+    if ((params.reference_path && params.fasta) || (params.reference_path && params.fai) || (params.reference_path && params.bwa)) {
+        println "\033[1;33mWARNING:\033[0m 'reference_path' is provided together with 'fasta', 'fai', or 'bwa'. Only 'reference_path' will be considered."
+    }
+    // Specific warning if reference_path is given with bwa or fai, but fasta is missing
+    if (params.reference_path && (params.bwa || params.fai) && !params.fasta) {
+        println "\033[1;33mWARNING:\033[0m 'reference_path' is provided together with 'fasta', 'fai', or 'bwa'. Only 'reference_path' will be considered."
+    }
+
+    //
+    // set up channels 
+    //
     // match fa and fasta extensions
     def fastaExts = [ '.fa', '.fasta' ]
     def faiExts   = [ '.fa.fai', '.fasta.fai' ]
