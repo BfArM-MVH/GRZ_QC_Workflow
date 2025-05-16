@@ -1,4 +1,4 @@
-# nf-core/grzqc: Pipeline Output
+# Pipeline Output
 
 ## Introduction
 

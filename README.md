@@ -1,6 +1,3 @@
-[![GitHub Actions CI Status](https://github.com/nf-core/grzqc/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/grzqc/actions/workflows/ci.yml)
-[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
-
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
@@ -180,8 +177,8 @@ nextflow plugin install nf-schema@2.1.1
 
 The default reference files used in this pipeline is part of AWS iGenomes. Please follow the instructions [here](https://ewels.github.io/AWS-iGenomes/) to download:
 
-- s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/
-- s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/
+- `s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/`
+- `s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/`
 
 For more detailed information please check ["Running offline by nf-core"](https://nf-co.re/docs/usage/getting_started/offline)
 
