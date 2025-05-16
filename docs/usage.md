@@ -89,12 +89,12 @@ Of note, `--fasta`, `--fai`, `--bwa` will only be considered when `--reference_p
 
 | Parameters                                   | Description                                                             |
 | -------------------------------------------- | ----------------------------------------------------------------------- |
-| `save_reference`                             | save reference when `--save_reference true` , default null              |
+| `save_reference`                             | save reference when `--save_reference true` , default false              |
 | `save_reference_path`                        | save reference path, default `${outdir}`                                |
 | `reference_path`                             | reference path , default null                                           |
 | `fasta`                                      | genome fasta path , only use when reference path is null , default null |
-| `fai`                                        | genome fai path , only use when reference path is null , default null   |
-| `bwa`                                        | bwamem index path , only use when reference path is null , default null |
+| `fai`                                        | genome fai path , only use when reference path is null and fasta is also given, default null   |
+| `bwa`                                        | bwamem index path , only use when reference path is null and fasta is also given , default null |
 
 ## BAM input
 
