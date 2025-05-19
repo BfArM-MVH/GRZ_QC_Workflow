@@ -12,13 +12,13 @@
             "description": "Define where the pipeline should find input data and save output data.",
             "anyOf": [
                 {
-                  "required": ["submission_basepath"]
+                    "required": ["submission_basepath"]
                 },
                 {
-                  "required": ["input", "genome"]
+                    "required": ["input", "genome"]
                 }
-              ],
-            "required": [ "outdir"],
+            ],
+            "required": ["outdir"],
             "properties": {
                 "submission_basepath": {
                     "type": "string",

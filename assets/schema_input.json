@@ -10,13 +10,13 @@
             "sample": {
                 "oneOf": [
                     {
-                      "type": "string",
-                      "pattern": "^\\S+$"
+                        "type": "string",
+                        "pattern": "^\\S+$"
                     },
                     {
-                      "type": "number"
+                        "type": "number"
                     }
-                  ],
+                ],
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },

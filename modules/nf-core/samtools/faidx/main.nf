@@ -26,16 +26,9 @@ process SAMTOOLS_FAIDX {
     def args = task.ext.args ?: ''
     def get_sizes_command = get_sizes ? "cut -f 1,2 ${fasta}.fai > ${fasta}.sizes" : ''
     """
-    if [[ "${fasta.extension}" == "gz" ]]; then
-        gunzip -c "$fasta" | bgzip -c > "${fasta.baseName}.bgz"
-        fasta_to_index="${fasta.baseName}.bgz"
-    else
-        fasta_to_index="${fasta}"
-    fi
-    
     samtools \\
         faidx \\
-        \$fasta_to_index \\
+        $fasta \\
         $args
 
     ${get_sizes_command}
