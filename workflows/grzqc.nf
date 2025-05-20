@@ -70,6 +70,7 @@ workflow GRZQC {
                 error "Reference FASTA missing: $f"
             tuple( [ id: f.baseName ], f)
             }
+            .collect()
 
         fai = ch_genome
             .map { genome ->
@@ -79,6 +80,7 @@ workflow GRZQC {
                 error "Reference FASTA missing: $f"
             tuple( [ id: f.baseName ], f)
             }
+            .collect()
 
         bwa = ch_genome
             .map { genome ->
@@ -86,6 +88,7 @@ workflow GRZQC {
             if( !f.exists() ) error "BWA binary missing: $f"
             tuple('bwa', f)
             }
+            .collect()
 
     }else{
 
