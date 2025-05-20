@@ -16,11 +16,14 @@ def read_bed_file(
     is_gzipped = file_path.name.endswith(".gz")
 
     if column_names is None:
+        # Determine if the file is compressed
         open_func = gzip.open if is_gzipped else open
+        # Load the file and infer the number of columns from the first line
         with open_func(file_path, "rb") as f:
             first_line = f.readline().strip().decode("utf-8").split("\t")
             num_columns = len(first_line)
 
+        # Default column names for the first 12 standard BED fields
         default_column_names = [
             "chrom", 
             "start", 
@@ -35,7 +38,7 @@ def read_bed_file(
             "blockSizes", 
             "blockStarts",
         ]
-
+        # If there are more columns than default names, add generic names
         if num_columns > len(default_column_names):
             extra_columns = [
                 f"extra_col_{i}" for i in range(num_columns - len(default_column_names))
@@ -44,23 +47,26 @@ def read_bed_file(
         else:
             column_names = default_column_names[:num_columns]
 
+    # Define data types (dtypes) for the columns
     dtype_dict = {
-        "chrom": "str", 
-        "start": "int64", 
-        "end": "int64", 
-        "name": "str",
-        "score": "float64", 
-        "strand": "str", 
-        "thickStart": "int64",
-        "thickEnd": "int64", 
-        "itemRgb": "str", 
-        "blockCount": "int64",
-        "blockSizes": "str", 
-        "blockStarts": "str",
+        "chrom": "str",  # Chromosome names are typically strings
+        "start": "int64",  # Start position is integer
+        "end": "int64",  # End position is integer
+        "name": "str",  # Name is typically a string
+        "score": "float64",  # Score is usually a float (can also be integer)
+        "strand": "str",  # Strand is a string (either '+' or '-')
+        "thickStart": "int64",  # thickStart is an integer
+        "thickEnd": "int64",  # thickEnd is an integer
+        "itemRgb": "str",  # itemRgb is a string (RGB value)
+        "blockCount": "int64",  # blockCount is an integer
+        "blockSizes": "str",  # blockSizes is a string (comma-separated list)
+        "blockStarts": "str",  # blockStarts is a string (comma-separated list)
     }
+    # Apply dtypes to extra columns if present
     dtype_dict.update({col: "str" for col in column_names[12:]})
+    # Update with user-specified dtypes (overwrites defaults)
     dtype_dict.update(dtypes or {})
-
+    # Read the BED file with inferred column names and dtypes
     bed_df = pd.read_csv(
         file_path,
         sep="\t",
@@ -90,6 +96,7 @@ def parse_args(args=None):
 def main(args=None):
     args = parse_args(args)
 
+    # Read thresholds JSON
     with open(args.thresholds, "r") as f:
         thresholds_data = json.load(f)
 
@@ -109,11 +116,20 @@ def main(args=None):
             + args.libraryType + ", " + args.sequenceSubtype + ", " + args.genomicStudySubtype
         )
 
+    ### Collect all statistics
+
+    # --- Determine 'meanDepthOfCoverage' ---
+
+    # Required mean depth of coverage to pass the validation
     mean_depth_of_converage_required = float(thresholds["meanDepthOfCoverage"])
+    # Read mosdepth summary file
     df = pd.read_csv(args.mosdepth_global_summary, sep="\t")
     row_name = "total_region" if args.libraryType in ["panel", "wes", "panel_lr", "wes_lr"] else "total"
     mean_depth_of_coverage = df.loc[df["chrom"] == row_name, "mean"].item()
 
+    # --- Determine 'percentBasesAboveQualityThreshold' ---
+
+    # Base quality threshold
     quality_threshold = thresholds["percentBasesAboveQualityThreshold"]["qualityThreshold"]
     percent_bases_above_quality_threshold_required = thresholds[
         "percentBasesAboveQualityThreshold"]['percentBasesAbove']
@@ -121,6 +137,7 @@ def main(args=None):
     total_bases = 0
     total_bases_above_quality = 0
 
+    # read fastp json files
     for fastp_json_file in args.fastp_json:
         with open(fastp_json_file, "r") as f:
             fastp_data = json.load(f)
@@ -144,30 +161,34 @@ def main(args=None):
         fraction_bases_above_quality_threshold = total_bases_above_quality / total_bases
         percent_bases_above_quality_threshold = fraction_bases_above_quality_threshold * 100
 
+    # Minimum coverage of target regions to pass
     min_coverage = int(thresholds["targetedRegionsAboveMinCoverage"]["minCoverage"])
+    # Fraction of target regions that must have a coverage above the minimum coverage threshold to pass the validation
     targeted_regions_above_min_coverage_required = float(
         thresholds["targetedRegionsAboveMinCoverage"]["fractionAbove"]
     )
 
+    # Read mosdepth target region result
     mosdepth_target_regions_df = read_bed_file(
         args.mosdepth_target_regions_bed,
         column_names=["chrom", "start", "end", "coverage"],
         dtypes={"coverage": "float64"},
     )
-
+    # Compute the fraction of the target regions that have a coverage above the threshold
     if mosdepth_target_regions_df.empty:
         targeted_regions_above_min_coverage = 0
     else:
         targeted_regions_above_min_coverage = (
             (mosdepth_target_regions_df["coverage"] > min_coverage).mean().item()
         )
-
+    ### Perform the quality check
     quality_check_passed = (
         mean_depth_of_coverage >= mean_depth_of_converage_required
         and percent_bases_above_quality_threshold >= percent_bases_above_quality_threshold_required
         and targeted_regions_above_min_coverage >= targeted_regions_above_min_coverage_required
     )
 
+    ### Write the results to a CSV file
     qc_df = pd.DataFrame(
         {
             "sampleId": [args.sample_id],
@@ -186,7 +207,7 @@ def main(args=None):
             "passedQC": [quality_check_passed],
         }
     )
-
+    # write QC results to a CSV file
     qc_df.to_csv(args.output, index=False)
 
 if __name__ == "__main__":
