@@ -148,18 +148,14 @@ workflow GRZQC {
     ch_thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true).collect()
                                     : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json").collect()
     
-    //
-    // MODULE: Run FastQC
-    //
+    // Run FASTQC on FASTQ files - per lane
     FASTQC (
         ch_samplesheet
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions)
 
-    //
-    // MODULE: FASTP
-    //
+    // Run FASP on FASTQ files - per lane
     save_trimmed_fail = false
     save_merged = false
     FASTP(
@@ -174,12 +170,10 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect{ meta, html -> html })
     ch_versions = ch_versions.mix(FASTP.out.versions)
 
-    ch_bams = Channel.empty()
-
-
     if ( !params.reference_path ) {
 
         if ( !params.bwa ) {
+            // create bwa index if not provided
             BWAMEM2_INDEX(
                 fasta)
 
@@ -187,6 +181,7 @@ workflow GRZQC {
             bwa = BWAMEM2_INDEX.out.index
         }
         if ( !params.fai ) {
+            // create fai index if not provided
             SAMTOOLS_FAIDX(
                 fasta,
                 [[],[]],
@@ -198,9 +193,6 @@ workflow GRZQC {
 
         if ( params.save_reference ) {
             // save reference for the first run
-            //
-            // MODULE: SAVE_REFERENCE
-            //
             SAVE_REFERENCE(
                 fasta,
                 fai,
@@ -209,11 +201,7 @@ workflow GRZQC {
         }
     }
 
-    //
-    // SUBWORKFLOW: FASTQ_ALIGN_BWA_MARKDUPLICATES
-    //
-
-    // alignment analysis and markduplicates
+    // align FASTQs per lane, merge, and sort
     FASTQ_ALIGN_BWA_MARKDUPLICATES (
         ch_samplesheet,
         bwa,
@@ -229,7 +217,6 @@ workflow GRZQC {
     ch_bams =  FASTQ_ALIGN_BWA_MARKDUPLICATES.out.bam.join(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.bai, by:0)
 
     // prepare mosdepth inputs
-    // Prepare bed files
     // for WGS: defined bed files of ~400 genes
     // for WES and panel: extract bed from samplesheet and
     //      do the conversion with the correct mapping file (if it is NCBI format, covert it to UCSC).
@@ -243,11 +230,8 @@ workflow GRZQC {
                 return [ meta, bam, bai ]
     }.set { ch_bams_bed }
 
-    //
-    // MODULE: CONVERT_BED_CHROM
-    //
+    // convert given bed files to UCSC style names
     // for WES and panel, run the conversion process: if the bed file has NCBI-style names, they will be converted.
-
     CONVERT_BED_CHROM (
         ch_bams_bed.targeted.map{meta, bam, bai, bed_file -> [meta, bed_file ]},
         mapping_chrom
@@ -267,9 +251,7 @@ workflow GRZQC {
                                             [ newMeta, bam, bai, bed_file ]}
                                             .set{ch_bams_bed_wgs}
 
-    //
-    // MODULE: MOSDEPTH
-    //
+    // Run mosdepth to get coverages
     MOSDEPTH(
         ch_bams_bed_targeted.mix(ch_bams_bed_wgs),
         fasta,
@@ -278,37 +260,36 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.map{meta, file -> file}.collect())
     ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.map{meta, file -> file}.collect())
 
-    // collect the results for comparison
+    FASTP.out.json.map{meta, json ->
+            def newMeta = meta.clone()
+            newMeta.remove('laneId')
+            newMeta.remove('read_group')
+            newMeta.remove('bed_file')
+            [ newMeta, json ]
+            }.set { ch_fastp_mosdepth }
+
+    // Collect the results for comparison
     MOSDEPTH.out.summary_txt.join(MOSDEPTH.out.regions_bed, by:0)
-        .join(FASTP.out.json, by:0)
-        .map{meta, summary, json, bed -> tuple(meta, json, summary,bed)}
+        .join(ch_fastp_mosdepth.groupTuple(), by:0)
         .set{ch_fastp_mosdepth_merged}
 
-    //
-    // MODULE:COMPARE_THRESHOLD
-    //
-    //Compare coverage with thresholds: writing the results file
-    // input: FASTP Q30 ratio + mosdepth all genes + mosdepth target genes
-    //
-    ch_fastp_mosdepth_merged.view()
 
+    // Compare coverage with thresholds: writing the results file
+    // input: FASTP Q30 ratio + mosdepth all genes + mosdepth target genes
     COMPARE_THRESHOLD(
         ch_fastp_mosdepth_merged,
         ch_thresholds
     )
     ch_versions = ch_versions.mix(COMPARE_THRESHOLD.out.versions)
 
-    //
-    // MODULE: MERGE_REPORTS
-    //
+
+    // Merge compare_threshold results for a final report
     MERGE_REPORTS(
         COMPARE_THRESHOLD.out.result_csv.collect())
 
     ch_versions = ch_versions.mix(MERGE_REPORTS.out.versions)
 
-    //
     // Collate and save software versions
-    //
     softwareVersionsToYAML(ch_versions)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",

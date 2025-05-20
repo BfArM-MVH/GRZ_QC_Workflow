@@ -14,14 +14,12 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     ch_index        // channel (mandatory): [ val(meta2), path(index) ]
     val_sort_bam    // boolean (mandatory): true or false
     ch_fasta        // channel (mandatory) : [ val(meta3), path(fasta) ]
-    ch_fai        // channel (mandatory) : [ val(meta4), path(fai) ]
+    ch_fai          // channel (mandatory) : [ val(meta4), path(fai) ]
 
     main:
     ch_versions = Channel.empty()
 
-    //
-    // Map reads with BWA
-    //
+    // Map reads with BWA - per lane
     BWAMEM2_MEM ( 
         ch_reads, 
         ch_index, 
@@ -37,7 +35,6 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
                                             newMeta.remove('read_group')
                                             [ newMeta, bam ]}.groupTuple()
 
-
     SAMTOOLS_MERGE(
         ch_bams,
         ch_fasta,
@@ -45,10 +42,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
 
-    //
     // Sort, index BAM file and run samtools stats, flagstat and idxstats
-    //
-
     BAM_SORT_STATS_SAMTOOLS (
         SAMTOOLS_MERGE.out.bam, 
         ch_fasta)
@@ -56,15 +50,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     ch_versions = ch_versions.mix(BAM_SORT_STATS_SAMTOOLS.out.versions)
 
 
-    //
-    // Add read groups required by GATK4SPARK_MARKDUPLICATES
-    //
-    //PICARD_ADDORREPLACEREADGROUPS (SAMTOOLS_MERGE.out.bam, [[:],[]], [[:],[]])
-    //ch_versions = ch_versions.mix(PICARD_ADDORREPLACEREADGROUPS.out.versions)
-
-    //
-    // picard markduplicates
-    //
+    // run picard markduplicates on aligned and merged files
     PICARD_MARKDUPLICATES (
         SAMTOOLS_MERGE.out.bam, 
         ch_fasta, 
@@ -73,7 +59,6 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     ch_versions = ch_versions.mix(PICARD_MARKDUPLICATES.out.versions)
 
     emit:
-    bam_orig = BWAMEM2_MEM.out.bam                  // channel: [ val(meta), path(bam) ]
     bam      = PICARD_MARKDUPLICATES.out.bam        // channel: [ val(meta), path(bam) ]
     bai      = PICARD_MARKDUPLICATES.out.bai        // channel: [ val(meta), path(bai) ]
     cram     = PICARD_MARKDUPLICATES.out.cram       // channel: [ val(meta), path(cram) ]

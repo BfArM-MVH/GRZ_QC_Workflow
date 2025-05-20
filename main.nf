@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 
 include { GRZQC                   } from './workflows/grzqc'
-include { paramsSummaryLog   } from 'plugin/nf-schema'
-include { validateParameters } from 'plugin/nf-schema'
-include { samplesheetToList         } from 'plugin/nf-schema'
+include { paramsSummaryLog        } from 'plugin/nf-schema'
+include { validateParameters      } from 'plugin/nf-schema'
+include { samplesheetToList       } from 'plugin/nf-schema'
 include { METADATA_TO_SAMPLESHEET } from './modules/local/metadata_to_samplesheet'
 
 workflow {
@@ -55,6 +55,7 @@ workflow {
     }
 
 // construct the samplesheet channel using the schema
+// read_group is necessary for BWAMEM2_MEM
 ch_samplesheet
     .flatMap { samplesheet ->
         samplesheetToList(samplesheet.toString(), "${projectDir}/assets/schema_input.json")

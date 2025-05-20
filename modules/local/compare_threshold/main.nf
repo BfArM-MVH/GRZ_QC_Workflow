@@ -7,7 +7,7 @@ process COMPARE_THRESHOLD {
         'community.wave.seqera.io/library/pip_gzip-utils_openpyxl_pandas:cd97ba68cc5b8463' }"
 
     input:
-    tuple val(meta), path(bed), path(summary), path(fastp_json)
+    tuple val(meta), path(summary), path(bed), path(fastp_jsons)
     path(thresholds)
 
     output:
@@ -17,18 +17,16 @@ process COMPARE_THRESHOLD {
     script:
     """
     compare_threshold.py \\
-        --sample_id "${meta.id}" \\
+        --sample_id ${meta.id} \\
         --labDataName "${meta.labDataName}" \\
         --libraryType "${meta.libraryType}" \\
         --sequenceSubtype "${meta.sequenceSubtype}" \\
         --genomicStudySubtype "${meta.genomicStudySubtype}" \\
-        --fastp_json "${fastp_json}" \\
-        --mosdepth_global_summary "${summary}" \\
-        --mosdepth_target_regions_bed "${bed}" \\
-        --thresholds "${thresholds}" \\
-        --output "${meta.id}.result.csv"
-
-
+        --fastp_json ${fastp_jsons} \\
+        --mosdepth_global_summary ${summary} \\
+        --mosdepth_target_regions_bed ${bed} \\
+        --thresholds ${thresholds} \\
+        --output ${meta.id}.result.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
