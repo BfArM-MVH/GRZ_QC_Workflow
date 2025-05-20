@@ -54,26 +54,30 @@ workflow {
       validateParameters()
     }
 
-    // construct the samplesheet channel using the schema
-    ch_samplesheet
-        .flatMap  { 
-            samplesheet ->
-                samplesheetToList(samplesheet.toString(), "${projectDir}/assets/schema_input.json")
-        }
-        .map {
-            meta, fastq_1, fastq_2, bed_file ->
-                if (!fastq_2) {
-                    return [ meta + [ single_end:true ], [ fastq_1 ], bed_file]
-                } else {
-                    return [ meta + [ single_end:false ], [ fastq_1, fastq_2 ] , bed_file]
-                }
-        }
-        .groupTuple()
-        .map {
-            meta, fastqs, bed_file ->
-                return [ meta, fastqs.flatten(), bed_file ]
-        }
-        .set{ ch_samplesheet }
+// construct the samplesheet channel using the schema
+ch_samplesheet
+    .flatMap { samplesheet ->
+        samplesheetToList(samplesheet.toString(), "${projectDir}/assets/schema_input.json")
+    }
+    .map { meta, fastq_1, fastq_2 ->
+        def read_group = "@RG\\tID:${fastq_1.simpleName}_${meta.laneId}\\tPL:${meta.sequencer.toUpperCase()}\\tSM:${meta.id}"
+        def single_end = !fastq_2
+        def fastqs = single_end ? [fastq_1] : [fastq_1, fastq_2]
+
+        return [
+            meta + [ 
+                single_end: single_end,
+                read_group: read_group
+            ],
+            fastqs
+        ]
+    }
+    .groupTuple()
+    .map { meta, fastqs ->
+        return [ meta, fastqs.flatten() ]
+    }
+    .set { ch_samplesheet }
+
 
     GRZQC (
         ch_samplesheet,

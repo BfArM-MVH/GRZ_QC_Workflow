@@ -7,7 +7,6 @@
 include { paramsSummaryMap                } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc            } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { CAT_FASTQ                       } from '../modules/nf-core/cat/fastq'
 include { FASTQC                          } from '../modules/nf-core/fastqc'
 include { FASTP                           } from '../modules/nf-core/fastp'
 include { MULTIQC                         } from '../modules/nf-core/multiqc'
@@ -117,9 +116,9 @@ workflow GRZQC {
 
     // TARGET BED channel
     if( params.target ) {
-        target = Channel.fromPath(params.target, checkIfExists: true).collect()
+        ch_target = Channel.fromPath(params.target, checkIfExists: true).collect()
     } else {
-        target = ch_genome
+        ch_target = ch_genome
                         .flatMap { genome ->
                         def defaultTargetCh = genome == 'GRCh38'
                             ? "${projectDir}/assets/default_files/hg38_440_omim_genes.bed"
@@ -149,37 +148,11 @@ workflow GRZQC {
     ch_thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true).collect()
                                     : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json").collect()
     
-    // Creating merge fastq channel from samplesheet
-
-    ch_samplesheet.map{
-        meta, fastqs, bed_file -> tuple(meta, fastqs)
-    }.branch {
-            meta, fastqs ->
-                single_sample_paired_end  : fastqs.size() < 2 | fastqs.size() == 2
-                    return [ meta, fastqs.flatten() ]
-                multiple_sample_paired_end: fastqs.size() > 2
-                    return [ meta, fastqs.flatten() ]
-        }.set{
-            ch_fastqs
-        }
-
-    //
-    // MODULE: Concatenate FastQ files from same sample if required
-    //
-    CAT_FASTQ (
-        ch_fastqs.multiple_sample_paired_end
-    )
-    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions)
-
-    CAT_FASTQ.out.reads
-        .mix(ch_fastqs.single_sample_paired_end)
-        .set { ch_cat_fastq }
-
     //
     // MODULE: Run FastQC
     //
     FASTQC (
-        ch_cat_fastq
+        ch_samplesheet
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions)
@@ -190,7 +163,7 @@ workflow GRZQC {
     save_trimmed_fail = false
     save_merged = false
     FASTP(
-        ch_cat_fastq,
+        ch_samplesheet,
         [], // we are not using any adapter fastas at the moment
         false, // we don't use discard_trimmed_pass at the moment
         save_trimmed_fail,
@@ -242,7 +215,7 @@ workflow GRZQC {
 
     // alignment analysis and markduplicates
     FASTQ_ALIGN_BWA_MARKDUPLICATES (
-        ch_cat_fastq,
+        ch_samplesheet,
         bwa,
         true,
         fasta,
@@ -261,57 +234,44 @@ workflow GRZQC {
     // for WES and panel: extract bed from samplesheet and
     //      do the conversion with the correct mapping file (if it is NCBI format, covert it to UCSC).
     // for both cases different file required for hg38 and hg19
-    ch_samplesheet_target = ch_samplesheet.filter { meta, fastqs, bed_file ->
-        meta.libraryType in ["wes", "panel", "wes_lr", "panel_lr"]
-    }
 
-    ch_samplesheet_wgs = ch_samplesheet.filter { meta, fastqs, bed_file ->
-        meta.libraryType in ["wgs", "wgs_lr"]
-    }
+    ch_bams.branch {
+        meta, bam, bai ->
+            targeted: meta.libraryType in ["wes", "panel", "wes_lr", "panel_lr"]
+                return [ meta, bam, bai, meta.bed_file ]
+            wgs:      meta.libraryType in ["wgs", "wgs_lr"]
+                return [ meta, bam, bai ]
+    }.set { ch_bams_bed }
 
-    // --- For target samples: prepare bed for conversion ---
-    ch_samplesheet_target
-    .flatMap { meta, fastqs, bed_list ->
-        bed_list.unique().collect { bedPath ->
-            tuple(meta, file(bedPath))
-        }
-    }.set{ch_bed_for_conversion_target}
-   
     //
     // MODULE: CONVERT_BED_CHROM
     //
     // for WES and panel, run the conversion process: if the bed file has NCBI-style names, they will be converted.
 
     CONVERT_BED_CHROM (
-        ch_bed_for_conversion_target,
+        ch_bams_bed.targeted.map{meta, bam, bai, bed_file -> [meta, bed_file ]},
         mapping_chrom
     )
     ch_converted_bed = CONVERT_BED_CHROM.out.converted_bed
     ch_versions = ch_versions.mix(CONVERT_BED_CHROM.out.versions)
 
-    // Prepare mosdepth inputs for target samples
-    ch_mosdepth_input_target = ch_samplesheet_target
-        .map { meta, fastqs, bed_file -> [meta] }
-        .join(ch_bams, by: 0)
-        .join(ch_converted_bed, by: 0)
+    ch_bams_bed.targeted.join(ch_converted_bed).map{meta, bam, bai, old_bed, converted_bed -> 
+                                            def newMeta = meta.clone()
+                                            newMeta.remove('bed_file')
+                                            [ newMeta, bam, bai, converted_bed ]}
+                                            .set{ch_bams_bed_targeted}
 
-
-    // --- Prepare mosdepth inputs for WGS samples ---
-    ch_mosdepth_input_wgs = ch_samplesheet_wgs
-        .map { meta, fastqs, bed_file -> [meta] }
-        .join(ch_bams, by: 0)
-        .combine(target)
-
-    // --- Merge the two sets of mosdepth inputs ---
-    ch_mosdepth_input_target
-        .mix(ch_mosdepth_input_wgs)
-        .set{ch_mosdepth_input}
+    ch_bams_bed.wgs.combine(ch_target).map{meta, bam, bai, bed_file -> 
+                                            def newMeta = meta.clone()
+                                            newMeta.remove('bed_file')
+                                            [ newMeta, bam, bai, bed_file ]}
+                                            .set{ch_bams_bed_wgs}
 
     //
     // MODULE: MOSDEPTH
     //
     MOSDEPTH(
-        ch_mosdepth_input,
+        ch_bams_bed_targeted.mix(ch_bams_bed_wgs),
         fasta,
     )
     ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
@@ -330,6 +290,7 @@ workflow GRZQC {
     //Compare coverage with thresholds: writing the results file
     // input: FASTP Q30 ratio + mosdepth all genes + mosdepth target genes
     //
+    ch_fastp_mosdepth_merged.view()
 
     COMPARE_THRESHOLD(
         ch_fastp_mosdepth_merged,

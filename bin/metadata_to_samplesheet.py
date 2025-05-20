@@ -71,7 +71,7 @@ def extract_data(
             sequence_subtype = lab_datum["sequenceSubtype"]
             sequence_data = lab_datum.get("sequenceData", [])
             sequencing_layout = lab_datum["sequencingLayout"]
-
+            sequencer = lab_datum.get("sequencerManufacturer", "")
             files = sequence_data.get("files", [])
 
             # determine file structure for this lab datum
@@ -104,10 +104,12 @@ def extract_data(
 
                     yield {
                         "sample": sample_id,
+                        "laneId": fastq_r1.get("laneId", ""),
                         "labDataName": lab_data_name,
                         "libraryType": library_type,
                         "sequenceSubtype": sequence_subtype,
                         "genomicStudySubtype": genomic_study_subtype,
+                        "sequencerManufacturer": sequencer,
                         "fastq_1": str(fastq_r1_file_path),
                         "fastq_2": str(fastq_r2_file_path),
                         "bed_file": (
@@ -123,10 +125,12 @@ def extract_data(
 
                     yield {
                         "sample": sample_id,
+                        "laneId": fastq_r1.get("laneId", ""),
                         "labDataName": lab_data_name,
                         "libraryType": library_type,
                         "sequenceSubtype": sequence_subtype,
                         "genomicStudySubtype": genomic_study_subtype,
+                        "sequencerManufacturer": sequencer,
                         "fastq_1": str(fastq_file_path),
                         "fastq_2": None,
                         "bed_file": (

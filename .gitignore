@@ -16,3 +16,4 @@ grzqc_output/
 tests/output/*
 reference*
 tests/results*
+grz-mini-test-data/*
