@@ -100,7 +100,7 @@ workflow GRZQC {
             ch_genome
             .flatMap { genome ->
                 def defaultFasta = genome == 'GRCh38'
-                    ? "s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/genome.fa"
+                    ? "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz"
                     : "s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
                 def f = file(defaultFasta)
                 if( !f.exists() )    error "Default genome on ignomes s3 missing: $f"
