@@ -33,15 +33,9 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     ch_versions = ch_versions.mix(BAM_SORT_STATS_SAMTOOLS.out.versions)
 
     //
-    // Add read groups required by GATK4SPARK_MARKDUPLICATES
-    //
-    PICARD_ADDORREPLACEREADGROUPS (BAM_SORT_STATS_SAMTOOLS.out.bam, [[:],[]], [[:],[]])
-    ch_versions = ch_versions.mix(PICARD_ADDORREPLACEREADGROUPS.out.versions)
-
-    //
     // picard markduplicates
     //
-    SAMBAMBA_MARKDUP (PICARD_ADDORREPLACEREADGROUPS.out.bam)
+    SAMBAMBA_MARKDUP (BAM_SORT_STATS_SAMTOOLS.out.bam)
     ch_versions = ch_versions.mix(SAMBAMBA_MARKDUP.out.versions)
 
     emit:
