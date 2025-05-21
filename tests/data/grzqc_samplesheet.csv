@@ -1,5 +1,0 @@
-sample,labDataName,libraryType,sequenceSubtype,genomicStudySubtype,fastq_1,fastq_2,bed_file
-b3d1f9e52c4f4e8b9d79a29c5b7f3a1c_Blood_DNA_normal,Blood DNA normal,wgs,germline,germline-only,tests/data/files/donor_001/NIST7035_1_R1.fastq.gz,tests/data/files/donor_001/NIST7035_1_R2.fastq.gz,tests/data/files/donor_001/panel.bed
-b3d1f9e52c4f4e8b9d79a29c5b7f3a1c_Blood_DNA_normal,Blood DNA normal,wgs,germline,germline-only,tests/data/files/donor_001/NIST7035_2_R1.fastq.gz,tests/data/files/donor_001/NIST7035_2_R2.fastq.gz,tests/data/files/donor_001/panel.bed
-b3d1f9e52c4f4e8b9d79a29c5b7f3a1c_Blood_DNA_normal,Blood DNA normal,wgs,germline,germline-only,tests/data/files/donor_001/NIST7086_1_R1.fastq.gz,tests/data/files/donor_001/NIST7086_1_R2.fastq.gz,tests/data/files/donor_001/panel.bed
-b3d1f9e52c4f4e8b9d79a29c5b7f3a1c_Blood_DNA_normal,Blood DNA normal,wgs,germline,germline-only,tests/data/files/donor_001/NIST7086_2_R1.fastq.gz,tests/data/files/donor_001/NIST7086_2_R2.fastq.gz,tests/data/files/donor_001/panel.bed
