@@ -34,6 +34,10 @@ def determine_fastq_pairs(fastq_files: list[dict]) -> list[tuple[dict, dict]]:
 
     return retval
 
+def sanitize(value):
+    if isinstance(value, str):
+        return value.replace(" ", "_")
+    return value
 
 def extract_data(
     json_data: Dict, submission_base_path: str | Path
@@ -103,13 +107,14 @@ def extract_data(
                     ).absolute()
 
                     yield {
-                        "sample": sample_id,
+                        "sample": sanitize(sample_id),
                         "laneId": fastq_r1.get("laneId", ""),
-                        "labDataName": lab_data_name,
-                        "libraryType": library_type,
-                        "sequenceSubtype": sequence_subtype,
-                        "genomicStudySubtype": genomic_study_subtype,
-                        "sequencerManufacturer": sequencer,
+                        "flowcellId": fastq_r1.get("flowcellId", ""),
+                        "labDataName": sanitize(lab_data_name),
+                        "libraryType": sanitize(library_type),
+                        "sequenceSubtype": sanitize(sequence_subtype),
+                        "genomicStudySubtype": sanitize(genomic_study_subtype),
+                        "sequencerManufacturer": sanitize(sequencer),
                         "fastq_1": str(fastq_r1_file_path),
                         "fastq_2": str(fastq_r2_file_path),
                         "bed_file": (
@@ -124,13 +129,14 @@ def extract_data(
                     ).absolute()
 
                     yield {
-                        "sample": sample_id,
+                        "sample": sanitize(sample_id),
                         "laneId": fastq_r1.get("laneId", ""),
-                        "labDataName": lab_data_name,
-                        "libraryType": library_type,
-                        "sequenceSubtype": sequence_subtype,
-                        "genomicStudySubtype": genomic_study_subtype,
-                        "sequencerManufacturer": sequencer,
+                        "flowcellId": fastq_r1.get("flowcellId", ""),
+                        "labDataName": sanitize(lab_data_name),
+                        "libraryType": sanitize(library_type),
+                        "sequenceSubtype": sanitize(sequence_subtype),
+                        "genomicStudySubtype": sanitize(genomic_study_subtype),
+                        "sequencerManufacturer": sanitize(sequencer),
                         "fastq_1": str(fastq_file_path),
                         "fastq_2": None,
                         "bed_file": (

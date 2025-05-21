@@ -144,7 +144,7 @@ workflow GRZQC {
                             }.collect()
     }
 
-    // create thresholds channels
+    // Create thresholds channels
     ch_thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true).collect()
                                     : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json").collect()
     
@@ -165,7 +165,6 @@ workflow GRZQC {
         save_trimmed_fail,
         save_merged
     )
-
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect{ meta, json -> json })
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect{ meta, html -> html })
     ch_versions = ch_versions.mix(FASTP.out.versions)
@@ -260,10 +259,12 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.map{meta, file -> file}.collect())
     ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.map{meta, file -> file}.collect())
 
+    // Remove laneId, read_group, flowcellId, bed_file from the metadata to enable sample based grouping
     FASTP.out.json.map{meta, json ->
             def newMeta = meta.clone()
             newMeta.remove('laneId')
             newMeta.remove('read_group')
+            newMeta.remove('flowcellId')
             newMeta.remove('bed_file')
             [ newMeta, json ]
             }.set { ch_fastp_mosdepth }
@@ -285,7 +286,8 @@ workflow GRZQC {
 
     // Merge compare_threshold results for a final report
     MERGE_REPORTS(
-        COMPARE_THRESHOLD.out.result_csv.collect())
+        COMPARE_THRESHOLD.out.result_csv.collect()
+        )
 
     ch_versions = ch_versions.mix(MERGE_REPORTS.out.versions)
 
@@ -328,7 +330,7 @@ workflow GRZQC {
     )
 
     emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
-    versions       = ch_versions                 // channel: [ path(versions.yml) ]
+    versions       = ch_versions                      // channel: [ path(versions.yml) ]
 
 }
 

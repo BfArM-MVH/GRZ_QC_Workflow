@@ -197,4 +197,4 @@ and a maximum of 48 GB of RAM.
 
 ## Contributions and Support
 
-**BfArM-MVH/GRZ_QC_Workflow** was originally written by Yun Wang, Kübra Narci, Shounak Chakraborty and Florian R. Hölzlwimmer.
+**BfArM-MVH/GRZ_QC_Workflow** was originally written by Yun Wang, Kübra Narci, Travis Wrightsman, Shounak Chakraborty and Florian R. Hölzlwimmer.

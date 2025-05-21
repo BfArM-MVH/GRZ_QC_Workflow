@@ -25,17 +25,17 @@ def read_bed_file(
 
         # Default column names for the first 12 standard BED fields
         default_column_names = [
-            "chrom", 
-            "start", 
-            "end", 
-            "name", 
-            "score", 
+            "chrom",
+            "start",
+            "end",
+            "name",
+            "score",
             "strand",
-            "thickStart", 
-            "thickEnd", 
-            "itemRgb", 
+            "thickStart",
+            "thickEnd",
+            "itemRgb",
             "blockCount",
-            "blockSizes", 
+            "blockSizes",
             "blockStarts",
         ]
         # If there are more columns than default names, add generic names

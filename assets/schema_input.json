@@ -59,6 +59,11 @@
                 "errorMessage": "Sequencer manufacturer",
                 "meta": ["sequencer"]
             },
+            "flowcellId": {
+                "type": "string",
+                "errorMessage": "Sequencer manufacturer",
+                "meta": ["flowcellId"]
+            },
             "fastq_1": {
                 "type": "string",
                 "format": "file-path",
