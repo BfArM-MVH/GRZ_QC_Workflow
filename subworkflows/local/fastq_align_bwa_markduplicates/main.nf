@@ -3,8 +3,7 @@
 //
 
 include { BWAMEM2_MEM                   } from '../../../modules/nf-core/bwamem2/mem/main'
-include { BAM_SORT_STATS_SAMTOOLS       } from '../../nf-core/bam_sort_stats_samtools/main'
-include { PICARD_ADDORREPLACEREADGROUPS } from '../../../modules/nf-core/picard/addorreplacereadgroups/main'      
+include { BAM_INDEX_STATS_SAMTOOLS      } from '../../local/bam_index_stats_samtools/main'
 include { PICARD_MARKDUPLICATES         } from '../../../modules/nf-core/picard/markduplicates/main'
 include { SAMTOOLS_MERGE                } from '../../../modules/nf-core/samtools/merge/main'
 
@@ -44,16 +43,16 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
 
     // Sort, index BAM file and run samtools stats, flagstat and idxstats
-    BAM_SORT_STATS_SAMTOOLS (
+    BAM_INDEX_STATS_SAMTOOLS (
         SAMTOOLS_MERGE.out.bam, 
         ch_fasta)
 
-    ch_versions = ch_versions.mix(BAM_SORT_STATS_SAMTOOLS.out.versions)
+    ch_versions = ch_versions.mix(BAM_INDEX_STATS_SAMTOOLS.out.versions)
 
 
     // run picard markduplicates on aligned and merged files
     PICARD_MARKDUPLICATES (
-        SAMTOOLS_MERGE.out.bam, 
+        BAM_INDEX_STATS_SAMTOOLS.out.bam, 
         ch_fasta, 
         ch_fai)
 
@@ -64,7 +63,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     bai      = PICARD_MARKDUPLICATES.out.bai        // channel: [ val(meta), path(bai) ]
     cram     = PICARD_MARKDUPLICATES.out.cram       // channel: [ val(meta), path(cram) ]
     metrics  = PICARD_MARKDUPLICATES.out.metrics    // channel: [ val(meta), path(metrics) ]
-    flagstat = BAM_SORT_STATS_SAMTOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
-    stat     = BAM_SORT_STATS_SAMTOOLS.out.stats    // channel: [ val(meta), path(stats) ]
+    flagstat = BAM_INDEX_STATS_SAMTOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
+    stat     = BAM_INDEX_STATS_SAMTOOLS.out.stats    // channel: [ val(meta), path(stats) ]
     versions = ch_versions                          // channel: [ path(versions.yml) ]
 }
