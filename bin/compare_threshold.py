@@ -153,7 +153,7 @@ def main(args=None):
         file_q_rate = fastp_filtering_stats[f"q{quality_threshold}_rate"]
 
         total_bases += file_total_bases
-        total_bases_above_quality += file_total_bases * file_q_rate
+        total_bases_above_quality += fastp_filtering_stats[f"q{quality_threshold}_bases"]
 
     if total_bases == 0:
         percent_bases_above_quality_threshold = 0
