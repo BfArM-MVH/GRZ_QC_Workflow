@@ -57,8 +57,8 @@ workflow GRZQC {
     // set up channels 
     //
     // match fa and fasta extensions
-    def fastaExts = [ '.fa', '.fasta' ]
-    def faiExts   = [ '.fa.fai', '.fasta.fai' ]
+    def fastaExts = [ '.fa', '.fasta', '.fa.gz', '.fasta.gz' ]
+    def faiExts   = [ '.fa.fai', '.fasta.fai', '.fa.gz.fai', '.fasta.gz.fai' ]
 
     // create reference channels
     if( params.reference_path ) {
