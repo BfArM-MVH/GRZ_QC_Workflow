@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - update README about usage of costum config + update base.config for bwamem [#63](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/63)
 - Add disclaimer clarifying the aim of this workflow [#61](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/61)
 - tests on small synthetic genomes + reads [#78](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/78)
+- sambamba [#91](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/91)
 
 ### `Fixed`
 
@@ -28,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Deprecated`
 
 - pytest [#84](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/84)
+- picard [#91](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/91)
 
 ## v0.2.0-alpha - [19.03.2025]
 
