@@ -4,7 +4,6 @@
 
 include { BWAMEM2_MEM                   } from '../../../modules/nf-core/bwamem2/mem/main'
 include { BAM_SORT_STATS_SAMTOOLS       } from '../../nf-core/bam_sort_stats_samtools/main'
-include { PICARD_ADDORREPLACEREADGROUPS } from '../../../modules/nf-core/picard/addorreplacereadgroups/main'      
 include { SAMBAMBA_MARKDUP              } from '../../../modules/nf-core/sambamba/markdup/main'
 
 workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
