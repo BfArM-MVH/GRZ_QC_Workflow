@@ -1,10 +1,9 @@
-name: nextflow
+name: grzqc-dev
 channels:
   - conda-forge
   - bioconda
 dependencies:
-  - nextflow
-  - python=3.12
-  - pandas
-  - openpyxl
-  - pytest
+  - nextflow =25.04
+  - prettier =3.5
+  - nf-core =3.2
+  - conda-lock =3
