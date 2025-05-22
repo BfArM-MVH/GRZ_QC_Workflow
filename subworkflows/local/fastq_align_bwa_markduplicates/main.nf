@@ -6,6 +6,7 @@ include { BWAMEM2_MEM                   } from '../../../modules/nf-core/bwamem2
 include { BAM_INDEX_STATS_SAMTOOLS      } from '../../local/bam_index_stats_samtools/main'
 include { PICARD_MARKDUPLICATES         } from '../../../modules/nf-core/picard/markduplicates/main'
 include { SAMTOOLS_MERGE                } from '../../../modules/nf-core/samtools/merge/main'
+include { SAMBAMBA_MARKDUP              } from '../../../modules/nf-core/sambamba/markdup/main'
 
 workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     take:
@@ -23,7 +24,8 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
         ch_reads, 
         ch_index, 
         ch_fasta, 
-        val_sort_bam )
+        val_sort_bam 
+        )
 
     ch_versions = ch_versions.mix(BWAMEM2_MEM.out.versions.first())
 
@@ -45,25 +47,21 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     // Sort, index BAM file and run samtools stats, flagstat and idxstats
     BAM_INDEX_STATS_SAMTOOLS (
         SAMTOOLS_MERGE.out.bam, 
-        ch_fasta)
+        ch_fasta
+        )
 
     ch_versions = ch_versions.mix(BAM_INDEX_STATS_SAMTOOLS.out.versions)
 
-
-    // run picard markduplicates on aligned and merged files
-    PICARD_MARKDUPLICATES (
-        BAM_INDEX_STATS_SAMTOOLS.out.bam, 
-        ch_fasta, 
-        ch_fai)
-
-    ch_versions = ch_versions.mix(PICARD_MARKDUPLICATES.out.versions)
+    // Mark duplicates with sambamba
+    SAMBAMBA_MARKDUP (
+        BAM_INDEX_STATS_SAMTOOLS.out.bam
+        )
+    ch_versions = ch_versions.mix(SAMBAMBA_MARKDUP.out.versions)
 
     emit:
-    bam      = PICARD_MARKDUPLICATES.out.bam        // channel: [ val(meta), path(bam) ]
-    bai      = PICARD_MARKDUPLICATES.out.bai        // channel: [ val(meta), path(bai) ]
-    cram     = PICARD_MARKDUPLICATES.out.cram       // channel: [ val(meta), path(cram) ]
-    metrics  = PICARD_MARKDUPLICATES.out.metrics    // channel: [ val(meta), path(metrics) ]
-    flagstat = BAM_INDEX_STATS_SAMTOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
-    stat     = BAM_INDEX_STATS_SAMTOOLS.out.stats    // channel: [ val(meta), path(stats) ]
+    bam      = SAMBAMBA_MARKDUP.out.bam      // channel: [ val(meta), path(bam) ]
+    bai      = SAMBAMBA_MARKDUP.out.bai      // channel: [ val(meta), path(bai) ]
+    flagstat = BAM_INDEX_STATS_SAMTOOLS.out.flagstat      // channel: [ val(meta), path(flagstat) ]
+    stat     = BAM_INDEX_STATS_SAMTOOLS.out.stats      // channel: [ val(meta), path(stats) ]
     versions = ch_versions                          // channel: [ path(versions.yml) ]
 }
