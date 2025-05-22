@@ -177,8 +177,8 @@ workflow GRZQC {
         save_trimmed_fail,
         save_merged
     )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect{ meta, json -> json })
-    ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect{ meta, html -> html })
+    ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect{ _meta, json -> json })
+    ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect{ _meta, html -> html })
     ch_versions = ch_versions.mix(FASTP.out.versions)
 
     if ( !params.reference_path ) {
@@ -222,8 +222,8 @@ workflow GRZQC {
         fai
     )
     ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.versions)
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.stat.collect { meta,file -> file })
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.flagstat.collect { meta,file -> file })
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.stat.collect { _meta,file -> file })
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.flagstat.collect { _meta,file -> file })
 
     ch_bams =  FASTQ_ALIGN_BWA_MARKDUPLICATES.out.bam.join(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.bai, by:0)
 
@@ -244,13 +244,13 @@ workflow GRZQC {
     // convert given bed files to UCSC style names
     // for WES and panel, run the conversion process: if the bed file has NCBI-style names, they will be converted.
     CONVERT_BED_CHROM (
-        ch_bams_bed.targeted.map{meta, bam, bai, bed_file -> [meta, bed_file ]},
+        ch_bams_bed.targeted.map{meta, _bam, _bai, bed_file -> [meta, bed_file ]},
         mapping_chrom
     )
     ch_converted_bed = CONVERT_BED_CHROM.out.converted_bed
     ch_versions = ch_versions.mix(CONVERT_BED_CHROM.out.versions)
 
-    ch_bams_bed.targeted.join(ch_converted_bed).map{meta, bam, bai, old_bed, converted_bed -> 
+    ch_bams_bed.targeted.join(ch_converted_bed).map{meta, bam, bai, _old_bed, converted_bed -> 
                                             def newMeta = meta.clone()
                                             newMeta.remove('bed_file')
                                             [ newMeta, bam, bai, converted_bed ]}
@@ -268,8 +268,8 @@ workflow GRZQC {
         fasta,
     )
     ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
-    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.map{meta, file -> file}.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.map{meta, file -> file}.collect())
+    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.map{_meta, file -> file}.collect())
+    ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.map{_meta, file -> file}.collect())
 
     // Remove laneId, read_group, flowcellId, bed_file from the metadata to enable sample based grouping
     FASTP.out.json.map{meta, json ->

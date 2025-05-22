@@ -12,7 +12,7 @@ process METADATA_TO_SAMPLESHEET {
 
     output:
     path("*samplesheet.csv"), emit: samplesheet
-    env(genome),  emit: genome
+    env("genome"),  emit: genome
 
     // when:
     // task.ext.when == null || task.ext.when
