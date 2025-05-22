@@ -1,18 +1,17 @@
-
 process COMPARE_THRESHOLD {
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ed/ed624a85396ad8cfe079da9b0bf12bf9822bbebcbbe926c24bb49906665ed4be/data' :
-        'community.wave.seqera.io/library/pip_gzip-utils_openpyxl_pandas:cd97ba68cc5b8463' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ed/ed624a85396ad8cfe079da9b0bf12bf9822bbebcbbe926c24bb49906665ed4be/data'
+        : 'community.wave.seqera.io/library/pip_gzip-utils_openpyxl_pandas:cd97ba68cc5b8463'}"
 
     input:
     tuple val(meta), path(summary), path(bed), path(fastp_jsons)
-    path(thresholds)
+    path thresholds
 
     output:
-    path('*.result.csv')      , emit: result_csv
-    path('versions.yml')      , emit: versions
+    path ('*.result.csv'), emit: result_csv
+    path ('versions.yml'), emit: versions
 
     script:
     """
