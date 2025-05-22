@@ -1,10 +1,9 @@
 //
-// Alignment with BWA
+// Alignment with BWA, merge with Samtools and markduplicates with sambamba
 //
 
 include { BWAMEM2_MEM                   } from '../../../modules/nf-core/bwamem2/mem/main'
 include { BAM_INDEX_STATS_SAMTOOLS      } from '../../local/bam_index_stats_samtools/main'
-include { PICARD_MARKDUPLICATES         } from '../../../modules/nf-core/picard/markduplicates/main'
 include { SAMTOOLS_MERGE                } from '../../../modules/nf-core/samtools/merge/main'
 include { SAMBAMBA_MARKDUP              } from '../../../modules/nf-core/sambamba/markdup/main'
 
@@ -59,9 +58,9 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     ch_versions = ch_versions.mix(SAMBAMBA_MARKDUP.out.versions)
 
     emit:
-    bam      = SAMBAMBA_MARKDUP.out.bam      // channel: [ val(meta), path(bam) ]
-    bai      = SAMBAMBA_MARKDUP.out.bai      // channel: [ val(meta), path(bai) ]
-    flagstat = BAM_INDEX_STATS_SAMTOOLS.out.flagstat      // channel: [ val(meta), path(flagstat) ]
-    stat     = BAM_INDEX_STATS_SAMTOOLS.out.stats      // channel: [ val(meta), path(stats) ]
-    versions = ch_versions                          // channel: [ path(versions.yml) ]
+    bam      = SAMBAMBA_MARKDUP.out.bam               // channel: [ val(meta), path(bam) ]
+    bai      = SAMBAMBA_MARKDUP.out.bai               // channel: [ val(meta), path(bai) ]
+    flagstat = BAM_INDEX_STATS_SAMTOOLS.out.flagstat  // channel: [ val(meta), path(flagstat) ]
+    stat     = BAM_INDEX_STATS_SAMTOOLS.out.stats     // channel: [ val(meta), path(stats) ]
+    versions = ch_versions                            // channel: [ path(versions.yml) ]
 }
