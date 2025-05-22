@@ -18,7 +18,7 @@ This workflow is built using [Nextflow](https://www.nextflow.io/) and processes 
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) and [`FASTP`](https://github.com/OpenGene/fastp))
 2. Alignment using [`BWAMEM2`](https://github.com/bwa-mem2/bwa-mem2)
-3. MarkDuplicates using [`Picard`](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard)
+3. MarkDuplicates using [`Sambamba`](https://github.com/biod/sambamba)
 4. Coverage calculation by [`Mosdepth`](https://github.com/brentp/mosdepth)
 5. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
