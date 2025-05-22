@@ -30,6 +30,7 @@ jobs:
           - sarek
           - panel
           - wgs
+          - alignment
         environment:
           - docker
           - conda
@@ -39,6 +40,8 @@ jobs:
           - test: panel
             environment: docker
           - test: wgs
+            environment: docker
+          - test: alignment
             environment: docker
 
     steps:

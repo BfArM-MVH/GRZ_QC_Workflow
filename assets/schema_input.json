@@ -78,7 +78,13 @@
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
                 "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
-
+            "aligned_reads": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "\\S+\\.(bam|cram)$",
+                "errorMessage": "Aligned reads BAM or CRAM, cannot contain spaces and must have extension '.bam' or '.cram'"
+            },
             "bed_file": {
                 "type": "string",
                 "format": "file-path",
@@ -94,6 +100,21 @@
                 "meta": ["reference"]
             }
         },
-        "required": ["sample", "fastq_1"]
+        "anyOf": [
+            {
+                "dependentRequired": {
+                    "id": ["fastq_1"]
+                }
+            },
+            {
+                "dependentRequired": {
+                    "id": ["aligned_reads"]
+                }
+            }
+        ],
+        "dependentRequired": {
+            "fastq_2": ["fastq_1"]
+        },
+        "required": ["sample"]
     }
 }
