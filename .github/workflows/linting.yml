@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  Prettier:
+  lints:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,32 +33,10 @@ jobs:
           miniforge-version: latest
           conda-remove-defaults: "true"
           environment-file: environment-dev.conda.linux-64.lock
+          use-only-tar-bz2: true # required for proper caching
 
-      - name: Run Prettier --check
+      - name: Check Prettier formatting
         run: prettier --check .
-
-  Python:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        # required for Conda
-        shell: bash -el {0}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Cache Conda packages
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/conda_pkgs_dir
-          key: conda-pkgs_${{ runner.os }}_${{ hashFiles('environment-dev.conda.linux-64.lock') }}
-
-      - name: Set up development environment
-        uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 # v3.1.1
-        with:
-          miniforge-version: latest
-          conda-remove-defaults: "true"
-          environment-file: environment-dev.conda.linux-64.lock
 
       - name: Check Python script formatting
         run: ruff format --check bin/
@@ -66,59 +44,12 @@ jobs:
       - name: Lint Python scripts
         run: ruff check --extend-select I
 
-  Nextflow:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        # required for Conda
-        shell: bash -el {0}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Cache Conda packages
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/conda_pkgs_dir
-          key: conda-pkgs_${{ runner.os }}_${{ hashFiles('environment-dev.conda.linux-64.lock') }}
-
-      - name: Set up development environment
-        uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 # v3.1.1
-        with:
-          miniforge-version: latest
-          conda-remove-defaults: "true"
-          environment-file: environment-dev.conda.linux-64.lock
-
       - name: Lint and check formatting of local Nextflow scripts
         run: |
           find main.nf workflows/ subworkflows/local modules/local \
           -exec nextflow lint -format -sort-declarations -harshil-alignment {} + \
           | (! grep 'formatted') \
           || (echo 'Some Nextflow scripts were not formatted properly!' && exit 1)
-
-  nf-core-modules:
-    name: "nf-core Modules"
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        # required for Conda
-        shell: bash -el {0}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Cache Conda packages
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/conda_pkgs_dir
-          key: conda-pkgs_${{ runner.os }}_${{ hashFiles('environment-dev.conda.linux-64.lock') }}
-
-      - name: Set up development environment
-        uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 # v3.1.1
-        with:
-          miniforge-version: latest
-          conda-remove-defaults: "true"
-          environment-file: environment-dev.conda.linux-64.lock
 
       - name: Lint nf-core modules
         run: nf-core --hide-progress modules lint --all
