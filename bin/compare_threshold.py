@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
-import pandas as pd
+import argparse
 import gzip
 import json
-import argparse
 import sys
 from pathlib import Path
+
+import pandas as pd
+
 
 def read_bed_file(
     file_path,
@@ -78,13 +80,16 @@ def read_bed_file(
 
     return bed_df
 
+
 def parse_args(args=None):
     Description = "Compare the results with the thresholds."
     parser = argparse.ArgumentParser(description=Description)
     parser.add_argument("--mosdepth_global_summary", "-s", required=True)
     parser.add_argument("--mosdepth_target_regions_bed", "-b", required=True)
     parser.add_argument("--thresholds", "-t", required=True)
-    parser.add_argument("--fastp_json", "-f", required=True, nargs="+", help="fastp json file(s)")
+    parser.add_argument(
+        "--fastp_json", "-f", required=True, nargs="+", help="fastp json file(s)"
+    )
     parser.add_argument("--sample_id", "-i", required=True)
     parser.add_argument("--labDataName", "-n", required=True)
     parser.add_argument("--libraryType", "-l", required=True)
@@ -92,6 +97,7 @@ def parse_args(args=None):
     parser.add_argument("--genomicStudySubtype", "-g", required=True)
     parser.add_argument("--output", "-o", required=True)
     return parser.parse_args(args)
+
 
 def main(args=None):
     args = parse_args(args)
@@ -113,7 +119,11 @@ def main(args=None):
     if thresholds is None:
         raise ValueError(
             "No matching thresholds found for meta values: "
-            + args.libraryType + ", " + args.sequenceSubtype + ", " + args.genomicStudySubtype
+            + args.libraryType
+            + ", "
+            + args.sequenceSubtype
+            + ", "
+            + args.genomicStudySubtype
         )
 
     ### Collect all statistics
@@ -124,15 +134,22 @@ def main(args=None):
     mean_depth_of_converage_required = float(thresholds["meanDepthOfCoverage"])
     # Read mosdepth summary file
     df = pd.read_csv(args.mosdepth_global_summary, sep="\t")
-    row_name = "total_region" if args.libraryType in ["panel", "wes", "panel_lr", "wes_lr"] else "total"
+    row_name = (
+        "total_region"
+        if args.libraryType in ["panel", "wes", "panel_lr", "wes_lr"]
+        else "total"
+    )
     mean_depth_of_coverage = df.loc[df["chrom"] == row_name, "mean"].item()
 
     # --- Determine 'percentBasesAboveQualityThreshold' ---
 
     # Base quality threshold
-    quality_threshold = thresholds["percentBasesAboveQualityThreshold"]["qualityThreshold"]
+    quality_threshold = thresholds["percentBasesAboveQualityThreshold"][
+        "qualityThreshold"
+    ]
     percent_bases_above_quality_threshold_required = thresholds[
-        "percentBasesAboveQualityThreshold"]['percentBasesAbove']
+        "percentBasesAboveQualityThreshold"
+    ]["percentBasesAbove"]
 
     total_bases = 0
     total_bases_above_quality = 0
@@ -152,13 +169,17 @@ def main(args=None):
         file_total_bases = fastp_filtering_stats["total_bases"]
 
         total_bases += file_total_bases
-        total_bases_above_quality += fastp_filtering_stats[f"q{quality_threshold}_bases"]
+        total_bases_above_quality += fastp_filtering_stats[
+            f"q{quality_threshold}_bases"
+        ]
 
     if total_bases == 0:
         percent_bases_above_quality_threshold = 0
     else:
         fraction_bases_above_quality_threshold = total_bases_above_quality / total_bases
-        percent_bases_above_quality_threshold = fraction_bases_above_quality_threshold * 100
+        percent_bases_above_quality_threshold = (
+            fraction_bases_above_quality_threshold * 100
+        )
 
     # Minimum coverage of target regions to pass
     min_coverage = int(thresholds["targetedRegionsAboveMinCoverage"]["minCoverage"])
@@ -183,8 +204,10 @@ def main(args=None):
     ### Perform the quality check
     quality_check_passed = (
         mean_depth_of_coverage >= mean_depth_of_converage_required
-        and percent_bases_above_quality_threshold >= percent_bases_above_quality_threshold_required
-        and targeted_regions_above_min_coverage >= targeted_regions_above_min_coverage_required
+        and percent_bases_above_quality_threshold
+        >= percent_bases_above_quality_threshold_required
+        and targeted_regions_above_min_coverage
+        >= targeted_regions_above_min_coverage_required
     )
 
     ### Write the results to a CSV file
@@ -197,17 +220,24 @@ def main(args=None):
             "genomicStudySubtype": [args.genomicStudySubtype],
             "meanDepthOfCoverage": [mean_depth_of_coverage],
             "meanDepthOfCoverageRequired": [mean_depth_of_converage_required],
-            "percentBasesAboveQualityThreshold": [percent_bases_above_quality_threshold],
+            "percentBasesAboveQualityThreshold": [
+                percent_bases_above_quality_threshold
+            ],
             "qualityThreshold": [quality_threshold],
-            "percentBasesAboveQualityThresholdRequired": [percent_bases_above_quality_threshold_required],
+            "percentBasesAboveQualityThresholdRequired": [
+                percent_bases_above_quality_threshold_required
+            ],
             "targetedRegionsAboveMinCoverage": [targeted_regions_above_min_coverage],
             "minCoverage": [min_coverage],
-            "targetedRegionsAboveMinCoverageRequired": [targeted_regions_above_min_coverage_required],
+            "targetedRegionsAboveMinCoverageRequired": [
+                targeted_regions_above_min_coverage_required
+            ],
             "passedQC": [quality_check_passed],
         }
     )
     # write QC results to a CSV file
     qc_df.to_csv(args.output, index=False)
+
 
 if __name__ == "__main__":
     sys.exit(main())

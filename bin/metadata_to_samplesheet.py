@@ -2,13 +2,13 @@
 
 
 import argparse
-import pandas as pd
 import json
 from itertools import groupby
 from operator import itemgetter
-from typing import Dict, Any, Generator
-
 from pathlib import Path
+from typing import Any, Dict, Generator
+
+import pandas as pd
 
 
 def determine_fastq_pairs(fastq_files: list[dict]) -> list[tuple[dict, dict]]:
@@ -35,10 +35,12 @@ def determine_fastq_pairs(fastq_files: list[dict]) -> list[tuple[dict, dict]]:
 
     return retval
 
+
 def sanitize(value):
     if isinstance(value, str):
         return value.replace(" ", "_")
     return value
+
 
 def extract_data(
     json_data: Dict, submission_base_path: str | Path

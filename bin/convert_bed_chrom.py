@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+import argparse
+import gzip
 import sys
 from pathlib import Path
-import gzip
-import argparse
+
 import pandas as pd
+
 
 def read_bed_file(
     file_path,
@@ -83,26 +85,40 @@ def read_bed_file(
 
     return bed_df
 
+
 def load_mapping(mapping_file):
     mapping_file = Path(mapping_file)
     # Read the mapping file as a DataFrame
     df = pd.read_csv(mapping_file, sep="\t")
     # Check if the required columns exist
-    required_cols = ['UCSC.style.name', 'Sequence.Name']
+    required_cols = ["UCSC.style.name", "Sequence.Name"]
     missing = [col for col in required_cols if col not in df.columns]
     if missing:
-        raise ValueError(f"Error: Mapping file is missing required column(s): {', '.join(missing)}")
+        raise ValueError(
+            f"Error: Mapping file is missing required column(s): {', '.join(missing)}"
+        )
     # Build a mapping from NCBI-style (Sequence.Name) to UCSC-style (UCSC.style.name)
-    mapping = dict(zip(df['Sequence.Name'], df['UCSC.style.name']))
+    mapping = dict(zip(df["Sequence.Name"], df["UCSC.style.name"]))
     return mapping
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert a BED file from NCBI to UCSC style if needed")
-    parser.add_argument("--bed", "-b", required=True, help="Input BED file (or gzipped BED file)")
-    parser.add_argument("--mapping",  "-m", required=True, help="Mapping file with columns 'UCSC.style.name' and 'Sequence.Name'")
-    parser.add_argument("--output", "-o", required=True, help="Output converted BED file")
-    
+    parser = argparse.ArgumentParser(
+        description="Convert a BED file from NCBI to UCSC style if needed"
+    )
+    parser.add_argument(
+        "--bed", "-b", required=True, help="Input BED file (or gzipped BED file)"
+    )
+    parser.add_argument(
+        "--mapping",
+        "-m",
+        required=True,
+        help="Mapping file with columns 'UCSC.style.name' and 'Sequence.Name'",
+    )
+    parser.add_argument(
+        "--output", "-o", required=True, help="Output converted BED file"
+    )
+
     args = parser.parse_args()
     bed_path = Path(args.bed)
     mapping_path = Path(args.mapping)
@@ -115,8 +131,11 @@ def main():
     bed_df["chrom"] = bed_df["chrom"].replace(mapping)
 
     # Write the (possibly converted) BED file.
-    bed_df[["chrom", "start", "end"]].to_csv(out_path, sep="\t", index=False, header=False)
+    bed_df[["chrom", "start", "end"]].to_csv(
+        out_path, sep="\t", index=False, header=False
+    )
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
