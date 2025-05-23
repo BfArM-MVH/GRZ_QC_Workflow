@@ -2,6 +2,12 @@
 
 ## Formatting/linting files
 
+You can easily create a development environment with all the following software on Linux with:
+
+```shell
+conda create --name grzqc --file environment-dev.conda.linux-64.lock
+```
+
 ### Prettier
 
 ```shell
