@@ -5,13 +5,14 @@ import argparse
 import pandas as pd
 import json
 from itertools import groupby
+from operator import itemgetter
 from typing import Dict, Any, Generator
 
 from pathlib import Path
 
 
 def determine_fastq_pairs(fastq_files: list[dict]) -> list[tuple[dict, dict]]:
-    key = lambda f: (f.get("flowcellId", ""), f.get("laneId", ""))
+    key = itemgetter("flowcellId", "laneId")
 
     retval = []
 
@@ -55,7 +56,6 @@ def extract_data(
     """
     submission_base_path = Path(submission_base_path)
 
-    data = []
     submission = json_data["submission"]
     genomic_study_subtype = submission.get("genomicStudySubtype", "")
 
