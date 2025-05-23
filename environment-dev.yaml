@@ -7,3 +7,4 @@ dependencies:
   - prettier =3.5
   - nf-core =3.2
   - conda-lock =3
+  - ruff =0.11
