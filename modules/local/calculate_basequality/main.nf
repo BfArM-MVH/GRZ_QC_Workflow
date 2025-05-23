@@ -14,9 +14,14 @@ process CALCULATE_BASEQUALITY {
 
     script:
     """
-    calculate_basequality.py \\
-        --input ${input} \\
-        --output "${meta.id}.json"
+    #!/usr/bin/env bash
+    if [ -f "${meta.fastp_json}" ]; then
+        mv "${meta.fastp_json}" "${meta.id}.json"
+    else
+        calculate_basequality.py \\
+            --input "${input}" \\
+            --output "${meta.id}.json"
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

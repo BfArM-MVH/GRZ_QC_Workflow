@@ -66,7 +66,7 @@ jobs:
           curl -L https://github.com/twrightsman/grz-mini-test-data/releases/download/version%2F${{ env.MINI_TEST_VER }}/references.tgz | tar -xzC grz-mini-test-data/
           mkdir -p grz-mini-test-data/submissions/${{ matrix.test }}
           curl -L https://github.com/twrightsman/grz-mini-test-data/releases/download/version%2F${{ env.MINI_TEST_VER }}/${{ matrix.test }}.tgz | tar -xzC grz-mini-test-data/submissions/${{ matrix.test }}
-        if: ${{ matrix.test != 'sarek' }}
+        if: ${{ (matrix.test == 'panel') || (matrix.test == 'wgs') }}
 
       - name: Run test
         run: nextflow run main.nf -profile ${{ matrix.environment }},test_${{ matrix.test }}

@@ -85,6 +85,15 @@
                 "pattern": "\\S+\\.(bam|cram)$",
                 "errorMessage": "Aligned reads BAM or CRAM, cannot contain spaces and must have extension '.bam' or '.cram'"
             },
+            "fastp_json": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "\\S+\\.(json)$",
+                "errorMessage": "FASTP result of alignment, json file",
+                "meta": ["fastp_json"]
+
+            },
             "bed_file": {
                 "type": "string",
                 "format": "file-path",
@@ -113,7 +122,8 @@
             }
         ],
         "dependentRequired": {
-            "fastq_2": ["fastq_1"]
+            "fastq_2": ["fastq_1"],
+            "fastp_json": ["aligned_reads"]
         },
         "required": ["sample"]
     }
