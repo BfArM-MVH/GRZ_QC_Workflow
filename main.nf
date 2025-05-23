@@ -60,8 +60,8 @@ ch_samplesheet
     .flatMap { samplesheet ->
         samplesheetToList(samplesheet.toString(), "${projectDir}/assets/schema_input.json")
     }
-    .map { meta, fastq_1, fastq_2 ->
-        def read_group = "@RG\\tID:${fastq_1.simpleName}_${meta.laneId}\\tPL:${meta.sequencer.toUpperCase()}\\tSM:${meta.id}"
+    .map { meta, fastq_1, fastq_2 , alignment->
+        def read_group = "@RG\\tID:${fastq_1.simpleName}_${meta.laneId}\\tPL:${meta.sequencer}\\tSM:${meta.id}"
         def single_end = !fastq_2
         def fastqs = single_end ? [fastq_1] : [fastq_1, fastq_2]
 
@@ -70,12 +70,12 @@ ch_samplesheet
                 single_end: single_end,
                 read_group: read_group
             ],
-            fastqs
+            fastqs, alignment
         ]
     }
     .groupTuple()
-    .map { meta, fastqs ->
-        return [ meta, fastqs.flatten() ]
+    .map { meta, fastqs, alignment  ->
+        return [ meta, fastqs.flatten(), alignment ]
     }
     .set { ch_samplesheet }
 

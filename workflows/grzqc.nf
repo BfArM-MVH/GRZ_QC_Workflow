@@ -151,9 +151,18 @@ workflow GRZQC {
     ch_thresholds  = params.thresholds ? Channel.fromPath(params.thresholds, checkIfExists: true).collect()
                                     : Channel.fromPath("${projectDir}/assets/default_files/thresholds.json").collect()
     
+    ch_samplesheet.branch{
+        meta, fastqs, alignment ->
+            // fastq start
+            fastqs: fastqs.size() > 0
+                return [ meta, fastqs ]
+            alignments: alignment.size() > 0
+                return [ meta, alignment ]
+    }.set{ samplesheet_ch}
+
     // Run FASTQC on FASTQ files - per lane
     FASTQC (
-        ch_samplesheet
+        samplesheet_ch.fastqs,
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions)
@@ -162,7 +171,7 @@ workflow GRZQC {
     save_trimmed_fail = false
     save_merged = false
     FASTP(
-        ch_samplesheet,
+        samplesheet_ch.fastqs,
         [], // we are not using any adapter fastas at the moment
         false, // we don't use discard_trimmed_pass at the moment
         save_trimmed_fail,
@@ -205,7 +214,8 @@ workflow GRZQC {
 
     // align FASTQs per lane, merge, and sort
     FASTQ_ALIGN_BWA_MARKDUPLICATES (
-        ch_samplesheet,
+        samplesheet_ch.fastqs,
+        samplesheet_ch.alignments,
         bwa,
         true,
         fasta,
@@ -271,11 +281,17 @@ workflow GRZQC {
             [ newMeta, json ]
             }.set { ch_fastp_mosdepth }
 
+    // Remove bed_file from the metadata to enable sample based grouping - this result is coming from alignments in the samplesheet
+    FASTQ_ALIGN_BWA_MARKDUPLICATES.out.jsonstats.map{meta, json ->
+            def newMeta = meta.clone()
+            newMeta.remove('bed_file')
+            [ newMeta, json ]
+            }.set { ch_fastp_mosdepth_aligned }
+
     // Collect the results for comparison
     MOSDEPTH.out.summary_txt.join(MOSDEPTH.out.regions_bed, by:0)
-        .join(ch_fastp_mosdepth.groupTuple(), by:0)
+        .join(ch_fastp_mosdepth.mix(ch_fastp_mosdepth_aligned).groupTuple(), by:0)
         .set{ch_fastp_mosdepth_merged}
-
 
     // Compare coverage with thresholds: writing the results file
     // input: FASTP Q30 ratio + mosdepth all genes + mosdepth target genes

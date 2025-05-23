@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add disclaimer clarifying the aim of this workflow [#61](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/61)
 - tests on small synthetic genomes + reads [#78](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/78)
 - sambamba [#91](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/91)
+- Stating the workflow from alignment is possible [#99](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/99)
 
 ### `Fixed`
 

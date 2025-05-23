@@ -1,0 +1,3 @@
+sample,labDataName,libraryType,sequenceSubtype,genomicStudySubtype,aligned_reads,bed_file,fastp_json
+s1_Blood_DNA_sample,Blood_DNA_sample,wes,somatic,tumor+germline,tests/data/test-dataset-alignments/s1_Blood_DNA_sample.sorted.bam,tests/data/test-dataset-alignments/target.bed,tests/data/test-dataset-alignments/s1_Blood_DNA_sample.fastp.json
+s1_Blood_DNA_sample_less_samples,Blood_DNA_sample_less_samples,wes,somatic,tumor+germline,tests/data/test-dataset-alignments/s1_Blood_DNA_sample_less_samples.sorted.bam,tests/data/test-dataset-alignments/target.bed,

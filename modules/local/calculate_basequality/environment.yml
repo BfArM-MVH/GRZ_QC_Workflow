@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - pip
+  - pip:
+      - pysam==0.23.0
