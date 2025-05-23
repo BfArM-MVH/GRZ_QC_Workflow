@@ -1,215 +1,129 @@
 #!/usr/bin/env python3
 
-
 import argparse
 import json
 from itertools import groupby
-from operator import itemgetter
+from operator import attrgetter
 from pathlib import Path
-from typing import Any, Dict, Generator
 
-import pandas as pd
+from grz_pydantic_models.submission.metadata import (
+    FileType,
+    GrzSubmissionMetadata,
+    Relation,
+    SequencingLayout,
+)
 
 
-def determine_fastq_pairs(fastq_files: list[dict]) -> list[tuple[dict, dict]]:
-    key = itemgetter("flowcellId", "laneId")
+def sanitize(s: str) -> str:
+    return s.replace(" ", "_")
 
-    retval = []
 
-    fastq_files.sort(key=key)
-    for _key, group in groupby(fastq_files, key):
-        files = list(group)
+def main(submission_root: Path):
+    with open(submission_root / "metadata" / "metadata.json") as metadata_file:
+        metadata = GrzSubmissionMetadata(**json.load(metadata_file))
 
-        # separate R1 and R2 files
-        fastq_r1_files = [f for f in files if f.get("readOrder") == "R1"]
-        fastq_r2_files = [f for f in files if f.get("readOrder") == "R2"]
+    samples = []
+    for donor in metadata.donors:
+        targets = None
 
-        assert len(fastq_r1_files) == 1, (
-            f"Expected one R1 file, but got {len(fastq_r1_files)}"
+        # the tanG/VNg *CANNOT* be stored permanently
+        # the donor_pseudonym for the index patient is the tanG, so redact it
+        donor_pseudonym = (
+            donor.donor_pseudonym if donor.relation != Relation.index_ else "index"
         )
-        assert len(fastq_r2_files) == 1, (
-            f"Expected one R2 file, but got {len(fastq_r2_files)}"
+
+        for lab_datum in donor.lab_data:
+            sample_id = f"{donor_pseudonym}_{sanitize(lab_datum.lab_data_name)}"
+
+            if lab_datum.sequence_data is not None:
+                read_files = []
+
+                for file in lab_datum.sequence_data.files:
+                    match file.file_type:
+                        case FileType.bed:
+                            targets = file.file_path
+                        case FileType.fastq:
+                            read_files.append(file)
+
+                if read_files:
+                    if lab_datum.sequencing_layout == SequencingLayout.paired_end:
+                        read_files_sorted = sorted(
+                            read_files,
+                            key=attrgetter("flowcell_id", "lane_id", "read_order"),
+                        )
+                        read_files_paired = groupby(
+                            read_files_sorted, key=attrgetter("flowcell_id", "lane_id")
+                        )
+                        subsamples = ((r1, r2) for _meta, (r1, r2) in read_files_paired)
+                    else:
+                        subsamples = ((r, None) for r in read_files)
+
+                    for reads1, reads2 in subsamples:
+
+                        def resolve(p: Path) -> str:
+                            return (
+                                ""
+                                if p is None
+                                else str((submission_root / "files" / p).absolute())
+                            )
+
+                        samples.append(
+                            {
+                                "sample": sanitize(sample_id),
+                                "laneId": reads1.lane_id,
+                                "flowcellId": reads1.flowcell_id,
+                                "labDataName": sanitize(lab_datum.lab_data_name),
+                                "libraryType": sanitize(lab_datum.library_type),
+                                "sequenceSubtype": sanitize(lab_datum.sequence_subtype),
+                                "genomicStudySubtype": sanitize(
+                                    metadata.submission.genomic_study_subtype
+                                ),
+                                "sequencerManufacturer": sanitize(
+                                    lab_datum.sequencer_manufacturer
+                                ),
+                                "fastq_1": resolve(reads1.file_path),
+                                "fastq_2": resolve(
+                                    None if reads2 is None else reads2.file_path
+                                ),
+                                "bed_file": resolve(targets),
+                                "reference": lab_datum.sequence_data.reference_genome,
+                            }
+                        )
+
+    with open("grzqc_samplesheet.csv", "w") as output_file:
+        output_file.write(
+            "sample,laneId,flowcellId,labDataName,libraryType,sequenceSubtype,genomicStudySubtype,sequencerManufacturer,fastq_1,fastq_2,bed_file,reference\n"
         )
-
-        retval.append((fastq_r1_files[0], fastq_r2_files[0]))
-
-    return retval
-
-
-def sanitize(value):
-    if isinstance(value, str):
-        return value.replace(" ", "_")
-    return value
-
-
-def extract_data(
-    json_data: Dict, submission_base_path: str | Path
-) -> Generator[dict[str, Path | str | Any], Any, list[Any]]:
-    """
-    Extract specific fields from the GRZ schema JSON data.
-
-    Args:
-        json_data (Dict): The parsed JSON data from the GRZ schema file.
-        submission_base_path : Path to the base directory of the submission
-    Returns:
-        List[List[str]]: A list of lists containing the extracted data.
-        Each inner list represents a row with the following columns:
-        [sample, fastq1, fastq2, bed_file, reference]
-    """
-    submission_base_path = Path(submission_base_path)
-
-    submission = json_data["submission"]
-    genomic_study_subtype = submission.get("genomicStudySubtype", "")
-
-    donors = json_data["donors"]
-
-    for donor in donors:
-        case_id = donor.get("donorPseudonym", "")
-        lab_data = donor.get("labData", [])
-
-        for lab_datum in lab_data:
-            lab_data_name = lab_datum["labDataName"]
-
-            # derive sample_id from case_id and lab_data_name
-            sample_id = f"""{case_id}_{lab_data_name.replace(" ", "_")}"""
-
-            library_type = lab_datum["libraryType"]
-            sequence_subtype = lab_datum["sequenceSubtype"]
-            sequence_data = lab_datum.get("sequenceData", [])
-            sequencing_layout = lab_datum["sequencingLayout"]
-            sequencer = lab_datum.get("sequencerManufacturer", "")
-            files = sequence_data.get("files", [])
-
-            # determine file structure for this lab datum
-            reference = sequence_data["referenceGenome"]
-            fastq_files = [f for f in files if f["fileType"] == "fastq"]
-
-            bed_files = [f for f in files if f["fileType"] == "bed"]
-            # there should be at most one bed file
-            assert len(bed_files) < 2, (
-                "More than one bed file specified in the submission metadata!"
+        for sample in samples:
+            output_file.write(
+                ",".join(
+                    [
+                        sample["sample"],
+                        sample["laneId"],
+                        sample["flowcellId"],
+                        sample["labDataName"],
+                        sample["libraryType"],
+                        sample["sequenceSubtype"],
+                        sample["genomicStudySubtype"],
+                        sample["sequencerManufacturer"],
+                        sample["fastq_1"],
+                        sample["fastq_2"],
+                        sample["bed_file"],
+                        sample["reference"],
+                    ]
+                )
+                + "\n"
             )
-
-            if len(bed_files) > 0:
-                bed_file = bed_files[0]
-                bed_file_path = (
-                    submission_base_path / "files" / bed_file["filePath"]
-                ).absolute()
-            else:
-                bed_file = None
-                bed_file_path = None
-
-            if sequencing_layout == "paired-end":
-                for fastq_r1, fastq_r2 in determine_fastq_pairs(fastq_files):
-                    fastq_r1_file_path = (
-                        submission_base_path / "files" / fastq_r1["filePath"]
-                    ).absolute()
-                    fastq_r2_file_path = (
-                        submission_base_path / "files" / fastq_r2["filePath"]
-                    ).absolute()
-
-                    yield {
-                        "sample": sanitize(sample_id),
-                        "laneId": fastq_r1.get("laneId", ""),
-                        "flowcellId": fastq_r1.get("flowcellId", ""),
-                        "labDataName": sanitize(lab_data_name),
-                        "libraryType": sanitize(library_type),
-                        "sequenceSubtype": sanitize(sequence_subtype),
-                        "genomicStudySubtype": sanitize(genomic_study_subtype),
-                        "sequencerManufacturer": sanitize(sequencer),
-                        "fastq_1": str(fastq_r1_file_path),
-                        "fastq_2": str(fastq_r2_file_path),
-                        "bed_file": (
-                            str(bed_file_path) if bed_file_path is not None else None
-                        ),
-                        "reference": reference,
-                    }
-            else:
-                for fastq_file in fastq_files:
-                    fastq_file_path = (
-                        submission_base_path / "files" / fastq_file["filePath"]
-                    ).absolute()
-
-                    yield {
-                        "sample": sanitize(sample_id),
-                        "laneId": fastq_r1.get("laneId", ""),
-                        "flowcellId": fastq_r1.get("flowcellId", ""),
-                        "labDataName": sanitize(lab_data_name),
-                        "libraryType": sanitize(library_type),
-                        "sequenceSubtype": sanitize(sequence_subtype),
-                        "genomicStudySubtype": sanitize(genomic_study_subtype),
-                        "sequencerManufacturer": sanitize(sequencer),
-                        "fastq_1": str(fastq_file_path),
-                        "fastq_2": None,
-                        "bed_file": (
-                            str(bed_file_path) if bed_file_path is not None else None
-                        ),
-                        "reference": reference,
-                    }
-
-
-def parse_args(args=None):
-    parser = argparse.ArgumentParser(
-        description="Extract data from GRZ schema JSON and create a CSV file."
-    )
-    parser.add_argument(
-        "submission_base_path",
-        help="Path to the submission base directory",
-    )
-    parser.add_argument(
-        "--submission_metadata_json",
-        help="Path to the submission metadata JSON file",
-        default=None,
-    )
-    return parser.parse_args(args)
-
-
-def main(args=None):
-    args = parse_args(args)
-
-    submission_base_path = Path(args.submission_base_path)
-    output_file = "grzqc_samplesheet.csv"
-    # Set default metadata file path if not provided
-    metadata_file = (
-        Path(args.submission_metadata_json)
-        if args.submission_metadata_json
-        else submission_base_path / "metadata" / "metadata.json"
-    )
-
-    # read the metadata.json file
-    try:
-        with open(metadata_file, "r") as f:
-            json_data = json.load(f)
-    except json.JSONDecodeError:
-        print(f"Error: The file '{metadata_file}' is not a valid JSON file.")
-        return
-    except FileNotFoundError:
-        print(f"Error: The file '{metadata_file}' was not found.")
-        return
-
-    extracted_data = list(extract_data(json_data, submission_base_path))
-    samples_df = pd.DataFrame.from_records(extracted_data)
-
-    with pd.option_context(
-        "display.max_rows",
-        None,
-        "display.max_columns",
-        None,
-        "display.max_colwidth",
-        None,
-    ):
-        print(samples_df)
-
-    try:
-        samples_df.to_csv(output_file, index=False)
-        print(f"Data has been extracted and saved to '{output_file}'")
-    except PermissionError:
-        print(f"Error: Permission denied when trying to write to '{output_file}'.")
-    except IOError as e:
-        print(
-            f"Error: An I/O error occurred while writing to '{output_file}': {str(e)}"
-        )
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="Create a samplesheet from a submission"
+    )
+    parser.add_argument(
+        "submission_root", help="Path to the submission base directory", type=Path
+    )
+
+    args = parser.parse_args()
+
+    main(submission_root=args.submission_root)
