@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import pandas as pd
 import argparse
 import sys
+
+import pandas as pd
 
 
 def parse_args(args=None):
