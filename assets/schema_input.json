@@ -92,7 +92,6 @@
                 "pattern": "\\S+\\.(json)$",
                 "errorMessage": "fastp JSON report from reads in alignment",
                 "meta": ["fastp_json"]
-
             },
             "bed_file": {
                 "type": "string",
