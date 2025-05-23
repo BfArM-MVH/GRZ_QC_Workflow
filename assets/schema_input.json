@@ -90,7 +90,7 @@
                 "format": "file-path",
                 "exists": true,
                 "pattern": "\\S+\\.(json)$",
-                "errorMessage": "FASTP result of alignment, json file",
+                "errorMessage": "fastp JSON report from reads in alignment",
                 "meta": ["fastp_json"]
 
             },

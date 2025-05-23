@@ -281,7 +281,7 @@ workflow GRZQC {
             [ newMeta, json ]
             }.set { ch_fastp_mosdepth }
 
-    // Remove  bed_file from the metadata to enable sample based grouping - this result is coming from alignmnets from samplesheet
+    // Remove bed_file from the metadata to enable sample based grouping - this result is coming from alignments in the samplesheet
     FASTQ_ALIGN_BWA_MARKDUPLICATES.out.jsonstats.map{meta, json ->
             def newMeta = meta.clone()
             newMeta.remove('bed_file')

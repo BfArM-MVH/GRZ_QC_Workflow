@@ -7,11 +7,11 @@ import json
 
 
 def parse_args(args=None):
-    Description = "Calculate base quality above the target"
+    description = "Calculate base quality above the target"
 
-    parser = argparse.ArgumentParser(description=Description)
-    parser.add_argument("--output", "-o", required=True, help="Output file json")
-    parser.add_argument("--input", "-i", required=True, help="Input alignmnet file")
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("--output", "-o", required=True, help="Output JSON file path")
+    parser.add_argument("--input", "-i", required=True, help="Input alignment file")
    
     return parser.parse_args(args)
 
