@@ -123,6 +123,14 @@
                     "description": "Path to the target bed file of ~ 400 representative target genes.",
                     "fa_icon": "fas fa-book",
                     "help_text": "Path to the target bed file of ~ 400 representative target genes."
+                },
+                "mapping_chrom": {
+                    "type": "string",
+                    "description": "Path to map of chromosome names to rename panel BED to match reference genome.",
+                    "fa_icon": "fas fa-file",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain"
                 }
             }
         },
