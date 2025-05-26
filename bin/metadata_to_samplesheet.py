@@ -6,6 +6,7 @@ from itertools import groupby
 from operator import attrgetter
 from pathlib import Path
 
+import pandas as pd
 from grz_pydantic_models.submission.metadata import (
     FileType,
     GrzSubmissionMetadata,
@@ -87,33 +88,14 @@ def main(submission_root: Path):
                                 ),
                                 "bed_file": resolve(targets),
                                 "reference": lab_datum.sequence_data.reference_genome,
+                                "meanDepthOfCoverage": lab_datum.sequence_data.mean_depth_of_coverage,
+                                "targetedRegionsAboveMinCoverage": lab_datum.sequence_data.targeted_regions_above_min_coverage,
+                                "percentBasesAboveQualityThreshold": lab_datum.sequence_data.percent_bases_above_quality_threshold.percent,
                             }
                         )
 
-    with open("grzqc_samplesheet.csv", "w") as output_file:
-        output_file.write(
-            "sample,laneId,flowcellId,labDataName,libraryType,sequenceSubtype,genomicStudySubtype,sequencerManufacturer,fastq_1,fastq_2,bed_file,reference\n"
-        )
-        for sample in samples:
-            output_file.write(
-                ",".join(
-                    [
-                        sample["sample"],
-                        sample["laneId"],
-                        sample["flowcellId"],
-                        sample["labDataName"],
-                        sample["libraryType"],
-                        sample["sequenceSubtype"],
-                        sample["genomicStudySubtype"],
-                        sample["sequencerManufacturer"],
-                        sample["fastq_1"],
-                        sample["fastq_2"],
-                        sample["bed_file"],
-                        sample["reference"],
-                    ]
-                )
-                + "\n"
-            )
+    samples_df = pd.DataFrame(samples)
+    samples_df.to_csv("grzqc_samplesheet.csv", index=False)
 
 
 if __name__ == "__main__":

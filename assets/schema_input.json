@@ -106,6 +106,24 @@
                 "pattern": "GRCh38|GRCh37",
                 "errorMessage": "The reference genome has to be either GRCh37 or GRCh38",
                 "meta": ["reference"]
+            },
+            "meanDepthOfCoverage": {
+                "type": "number",
+                "minimum": 0,
+                "errorMessage": "Must be a positive number.",
+                "meta": ["meanDepthOfCoverage"]
+            },
+            "targetedRegionsAboveMinCoverage": {
+                "type": "number",
+                "errorMessage": "Must be a number between 0 and 1.",
+                "meta": ["targetedRegionsAboveMinCoverage"]
+            },
+            "percentBasesAboveQualityThreshold": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "errorMessage": "Must be a number between 0 and 100.",
+                "meta": ["percentBasesAboveQualityThreshold"]
             }
         },
         "oneOf": [
