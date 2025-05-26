@@ -31,13 +31,17 @@ def main(args: argparse.Namespace):
         (args.libraryType, args.sequenceSubtype, args.genomicStudySubtype)
     ]["thresholds"]
 
-    # mean depth of coverage
+    # threshold - mean depth of coverage
     mosdepth_summary_df = pd.read_csv(
         args.mosdepth_global_summary, sep="\t", header=0, index_col="chrom"
     )
     mean_depth_of_coverage = mosdepth_summary_df.loc["total_region", "mean"]
     mean_depth_of_coverage_required = float(thresholds["meanDepthOfCoverage"])
-    pass_coverage_threshold = mean_depth_of_coverage >= mean_depth_of_coverage_required
+
+    # percent deviation - mean depth of coverage
+    pct_dev_mean_depth_of_coverage = (
+        mean_depth_of_coverage - args.meanDepthOfCoverage
+    ) / args.meanDepthOfCoverage
 
     # Base quality threshold
     quality_threshold = thresholds["percentBasesAboveQualityThreshold"][
@@ -77,10 +81,10 @@ def main(args: argparse.Namespace):
             fraction_bases_above_quality_threshold * 100
         )
 
-    pass_quality_threshold = (
-        percent_bases_above_quality_threshold
-        >= percent_bases_above_quality_threshold_required
-    )
+    # percent deviation - percent bases above quality threshold
+    pct_dev_percent_bases_above_quality_threshold = (
+        percent_bases_above_quality_threshold - args.percentBasesAboveQualityThreshold
+    ) / args.percentBasesAboveQualityThreshold
 
     # Minimum coverage of target regions to pass
     min_coverage = thresholds["targetedRegionsAboveMinCoverage"]["minCoverage"]
@@ -105,16 +109,15 @@ def main(args: argparse.Namespace):
             mosdepth_target_regions_df["coverage"] >= min_coverage
         ).mean()
 
-    pass_region_coverage_threshold = (
-        targeted_regions_above_min_coverage
-        >= targeted_regions_above_min_coverage_required
-    )
+    pct_dev_targeted_regions_above_min_coverage = (
+        targeted_regions_above_min_coverage - args.targetedRegionsAboveMinCoverage
+    ) / args.targetedRegionsAboveMinCoverage
 
     ### Perform the quality check
     quality_check_passed = (
-        pass_coverage_threshold
-        and pass_quality_threshold
-        and pass_region_coverage_threshold
+        (pct_dev_mean_depth_of_coverage <= 0.05)
+        and (pct_dev_percent_bases_above_quality_threshold <= 0.05)
+        and (pct_dev_targeted_regions_above_min_coverage <= 0.05)
     )
 
     ### Write the results to a CSV file
@@ -127,6 +130,7 @@ def main(args: argparse.Namespace):
             "genomicStudySubtype": [args.genomicStudySubtype],
             "meanDepthOfCoverage": [mean_depth_of_coverage],
             "meanDepthOfCoverageRequired": [mean_depth_of_coverage_required],
+            "meanDepthOfCoverageDeviation": [pct_dev_mean_depth_of_coverage],
             "percentBasesAboveQualityThreshold": [
                 percent_bases_above_quality_threshold
             ],
@@ -134,10 +138,16 @@ def main(args: argparse.Namespace):
             "percentBasesAboveQualityThresholdRequired": [
                 percent_bases_above_quality_threshold_required
             ],
+            "percentBasesAboveQualityThresholdDeviation": [
+                pct_dev_percent_bases_above_quality_threshold
+            ],
             "targetedRegionsAboveMinCoverage": [targeted_regions_above_min_coverage],
             "minCoverage": [min_coverage],
             "targetedRegionsAboveMinCoverageRequired": [
                 targeted_regions_above_min_coverage_required
+            ],
+            "targetedRegionsAboveMinCoverageDeviation": [
+                pct_dev_targeted_regions_above_min_coverage
             ],
             "passedQC": [quality_check_passed],
         }
@@ -160,6 +170,13 @@ if __name__ == "__main__":
     parser.add_argument("--libraryType", "-l", required=True)
     parser.add_argument("--sequenceSubtype", "-a", required=True)
     parser.add_argument("--genomicStudySubtype", "-g", required=True)
+    parser.add_argument("--meanDepthOfCoverage", "-m", required=True, type=float)
+    parser.add_argument(
+        "--targetedRegionsAboveMinCoverage", "-t", required=True, type=float
+    )
+    parser.add_argument(
+        "--percentBasesAboveQualityThreshold", "-p", required=True, type=float
+    )
     parser.add_argument("--output", "-o", required=True)
     args = parser.parse_args()
 

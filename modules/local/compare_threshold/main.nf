@@ -20,6 +20,9 @@ process COMPARE_THRESHOLD {
         --libraryType "${meta.libraryType}" \\
         --sequenceSubtype "${meta.sequenceSubtype}" \\
         --genomicStudySubtype "${meta.genomicStudySubtype}" \\
+        --meanDepthOfCoverage "${meta.meanDepthOfCoverage}" \\
+        --targetedRegionsAboveMinCoverage "${meta.targetedRegionsAboveMinCoverage}" \\
+        --percentBasesAboveQualityThreshold "${meta.percentBasesAboveQualityThreshold}" \\
         --fastp_json ${fastp_jsons} \\
         --mosdepth_global_summary ${summary} \\
         --mosdepth_target_regions_bed ${bed} \\
