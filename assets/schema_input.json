@@ -108,17 +108,16 @@
                 "meta": ["reference"]
             }
         },
-        "anyOf": [
-            {
-                "dependentRequired": {
-                    "id": ["fastq_1"]
-                }
-            },
-            {
-                "dependentRequired": {
-                    "id": ["aligned_reads"]
-                }
-            }
+        "oneOf": [
+        { "required": ["fastq_1"], 
+            "not": { 
+                "required": ["aligned_reads"] 
+            } 
+        },
+        { "required": ["aligned_reads"], 
+            "not": { "required": ["fastq_1"] 
+            } 
+        }
         ],
         "dependentRequired": {
             "fastq_2": ["fastq_1"],

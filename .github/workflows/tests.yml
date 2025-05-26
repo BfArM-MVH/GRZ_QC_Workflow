@@ -42,7 +42,7 @@ jobs:
           - test: wgs
             environment: docker
           - test: alignment
-            environment: docker
+            environment: conda
 
     steps:
       - name: Check out pipeline code

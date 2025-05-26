@@ -9,14 +9,14 @@ process CALCULATE_BASEQUALITY {
     tuple val(meta), path(input)
 
     output:
-    tuple val(meta), path("*.json") , emit: json
-    path('versions.yml')            , emit: versions
+    tuple val(meta), path("${meta.id}.json") , emit: json
+    path('versions.yml')                     , emit: versions
 
     script:
     """
     #!/usr/bin/env bash
     if [ -f "${meta.fastp_json}" ]; then
-        mv "${meta.fastp_json}" "${meta.id}.json"
+        cp "${meta.fastp_json}" "${meta.id}.json"
     else
         calculate_basequality.py \\
             --input "${input}" \\
