@@ -42,7 +42,7 @@ jobs:
         run: ruff format --check bin/
 
       - name: Lint Python scripts
-        run: ruff check --extend-select I
+        run: ruff check --extend-select I bin/
 
       - name: Lint and check formatting of local Nextflow scripts
         run: |
