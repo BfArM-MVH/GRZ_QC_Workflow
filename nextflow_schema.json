@@ -123,12 +123,6 @@
                     "description": "Path to the target bed file of ~ 400 representative target genes.",
                     "fa_icon": "fas fa-book",
                     "help_text": "Path to the target bed file of ~ 400 representative target genes."
-                },
-                "thresholds": {
-                    "type": "string",
-                    "description": "Path to thresholds.json file.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "Path to thresholds.json file."
                 }
             }
         },

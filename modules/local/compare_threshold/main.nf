@@ -2,12 +2,11 @@ process COMPARE_THRESHOLD {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ed/ed624a85396ad8cfe079da9b0bf12bf9822bbebcbbe926c24bb49906665ed4be/data'
-        : 'community.wave.seqera.io/library/pip_gzip-utils_openpyxl_pandas:cd97ba68cc5b8463'}"
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/a9/a9edc101b57b3042094a569950f2d0772333156ef83984bb24d701d71bd22030/data'
+        : 'community.wave.seqera.io/library/grz-pydantic-models_pandas:b31707c70fa2229e'}"
 
     input:
     tuple val(meta), path(summary), path(bed), path(fastp_jsons)
-    path thresholds
 
     output:
     path ('*.result.csv'), emit: result_csv
@@ -24,7 +23,6 @@ process COMPARE_THRESHOLD {
         --fastp_json ${fastp_jsons} \\
         --mosdepth_global_summary ${summary} \\
         --mosdepth_target_regions_bed ${bed} \\
-        --thresholds ${thresholds} \\
         --output ${meta.id}.result.csv
 
     cat <<-END_VERSIONS > versions.yml
