@@ -115,6 +115,8 @@
             },
             "targetedRegionsAboveMinCoverage": {
                 "type": "number",
+                "minimum": 0,
+                "maximum": 1,
                 "errorMessage": "Must be a number between 0 and 1.",
                 "meta": ["targetedRegionsAboveMinCoverage"]
             },
