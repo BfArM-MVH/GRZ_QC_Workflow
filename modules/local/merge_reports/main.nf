@@ -11,6 +11,7 @@ process MERGE_REPORTS {
     output:
     path "report.csv"
     path "report.xlsx"
+    path "report_mqc.csv", emit: multiqc
     path ('versions.yml'), emit: versions
 
     script:

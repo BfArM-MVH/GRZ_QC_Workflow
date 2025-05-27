@@ -128,6 +128,7 @@ def main(args: argparse.Namespace):
             "libraryType": [args.libraryType],
             "sequenceSubtype": [args.sequenceSubtype],
             "genomicStudySubtype": [args.genomicStudySubtype],
+            "qualityControlStatus": ["PASS" if quality_check_passed else "FAIL"],
             "meanDepthOfCoverage": [mean_depth_of_coverage],
             "meanDepthOfCoverageRequired": [mean_depth_of_coverage_required],
             "meanDepthOfCoverageDeviation": [pct_dev_mean_depth_of_coverage],
@@ -149,7 +150,6 @@ def main(args: argparse.Namespace):
             "targetedRegionsAboveMinCoverageDeviation": [
                 pct_dev_targeted_regions_above_min_coverage
             ],
-            "passedQC": [quality_check_passed],
         }
     )
     # write QC results to a CSV file

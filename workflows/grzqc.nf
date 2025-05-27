@@ -325,6 +325,7 @@ workflow GRZQC {
         COMPARE_THRESHOLD.out.result_csv.collect()
     )
 
+    ch_multiqc_files = ch_multiqc_files.mix(MERGE_REPORTS.out.multiqc)
     ch_versions = ch_versions.mix(MERGE_REPORTS.out.versions)
 
     // Collate and save software versions
