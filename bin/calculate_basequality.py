@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import pysam
 import argparse
-import sys
 import json
+import sys
+
+import pysam
 
 
 def parse_args(args=None):
@@ -12,7 +13,7 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("--output", "-o", required=True, help="Output JSON file path")
     parser.add_argument("--input", "-i", required=True, help="Input alignment file")
-   
+
     return parser.parse_args(args)
 
 
@@ -29,7 +30,6 @@ def main(args=None):
     q30_bases = 0
 
     for read in bamfile.fetch(until_eof=True):
-
         quals = read.query_qualities
         if quals is None:
             continue
@@ -54,7 +54,7 @@ def main(args=None):
                 "q20_bases": q20_bases,
                 "q30_bases": q30_bases,
                 "q20_rate": round(q20_rate, 6),
-                "q30_rate": round(q30_rate, 6)
+                "q30_rate": round(q30_rate, 6),
             }
         }
     }
@@ -64,6 +64,7 @@ def main(args=None):
         json.dump(results, f, indent=4)
 
     print(f"Results written to {args.output}")
+
 
 if __name__ == "__main__":
     sys.exit(main())
