@@ -33,6 +33,20 @@
                             "modules"
                         ]
                     },
+                    "minimap2/align": {
+                        "branch": "master",
+                        "git_sha": "a532706a19b3d83f14b1d48a6a815ed33eb48b0c",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "minimap2/index": {
+                        "branch": "master",
+                        "git_sha": "a532706a19b3d83f14b1d48a6a815ed33eb48b0c",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
                     "mosdepth": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
@@ -43,6 +57,20 @@
                     "multiqc": {
                         "branch": "master",
                         "git_sha": "7b50cb7be890e4b28cffb82e438cc6a8d7805d3f",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "pbtk/bam2fastq": {
+                        "branch": "master",
+                        "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "pbtk/pbindex": {
+                        "branch": "master",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": [
                             "modules"
                         ]
