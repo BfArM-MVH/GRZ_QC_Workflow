@@ -35,7 +35,17 @@ def main(args: argparse.Namespace):
     mosdepth_summary_df = pd.read_csv(
         args.mosdepth_global_summary, sep="\t", header=0, index_col="chrom"
     )
-    mean_depth_of_coverage = mosdepth_summary_df.loc["total_region", "mean"]
+
+    if args.libraryType.startswith("wgs"):
+        # WGS should compute mean depth over entire genome
+        depth_key = "total"
+    elif args.libraryType.split("_")[0] in ["panel", "wes"]:
+        # panel + WES only over the specified regions
+        depth_key = "total_region"
+    else:
+        raise ValueError(f"Unknown library type: {args.libraryType}")
+
+    mean_depth_of_coverage = mosdepth_summary_df.loc[depth_key, "mean"]
     mean_depth_of_coverage_required = float(thresholds["meanDepthOfCoverage"])
 
     # percent deviation - mean depth of coverage
