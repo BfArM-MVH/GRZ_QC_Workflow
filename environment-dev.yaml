@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - nextflow =25.04
+  - nextflow =25.04,>=25.04.03 # no-clobber fix (nextflow-io/nextflow#6090)
   - prettier =3.5
   - nf-core =3.2
   - conda-lock =3
