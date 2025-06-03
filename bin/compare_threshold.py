@@ -115,9 +115,9 @@ def main(args: argparse.Namespace):
 
     ### Perform the quality check
     quality_check_passed = (
-        (pct_dev_mean_depth_of_coverage <= 0.05)
-        and (pct_dev_percent_bases_above_quality_threshold <= 0.05)
-        and (pct_dev_targeted_regions_above_min_coverage <= 0.05)
+        (abs(pct_dev_mean_depth_of_coverage) <= 0.05)
+        and (abs(pct_dev_percent_bases_above_quality_threshold) <= 0.05)
+        and (abs(pct_dev_targeted_regions_above_min_coverage) <= 0.05)
     )
 
     ### Write the results to a CSV file
