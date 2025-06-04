@@ -46,7 +46,7 @@ This pipeline needs one of the following two inputs:
 
 1. A submission base directory path with a folder structure following [GRZ submission standard](https://github.com/BfArM-MVH/grz-cli?tab=readme-ov-file#introduction). You can also check [test datasets](https://www.cmm.in.tum.de/public/grz-example-submissions/).
 
-2. Use a csv samplesheet as input. This gives more flexibilty, as you don't need a GRZ submission directory.
+2. Use a csv samplesheet as input. This gives more flexibility providing optional starting points for the analysis either from fastq reads or BAM alignments, and you won`t need a GRZ submission directory.
 
 Here are the instructions for the case (1). For (2) please see the [documentation](docs/usage.md#samplesheet-input).
 
@@ -60,7 +60,7 @@ nextflow run main.nf \
     --submission_basepath "${submission_basepath}"
 ```
 
-Depending on the resouces on your machine and your task, it is recommanded to create and and run with your own config file, see [estimated resource requirements for WGS](#estimated-resource-requirements) and [nextflow documentation](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+Depending on the resouces on your machine and your task, it is recommended to create and and run with your own config file, see [estimated resource requirements for WGS](#estimated-resource-requirements) and [nextflow documentation](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
 ## Prepare reference files
 
@@ -188,12 +188,18 @@ Using the 466 GB `WGS_tumor+germline` test submission dataset from the
 [example GRZ submissions](https://www.cmm.in.tum.de/public/grz-example-submissions),
 the pipeline used the following resources:
 
-- 828 CPU hours
+if reference build involved:
+
+- 618 CPU hours
 - 72 GB maximum RAM (genome indexing)
 - 2 TB storage (including the input files)
 
 The biggest jobs were the two bwa-mem2 alignments which used 300 CPU hours each
-and a maximum of 48 GB of RAM.
+and a maximum of 32 GB of RAM.
+
+Without reference build:
+
+TODO
 
 ## Contributions and Support
 
