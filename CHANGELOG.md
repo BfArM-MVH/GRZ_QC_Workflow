@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - reference reading and bug deleting saved bwa reference dir [#73](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/73)
 - Migrate GIABv3 reference for GRCh38 [#88](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/88)
 - Merging different lanes for the same sample after alignment (BWAMEM2_MEM) instead of merging FASTQs by CAT. Preserving "@RG" is helpfull to track lane based issues. [#90](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/90)
+- Use correct QC logic (% deviation) to determine pass/fail [#100](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/100)
 
 ### `Dependencies`
 
