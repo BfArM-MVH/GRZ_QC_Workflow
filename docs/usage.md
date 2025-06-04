@@ -24,32 +24,30 @@ nextflow run main.nf \
 
 ### Full samplesheet
 
-A final samplesheet file consisting of both single- and paired-end data may look something like [this example samplesheet](../tests/data/grzqc_samplesheet.csv). This is for 1 sample, which has been sequenced four times.
-
-| Column                  | Description                                                                                                                                                                            |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`                | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `laneId`                | Lane ID for fastq inputs, optional                                                                                                                                                     |
-| `labDataName`           | Sequencing lab name                                                                                                                                                                    |
-| `flowcellId`            | Flow cell ID, optional                                                                                                                                                                 |
-| `libraryType`           | Must be one of the followings: panel,wgs,wes,panel_lr,wgs_lr,wes_lr                                                                                                                    |
-| `sequenceSubtype`       | Must be either somatic or germline                                                                                                                                                     |
-| `sequencerManufacturer` | Sequencing platform                                                                                                                                                                    |
-| `genomicStudySubtype`   | Must be either tumor+germline, tumor-only or germline-only                                                                                                                             |
-| `fastq_1`               | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`               | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `aligned_reads`         | Full path to aligned reads (BAM file). aligned reads can be used alternative to fastq reads. Check `BAM input` for more information                                                    |
-| `bed_file`              | Target region for WES and Panel with the extension ".bed.gz" or ".bed". Empty for WGS                                                                                                  |
-| `fastp_json`            | If aligned reads are given in BAM, corresponding FASTP result in `fastp.json` can optionally be given                                                                                  |
-
-|
+| Column                  | Description                                                                                                                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`                | Sample ID. This entry will be identical for multiple sequencing libraries/runs from the same lab datum/sample. Spaces in sample names are automatically converted to underscores.     |
+| `runId`                 | ID that uniquely identifies a run within a lab datum/sample. A run is a pair of FASTQ files for paired-end sequencing, and a single FASTQ file otherwise. Optional for aligned input. |
+| `donorPseudonym`        | Unique identifier of the donor, optional                                                                                                                                              |
+| `laneId`                | Lane ID for fastq inputs, optional                                                                                                                                                    |
+| `labDataName`           | Sequencing lab name, optional                                                                                                                                                         |
+| `flowcellId`            | Flow cell ID, optional                                                                                                                                                                |
+| `libraryType`           | Must be one of the following: `panel`, `wgs`, `wes`, `panel_lr`, `wgs_lr`, `wes_lr`                                                                                                   |
+| `sequenceSubtype`       | Must be either somatic or germline                                                                                                                                                    |
+| `sequencerManufacturer` | Sequencing platform                                                                                                                                                                   |
+| `genomicStudySubtype`   | Must be either tumor+germline, tumor-only or germline-only                                                                                                                            |
+| `reads1`                | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                            |
+| `reads2`                | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                            |
+| `aligned_reads`         | Full path to aligned reads (BAM file). aligned reads can be used alternative to fastq reads. Check `BAM input` for more information                                                   |
+| `bed_file`              | Target region for WES and Panel with the extension ".bed.gz" or ".bed". Empty for WGS                                                                                                 |
+| `fastp_json`            | If aligned reads are given in BAM, corresponding FASTP result in `fastp.json` can optionally be given                                                                                 |
 
 ### Multiple runs of the same sample
 
 The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 4 lanes:
 
 ```csv title="samplesheet.csv"
-sample,laneID,fastq_1,fastq_2
+sample,laneID,reads1,reads2
 CONTROL_REP1,2,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
 CONTROL_REP1,3,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
 CONTROL_REP1,4,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
@@ -115,9 +113,10 @@ CONTROL_REP1,AEG588A1_S1001.bam,AEG588A1_S1_L002_R2_001.fastp.json
 CONTROL_REP2,AEG588A1_S2001.bam,
 ```
 
-Find an example samplesheet [here](../tests/data/test-dataset-alignments/samplesheet_aligment.csv)
+Find an example samplesheet [here](../tests/data/test-dataset-alignments/samplesheet_aligment.csv).
 
 Note that running with `--submission_basepath` is not possible for aligned BAM inputs.
+Also note that BAM input assumes that the input BAMs have already been merged by lab datum / sample.
 
 ## Running the pipeline
 
