@@ -37,7 +37,8 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
             newMeta.remove('laneId')
             newMeta.remove('read_group')
             newMeta.remove('flowcellId')
-            [newMeta, bam]
+            newMeta.remove('runId')
+            [newMeta + [id: newMeta.sample], bam]
         }
         .groupTuple()
     // Merge alignments from different lanes

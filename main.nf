@@ -55,23 +55,21 @@ workflow {
         .flatMap { samplesheet ->
             samplesheetToList(samplesheet.toString(), "${projectDir}/assets/schema_input.json")
         }
-        .map { meta, fastq_1, fastq_2, alignment ->
-            def read_group = "@RG\\tID:${fastq_1.simpleName}_${meta.laneId}\\tPL:${meta.sequencer}\\tSM:${meta.id}"
-            def single_end = !fastq_2
-            def fastqs = single_end ? [fastq_1] : [fastq_1, fastq_2]
+        .map { meta, reads1, reads2, alignment ->
+            def id = meta.runId ? "${meta.sample}_${meta.runId}" : "${meta.sample}"
+            def read_group = "@RG\\tID:${id}\\tPL:${meta.sequencer}\\tSM:${meta.sample}"
+            def single_end = !reads2
+            def reads = single_end ? [reads1] : [reads1, reads2]
 
             return [
                 meta + [
+                    id: id,
                     single_end: single_end,
                     read_group: read_group,
                 ],
-                fastqs,
+                alignment ? [] : reads,
                 alignment,
             ]
-        }
-        .groupTuple()
-        .map { meta, fastqs, alignment ->
-            return [meta, fastqs.flatten(), alignment]
         }
         .set { ch_samplesheet }
 

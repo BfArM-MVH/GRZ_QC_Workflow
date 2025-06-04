@@ -4,54 +4,55 @@
     "title": "BfArM-MVH/GRZ_QC_Workflow pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
+    "uniqueEntries": ["sample", "runId"],
     "items": {
         "type": "object",
         "properties": {
             "sample": {
-                "oneOf": [
-                    {
-                        "type": "string",
-                        "pattern": "^\\S+$"
-                    },
-                    {
-                        "type": "number"
-                    }
-                ],
+                "type": "string",
+                "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
-                "meta": ["id"]
+                "meta": ["sample"]
+            },
+            "runId": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Run ID must be provided, be unique within a sample, and cannot contain spaces",
+                "meta": ["runId"]
+            },
+            "donorPseudonym": {
+                "type": "string",
+                "meta": ["donorPseudonym"]
             },
             "labDataName": {
                 "type": "string",
                 "meta": ["labDataName"]
             },
             "laneId": {
-                "oneOf": [
-                    {
-                        "type": "string",
-                        "pattern": "^\\S+$"
-                    },
-                    {
-                        "type": "number"
-                    }
-                ],
+                "type": "string",
+                "pattern": "^\\S+$",
                 "meta": ["laneId"]
+            },
+            "flowcellId": {
+                "type": "string",
+                "meta": ["flowcellId"]
             },
             "libraryType": {
                 "type": "string",
                 "pattern": "panel|wgs|wes|panel_lr|wgs_lr|wes_lr",
-                "errorMessage": "Library type must be one of the followings: panel, wgs, wes, panel_lr, wgs_lr, wes_lr",
+                "errorMessage": "Library type must be one of the following: panel, wgs, wes, panel_lr, wgs_lr, wes_lr",
                 "meta": ["libraryType"]
             },
             "sequenceSubtype": {
                 "type": "string",
                 "pattern": "somatic|germline",
-                "errorMessage": "Library type must be either somatic or germline",
+                "errorMessage": "Sequence subtype must be either somatic or germline",
                 "meta": ["sequenceSubtype"]
             },
             "genomicStudySubtype": {
                 "type": "string",
                 "pattern": "tumor\\+germline|tumor-only|germline-only",
-                "errorMessage": "Library type must be either tumor+germline, tumor-only or germline-only",
+                "errorMessage": "Genomic study subtype must be either tumor+germline, tumor-only, or germline-only",
                 "meta": ["genomicStudySubtype"]
             },
             "sequencerManufacturer": {
@@ -59,24 +60,19 @@
                 "errorMessage": "Sequencer manufacturer",
                 "meta": ["sequencer"]
             },
-            "flowcellId": {
-                "type": "string",
-                "errorMessage": "Sequencer manufacturer",
-                "meta": ["flowcellId"]
-            },
-            "fastq_1": {
+            "reads1": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "Path to first reads file must be provided, cannot contain spaces, and must have extension '.fq.gz' or '.fastq.gz'"
             },
-            "fastq_2": {
+            "reads2": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "Path to paired reads file cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
             "aligned_reads": {
                 "type": "string",
@@ -130,15 +126,16 @@
         },
         "oneOf": [
             {
-                "required": ["fastq_1"],
+                "required": ["reads1"],
                 "not": {
                     "required": ["aligned_reads"]
                 }
             },
-            { "required": ["aligned_reads"], "not": { "required": ["fastq_1"] } }
+            { "required": ["aligned_reads"], "not": { "required": ["reads1"] } }
         ],
         "dependentRequired": {
-            "fastq_2": ["fastq_1"],
+            "reads1": ["runId"],
+            "reads2": ["reads1"],
             "fastp_json": ["aligned_reads"]
         },
         "required": ["sample"]

@@ -17,6 +17,7 @@ process COMPARE_THRESHOLD {
     compare_threshold.py \\
         --sample_id ${meta.id} \\
         --labDataName "${meta.labDataName}" \\
+        --donorPseudonym "${meta.donorPseudonym}" \\
         --libraryType "${meta.libraryType}" \\
         --sequenceSubtype "${meta.sequenceSubtype}" \\
         --genomicStudySubtype "${meta.genomicStudySubtype}" \\

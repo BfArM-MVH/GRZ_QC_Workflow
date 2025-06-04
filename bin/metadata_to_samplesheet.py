@@ -24,7 +24,7 @@ def main(submission_root: Path):
         metadata = GrzSubmissionMetadata(**json.load(metadata_file))
 
     samples = []
-    for donor in metadata.donors:
+    for donor_index, donor in enumerate(metadata.donors):
         targets = None
 
         # the tanG/VNg *CANNOT* be stored permanently
@@ -33,8 +33,8 @@ def main(submission_root: Path):
             donor.donor_pseudonym if donor.relation != Relation.index_ else "index"
         )
 
-        for lab_datum in donor.lab_data:
-            sample_id = f"{donor_pseudonym}_{sanitize(lab_datum.lab_data_name)}"
+        for lab_datum_index, lab_datum in enumerate(donor.lab_data):
+            sample_id = f"{donor.relation}{donor_index}_{lab_datum.sequence_subtype}{lab_datum_index}"
 
             if lab_datum.sequence_data is not None:
                 read_files = []
@@ -55,11 +55,23 @@ def main(submission_root: Path):
                         read_files_paired = groupby(
                             read_files_sorted, key=attrgetter("flowcell_id", "lane_id")
                         )
-                        subsamples = ((r1, r2) for _meta, (r1, r2) in read_files_paired)
+                        runs = ((r1, r2) for _meta, (r1, r2) in read_files_paired)
                     else:
-                        subsamples = ((r, None) for r in read_files)
+                        runs = ((r, None) for r in read_files)
 
-                    for reads1, reads2 in subsamples:
+                    for run_index, (reads1, reads2) in enumerate(runs):
+                        run_id = ""
+
+                        if reads1.lane_id:
+                            run_id = sanitize(reads1.lane_id)
+
+                        if reads1.flowcell_id:
+                            flowcell_id_san = sanitize(reads1.flowcell_id)
+                            run_id = (
+                                run_id + f"_{flowcell_id_san}"
+                                if run_id
+                                else flowcell_id_san
+                            )
 
                         def resolve(p: Path) -> str:
                             return (
@@ -70,20 +82,18 @@ def main(submission_root: Path):
 
                         samples.append(
                             {
-                                "sample": sanitize(sample_id),
+                                "sample": sample_id,
+                                "runId": run_id if run_id else f"run{run_index}",
+                                "donorPseudonym": donor_pseudonym,
                                 "laneId": reads1.lane_id,
                                 "flowcellId": reads1.flowcell_id,
-                                "labDataName": sanitize(lab_datum.lab_data_name),
-                                "libraryType": sanitize(lab_datum.library_type),
-                                "sequenceSubtype": sanitize(lab_datum.sequence_subtype),
-                                "genomicStudySubtype": sanitize(
-                                    metadata.submission.genomic_study_subtype
-                                ),
-                                "sequencerManufacturer": sanitize(
-                                    lab_datum.sequencer_manufacturer
-                                ),
-                                "fastq_1": resolve(reads1.file_path),
-                                "fastq_2": resolve(
+                                "labDataName": lab_datum.lab_data_name,
+                                "libraryType": lab_datum.library_type,
+                                "sequenceSubtype": lab_datum.sequence_subtype,
+                                "genomicStudySubtype": metadata.submission.genomic_study_subtype,
+                                "sequencerManufacturer": lab_datum.sequencer_manufacturer,
+                                "reads1": resolve(reads1.file_path),
+                                "reads2": resolve(
                                     None if reads2 is None else reads2.file_path
                                 ),
                                 "bed_file": resolve(targets),

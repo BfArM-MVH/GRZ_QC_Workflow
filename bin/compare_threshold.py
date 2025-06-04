@@ -134,6 +134,7 @@ def main(args: argparse.Namespace):
     qc_df = pd.DataFrame(
         {
             "sampleId": [args.sample_id],
+            "donorPseudonym": [args.donorPseudonym],
             "labDataName": [args.labDataName],
             "libraryType": [args.libraryType],
             "sequenceSubtype": [args.sequenceSubtype],
@@ -177,6 +178,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--sample_id", "-i", required=True)
     parser.add_argument("--labDataName", "-n", required=True)
+    parser.add_argument("--donorPseudonym", "-d", required=True)
     parser.add_argument("--libraryType", "-l", required=True)
     parser.add_argument("--sequenceSubtype", "-a", required=True)
     parser.add_argument("--genomicStudySubtype", "-g", required=True)

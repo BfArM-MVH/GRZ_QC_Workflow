@@ -156,9 +156,9 @@ workflow GRZQC {
     }
 
     ch_samplesheet
-        .branch { meta, fastqs, alignment ->
-            fastqs: fastqs.size() > 0
-            return [meta, fastqs]
+        .branch { meta, reads, alignment ->
+            reads: reads.size() > 0
+            return [meta, reads]
             alignments: alignment.size() > 0
             return [meta, alignment]
         }
@@ -166,7 +166,7 @@ workflow GRZQC {
 
     // Run FASTQC on FASTQ files - per lane
     FASTQC(
-        samplesheet_ch.fastqs
+        samplesheet_ch.reads
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect { it[1] })
     ch_versions = ch_versions.mix(FASTQC.out.versions)
@@ -175,7 +175,7 @@ workflow GRZQC {
     save_trimmed_fail = false
     save_merged = false
     FASTP(
-        samplesheet_ch.fastqs,
+        samplesheet_ch.reads,
         [],
         false,
         save_trimmed_fail,
@@ -221,7 +221,7 @@ workflow GRZQC {
 
     // align FASTQs per lane, merge, and sort
     FASTQ_ALIGN_BWA_MARKDUPLICATES(
-        samplesheet_ch.fastqs,
+        samplesheet_ch.reads,
         samplesheet_ch.alignments,
         bwa,
         true,
@@ -293,7 +293,8 @@ workflow GRZQC {
             newMeta.remove('read_group')
             newMeta.remove('flowcellId')
             newMeta.remove('bed_file')
-            [newMeta, json]
+            newMeta.remove('runId')
+            [newMeta + [id: newMeta.sample], json]
         }
         .set { ch_fastp_mosdepth }
 
@@ -302,7 +303,8 @@ workflow GRZQC {
         .map { meta, json ->
             def newMeta = meta.clone()
             newMeta.remove('bed_file')
-            [newMeta, json]
+            newMeta.remove('runId')
+            [newMeta + [id: newMeta.sample], json]
         }
         .set { ch_fastp_mosdepth_aligned }
 
