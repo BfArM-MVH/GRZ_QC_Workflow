@@ -59,7 +59,7 @@ Find an example samplesheet [here](../tests/data/test-datasets_sarek/samplesheet
 
 ## Reference files
 
-You can use reference files with `nextflow run main.nf --reference_path "your/reference/path/references"`. Your reference folder needs a specific directory stucture, with subdirectory of both GRCh37 and GRCh38. In each subdirectory, it contains a genome file, a genome index file and a folder with bwamem index. The advantage to use `--reference_path` is that the pipeline can automatically use the right genome reference, you do not have to check the genome version in your GRZ submission beforehand.
+You can use reference files with `nextflow run main.nf --reference_path "your/reference/path/references"`. Your reference folder needs a specific directory stucture, with subdirectory of both GRCh37 and GRCh38. In each subdirectory, it contains a genome file, a genome index file and a folder with bwa-mem index. The advantage to use `--reference_path` is that the pipeline can automatically use the right genome reference, you do not have to check the genome version in your GRZ submission beforehand.
 
 ```bash
 $ tree .
@@ -117,7 +117,7 @@ CONTROL_REP2,AEG588A1_S2001.bam,
 
 Find an example samplesheet [here](../tests/data/test-dataset-alignments/samplesheet_aligment.csv)
 
-Note that running with `--submission_basepath` is not possible for BAM inputs.
+Note that running with `--submission_basepath` is not possible for aligned BAM inputs.
 
 ## Running the pipeline
 

@@ -46,7 +46,7 @@ This pipeline needs one of the following two inputs:
 
 1. A submission base directory path with a folder structure following [GRZ submission standard](https://github.com/BfArM-MVH/grz-cli?tab=readme-ov-file#introduction). You can also check [test datasets](https://www.cmm.in.tum.de/public/grz-example-submissions/).
 
-2. Use a csv samplesheet as input. This gives more flexibility providing optional starting points for the analysis either from fastq reads or BAM alignments, and you won`t need a GRZ submission directory.
+2. Use a csv samplesheet as input. This gives more flexibility providing optional starting points for the analysis either from fastq reads or instead BAM alignments for short reads, and you won`t need a GRZ submission directory.
 
 Here are the instructions for the case (1). For (2) please see the [documentation](docs/usage.md#samplesheet-input).
 
@@ -93,7 +93,7 @@ rm -rf ${projectDir}/tests/results
 
 ## Use reference files
 
-There are different options to use prepared reference files to avoid rerunning the genome downloading and bwamem indexing steps. The easiest way is to use `--reference_path` parameter. If you ran the both tests above successfully, you shall see references files for both GRCh38 and GRCh37 in _your/desired/reference/path_/reference. And you can run:
+There are different options to use prepared reference files to avoid rerunning the genome downloading and bwa-mem indexing steps. The easiest way is to use `--reference_path` parameter. If you ran the both tests above successfully, you shall see references files for both GRCh38 and GRCh37 in _your/desired/reference/path_/reference. And you can run:
 
 ```bash
 nextflow run main.nf \
