@@ -1,59 +1,67 @@
 # Usage
 
-The input requires either
+The pipeline input can be specified in one of two ways:
 
-`--submission_basepath` for GRZ submission folder
+1. `--submission_basepath path/to/submission` (to use a submission folder directly)
+2. `--input samplesheet.csv` (to use a manually-prepared samplesheet)
 
-or with a samplesheet
+## Samplesheets
 
-`--input` and `--genome` for broader use
+Instead of parsing the submission metadata, a CSV samplesheet containing the required information for the pipeline can be provided.
+The samplesheet provides a bit more flexibility at the cost of manual preparation.
+For example, starting directly from aligned reads is only possible using a samplesheet.
 
-## Samplesheet input
+When running the pipeline from unaligned reads each row in the sample sheet is a "run".
+Each run consists of either a pair of FASTQ files for paired-end data or a single FASTQ file for single-end data.
+A "sample" is equivalent to a "lab datum" in the [official GRZ submission metadata schema](https://github.com/BfArM-MVH/MVGenomseq_GRZ/blob/main/GRZ/grz-schema.json) and can contain multiple runs.
 
-You will need to create a _samplesheet_ with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. The pipeline will auto-detect whether a sample is single- or paired-end or running with aligned reads using the information provided in the samplesheet.
+### Multiple runs of the same sample
 
-You will need to give `--genome` for either "GRCh37" or"GRCh38" when using samplesheet as input.
+Runs from the same sample must contain the same sample ID in the `sample` column to tie them together.
+The `runId` must be unique to a run within a sample to differentiate them.
+Runs in different `sample`s may therefore have the same `runId`.
+In short, each row in the samplesheet must have a unique combination of `sample` and `runId`.
+
+Below is an example for the same sample sequenced with 3 runs:
+
+```
+sample,runId,libraryType,sequenceSubtype,genomicStudySubtype,reads1,reads2
+CONTROL_REP1,run1,wgs,somatic,tumor+germline,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+CONTROL_REP1,run2,wgs,somatic,tumor+germline,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
+CONTROL_REP1,run3,wgs,somatic,tumor+germline,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+```
+
+A more complete example samplesheet is available [here](../tests/data/test-datasets_sarek/samplesheet.example.csv).
+
+### Example pipeline execution
 
 ```bash
 nextflow run main.nf \
     -profile conda \
-    --outdir "${output_basepath}/grzqc_output/" \
+    --outdir "path/to/outdir" \
     --input "samplesheet.csv" \
-    --genome "GRCh37" # or"GRCh38"
+    --genome "GRCh37"  # or "GRCh38"
 ```
 
-### Full samplesheet
+### Column descriptions
 
-| Column                  | Description                                                                                                                                                                           |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`                | Sample ID. This entry will be identical for multiple sequencing libraries/runs from the same lab datum/sample. Spaces in sample names are automatically converted to underscores.     |
-| `runId`                 | ID that uniquely identifies a run within a lab datum/sample. A run is a pair of FASTQ files for paired-end sequencing, and a single FASTQ file otherwise. Optional for aligned input. |
-| `donorPseudonym`        | Unique identifier of the donor, optional                                                                                                                                              |
-| `laneId`                | Lane ID for fastq inputs, optional                                                                                                                                                    |
-| `labDataName`           | Sequencing lab name, optional                                                                                                                                                         |
-| `flowcellId`            | Flow cell ID, optional                                                                                                                                                                |
-| `libraryType`           | Must be one of the following: `panel`, `wgs`, `wes`, `panel_lr`, `wgs_lr`, `wes_lr`                                                                                                   |
-| `sequenceSubtype`       | Must be either somatic or germline                                                                                                                                                    |
-| `sequencerManufacturer` | Sequencing platform                                                                                                                                                                   |
-| `genomicStudySubtype`   | Must be either tumor+germline, tumor-only or germline-only                                                                                                                            |
-| `reads1`                | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                            |
-| `reads2`                | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                            |
-| `aligned_reads`         | Full path to aligned reads (BAM file). aligned reads can be used alternative to fastq reads. Check `BAM input` for more information                                                   |
-| `bed_file`              | Target region for WES and Panel with the extension ".bed.gz" or ".bed". Empty for WGS                                                                                                 |
-| `fastp_json`            | If aligned reads are given in BAM, corresponding FASTP result in `fastp.json` can optionally be given                                                                                 |
-
-### Multiple runs of the same sample
-
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 4 lanes:
-
-```csv title="samplesheet.csv"
-sample,laneID,reads1,reads2
-CONTROL_REP1,2,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,3,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,4,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
-```
-
-Find an example samplesheet [here](../tests/data/test-datasets_sarek/samplesheet_WES_test.csv)
+| Column                  | Required            | Description                                                                                                                                              |
+| ----------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`                | yes                 | Unique sample identifier. Must be identical for multiple sequencing runs from the same sample and not contain spaces.                                    |
+| `runId`                 | for unaligned input | Uniquely identifies a run within a sample. Must not contain spaces.                                                                                      |
+| `donorPseudonym`        | no                  | Unique identifier of the donor.                                                                                                                          |
+| `laneId`                | no                  | Lane ID of run.                                                                                                                                          |
+| `flowcellId`            | no                  | Flowcell ID of run.                                                                                                                                      |
+| `labDataName`           | no                  | Sample name or description.                                                                                                                              |
+| `libraryType`           | yes                 | `panel`, `wgs`, `wes`, `panel_lr`, `wgs_lr`, or `wes_lr`                                                                                                 |
+| `sequenceSubtype`       | yes                 | `somatic` or `germline`                                                                                                                                  |
+| `sequencerManufacturer` | no                  | Sequencing platform manufacturer (e.g. Illumina).                                                                                                        |
+| `genomicStudySubtype`   | yes                 | `tumor+germline`, `tumor-only`, or `germline-only`                                                                                                       |
+| `reads1`                | for unaligned input | Full path to FASTQ file for Illumina short reads pair 1 (R1). Must be gzipped and have the extension ".fastq.gz" or ".fq.gz".                            |
+| `reads2`                | for unaligned input | Full path to FASTQ file for Illumina short reads pair 2 (R2). Must be gzipped and have the extension ".fastq.gz" or ".fq.gz".                            |
+| `aligned_reads`         | for aligned input   | Full path to aligned reads (BAM file). Can be used as an alternative to FASTQ reads. See starting from aligned reads section below for more information. |
+| `bed_file`              | for WES and panel   | Target region BED for WES and panels with the extension ".bed.gz" or ".bed". Empty for WGS.                                                              |
+| `fastp_json`            | no                  | Corresponding FASTP JSON report for `aligned_reads`.                                                                                                     |
 
 ## Reference files
 
@@ -103,20 +111,22 @@ Of note, `--fasta`, `--fai`, `--bwa` will only be considered when `--reference_p
 | `fai`                 | genome fai path , only use when reference path is null and fasta is also given, default null    |
 | `bwa`                 | bwamem index path , only use when reference path is null and fasta is also given , default null |
 
-## BAM input
+## Starting from aligned reads (BAM)
 
-Running the pipeline directly from alignments is possible using `--input samplesheet.csv` and, optionally, `--genome` parameters. Using `fastp_json`s corresponding to the aligned BAM files is optional. If `fastp json` is not provided, base quality calculation will be carried out using a [python script](../bin/calculate_basequality.py).
+When running the pipeline directly from aligned reads each row in the samplesheet is a sample, instead of a run.
+This assumes that you have merged the alignments from each run already into a single alignment file.
 
-```csv title="samplesheet.csv"
+If `fastp_json` is not provided, base quality calculation will be carried out using a [python script](../bin/calculate_basequality.py).
+
+```
 sample,aligned_reads,fastp_json
 CONTROL_REP1,AEG588A1_S1001.bam,AEG588A1_S1_L002_R2_001.fastp.json
 CONTROL_REP2,AEG588A1_S2001.bam,
 ```
 
-Find an example samplesheet [here](../tests/data/test-dataset-alignments/samplesheet_aligment.csv).
+Find a complete example samplesheet [here](../tests/data/test-dataset-alignments/samplesheet_alignment.csv).
 
-Note that running with `--submission_basepath` is not possible for aligned BAM inputs.
-Also note that BAM input assumes that the input BAMs have already been merged by lab datum / sample.
+Note: running with `--submission_basepath` is not possible when using alignments as input.
 
 ## Running the pipeline
 
