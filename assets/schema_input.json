@@ -138,6 +138,6 @@
             "reads2": ["reads1"],
             "fastp_json": ["aligned_reads"]
         },
-        "required": ["sample"]
+        "required": ["sample", "libraryType", "sequenceSubtype", "genomicStudySubtype"]
     }
 }
