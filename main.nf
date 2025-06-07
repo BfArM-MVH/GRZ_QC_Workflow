@@ -55,11 +55,14 @@ workflow {
         .flatMap { samplesheet ->
             samplesheetToList(samplesheet.toString(), "${projectDir}/assets/schema_input.json")
         }
-        .map { meta, reads1, reads2, alignment ->
+        .map { meta, reads_long, reads1, reads2, alignment ->
             def id = meta.runId ? "${meta.sample}_${meta.runId}" : "${meta.sample}"
             def read_group = "@RG\\tID:${id}\\tPL:${meta.sequencer}\\tSM:${meta.sample}"
             def single_end = !reads2
             def reads = single_end ? [reads1] : [reads1, reads2]
+            if (reads_long) {
+                reads = [reads_long]
+            }
 
             return [
                 meta + [
