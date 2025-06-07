@@ -10,7 +10,8 @@ process SAVE_REFERENCE {
     input:
     tuple val(meta), path(fasta)
     tuple val(meta2), path(fai)
-    tuple val(meta3), path(index)
+    tuple val(meta3), path(bwa)
+    tuple val(meta4), path(mmi)
     val genome
 
     output:
@@ -23,8 +24,8 @@ process SAVE_REFERENCE {
     mkdir -p reference/${genome}
     cp ${fasta} reference/${genome}
     cp ${fai} reference/${genome}
-    cp -r ${index} reference/${genome}
-
+    cp -r ${bwa} reference/${genome}
+    cp ${mmi} reference/${genome}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
