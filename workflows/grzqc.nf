@@ -221,7 +221,7 @@ workflow GRZQC {
 
     // align FASTQs per lane, merge, and sort
     FASTQ_ALIGN_BWA_MARKDUPLICATES(
-        samplesheet_ch.reads,
+        FASTP.out.reads,
         samplesheet_ch.alignments,
         bwa,
         true,
