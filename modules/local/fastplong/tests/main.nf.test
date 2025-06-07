@@ -1,0 +1,40 @@
+nextflow_process {
+
+    name "Test Process FASTPLONG"
+    script "../main.nf"
+    process "FASTPLONG"
+    tag "modules"
+    tag "modules_nfcore"
+    tag "fastplong"
+
+    test("test_fastplong_single_end") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id:'test', single_end:true ],
+                    [ file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/fastq/test_1.fastq.gz', checkIfExists: true) ]
+                ])
+                input[1] = []    // adapter_fasta
+                input[2] = false // discard_trimmed_pass
+                input[3] = false // save_trimmed_fail
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.html.get(0).get(1)).text.contains("Long read QC") || path(process.out.html.get(0).get(1)).exists() },
+                { assert path(process.out.log.get(0).get(1)).text.contains("reads passed filter") },
+                { assert snapshot(
+                    process.out.reads,
+                    process.out.json,
+                    process.out.log,
+                    process.out.html,
+                    process.out.versions).match() }
+            )
+        }
+    }
+}

@@ -43,7 +43,7 @@ def main(submission_root: Path):
                     match file.file_type:
                         case FileType.bed:
                             targets = file.file_path
-                        case FileType.fastq:
+                        case FileType.fastq | FileType.bam:
                             read_files.append(file)
 
                 if read_files:
@@ -93,6 +93,7 @@ def main(submission_root: Path):
                                 "genomicStudySubtype": metadata.submission.genomic_study_subtype,
                                 "sequencerManufacturer": lab_datum.sequencer_manufacturer,
                                 "reads1": resolve(reads1.file_path),
+                                "reads_filetype": reads1.file_type,
                                 "reads2": resolve(
                                     None if reads2 is None else reads2.file_path
                                 ),

@@ -30,6 +30,7 @@ jobs:
           - sarek
           - panel
           - wgs
+          - wgs_lr
           - alignment
         environment:
           - docker
@@ -40,6 +41,8 @@ jobs:
           - test: panel
             environment: docker
           - test: wgs
+            environment: docker
+          - test: wgs_lr
             environment: docker
           - test: alignment
             environment: conda
@@ -69,7 +72,7 @@ jobs:
           curl -L https://github.com/twrightsman/grz-mini-test-data/releases/download/version%2F${{ env.MINI_TEST_VER }}/references.tgz | tar -xzC grz-mini-test-data/
           mkdir -p grz-mini-test-data/submissions/${{ matrix.test }}
           curl -L https://github.com/twrightsman/grz-mini-test-data/releases/download/version%2F${{ env.MINI_TEST_VER }}/${{ matrix.test }}.tgz | tar -xzC grz-mini-test-data/submissions/${{ matrix.test }}
-        if: ${{ (matrix.test == 'panel') || (matrix.test == 'wgs') }}
+        if: ${{ (matrix.test == 'panel') || (matrix.test == 'wgs') || (matrix.test == 'wgs_lr') }}
 
       - name: Run test
         run: nextflow run main.nf -profile ${{ matrix.environment }},test_${{ matrix.test }}

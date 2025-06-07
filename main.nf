@@ -71,6 +71,7 @@ workflow {
                 alignment,
             ]
         }
+        .dump(tag: 'samples')
         .set { ch_samplesheet }
 
     if (params.genome) {

@@ -9,6 +9,7 @@ include { paramsSummaryMultiqc           } from '../subworkflows/nf-core/utils_n
 include { softwareVersionsToYAML         } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { FASTQC                         } from '../modules/nf-core/fastqc'
 include { FASTP                          } from '../modules/nf-core/fastp'
+include { FASTPLONG                      } from '../modules/local/fastplong'
 include { MULTIQC                        } from '../modules/nf-core/multiqc'
 include { CONVERT_BED_CHROM              } from '../modules/local/convert_bed_chrom'
 include { COMPARE_THRESHOLD              } from '../modules/local/compare_threshold'
@@ -18,6 +19,10 @@ include { MOSDEPTH                       } from '../modules/nf-core/mosdepth'
 include { SAMTOOLS_FAIDX                 } from '../modules/nf-core/samtools/faidx'
 include { SAVE_REFERENCE                 } from '../modules/local/save_reference'
 include { FASTQ_ALIGN_BWA_MARKDUPLICATES } from '../subworkflows/local/fastq_align_bwa_markduplicates'
+include { ALIGN_MERGE_LONG               } from '../subworkflows/local/align_merge_long'
+include { PBTK_PBINDEX                   } from '../modules/nf-core/pbtk/pbindex'
+include { PBTK_BAM2FASTQ                 } from '../modules/nf-core/pbtk/bam2fastq'
+include { MINIMAP2_INDEX                 } from '../modules/nf-core/minimap2/index'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -92,6 +97,17 @@ workflow GRZQC {
                 tuple('bwa', f)
             }
             .collect()
+
+        mmi = ch_genome
+            .map { genome ->
+                def candidates = file("${params.reference_path}/${genome}/*.mmi").flatten()
+                def f = candidates.find { it.exists() }
+                if (!f) {
+                    error("minimap2 index missing: ${f}")
+                }
+                tuple('mmi', f)
+            }
+            .collect()
     }
     else {
 
@@ -110,6 +126,10 @@ workflow GRZQC {
 
         bwa = params.bwa
             ? Channel.fromPath(params.bwa).map { it -> [[id: 'bwa'], it] }.collect()
+            : Channel.empty()
+
+        mmi = params.mmi
+            ? Channel.fromPath(params.mmi).map { it -> [[id: 'mmi'], it] }.collect()
             : Channel.empty()
 
         fai = params.fai
@@ -164,9 +184,38 @@ workflow GRZQC {
         }
         .set { samplesheet_ch }
 
-    // Run FASTQC on FASTQ files - per lane
+    samplesheet_ch.reads
+        .branch { meta, _reads ->
+            lng: meta.libraryType.endsWith('_lr')
+            srt: true
+        }
+        .set { samplesheet_ch_reads }
+
+    samplesheet_ch.alignments
+        .branch { meta, _alignment ->
+            lng: meta.libraryType.endsWith('_lr')
+            srt: true
+        }
+        .set { samplesheet_ch_alignments }
+
+    samplesheet_ch_reads.lng
+        .branch { meta, _reads ->
+            bam: meta.reads_filetype == "bam"
+            fastq: meta.reads_filetype == "fastq"
+        }
+        .set { samplesheet_ch_reads_lng }
+
+    // Index PacBio long-read BAMs
+    PBTK_PBINDEX(samplesheet_ch_reads_lng.bam)
+    ch_versions = ch_versions.mix(PBTK_PBINDEX.out.versions)
+
+    // Convert PacBio long-read BAMs to FASTQs
+    PBTK_BAM2FASTQ(samplesheet_ch_reads_lng.bam.join(PBTK_PBINDEX.out.pbi))
+    ch_versions = ch_versions.mix(PBTK_BAM2FASTQ.out.versions)
+
+    // Run FASTQC on short + long FASTQ files - per lane
     FASTQC(
-        samplesheet_ch.reads
+        samplesheet_ch_reads.srt.mix(samplesheet_ch_reads_lng.fastq).mix(PBTK_BAM2FASTQ.out.fastq)
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect { it[1] })
     ch_versions = ch_versions.mix(FASTQC.out.versions)
@@ -175,7 +224,7 @@ workflow GRZQC {
     save_trimmed_fail = false
     save_merged = false
     FASTP(
-        samplesheet_ch.reads,
+        samplesheet_ch_reads.srt,
         [],
         false,
         save_trimmed_fail,
@@ -184,6 +233,16 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect { _meta, json -> json })
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect { _meta, html -> html })
     ch_versions = ch_versions.mix(FASTP.out.versions)
+
+    FASTPLONG(
+        samplesheet_ch_reads_lng.fastq.mix(PBTK_BAM2FASTQ.out.fastq),
+        [],
+        false,
+        false,
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(FASTPLONG.out.json.collect { _meta, json -> json })
+    ch_multiqc_files = ch_multiqc_files.mix(FASTPLONG.out.html.collect { _meta, html -> html })
+    ch_versions = ch_versions.mix(FASTPLONG.out.versions)
 
     if (!params.reference_path) {
 
@@ -195,6 +254,15 @@ workflow GRZQC {
 
             ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
             bwa = BWAMEM2_INDEX.out.index
+        }
+        if (!params.mmi) {
+            // create minimap2 index if not provided
+            MINIMAP2_INDEX(
+                fasta
+            )
+
+            ch_versions = ch_versions.mix(MINIMAP2_INDEX.out.versions)
+            mmi = MINIMAP2_INDEX.out.index
         }
         if (!params.fai) {
             // create fai index if not provided
@@ -214,6 +282,7 @@ workflow GRZQC {
                 fasta,
                 fai,
                 bwa,
+                mmi,
                 ch_genome,
             )
         }
@@ -221,8 +290,8 @@ workflow GRZQC {
 
     // align FASTQs per lane, merge, and sort
     FASTQ_ALIGN_BWA_MARKDUPLICATES(
-        samplesheet_ch.reads,
-        samplesheet_ch.alignments,
+        FASTP.out.reads,
+        samplesheet_ch_alignments.srt,
         bwa,
         true,
         fasta,
@@ -232,7 +301,24 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.stat.collect { _meta, file -> file })
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.flagstat.collect { _meta, file -> file })
 
-    ch_bams = FASTQ_ALIGN_BWA_MARKDUPLICATES.out.bam.join(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.bai, by: 0)
+    ALIGN_MERGE_LONG(
+        FASTPLONG.out.reads.map { meta, reads ->
+            def sequencer = meta.sequencer.toLowerCase()
+            def is_pacbio = "pacbio" in sequencer || "pacific biosciences" in sequencer
+            def mm2_preset = is_pacbio ? "map-hifi" : "map-ont"
+
+            [meta + [mm2_preset: mm2_preset], reads]
+        },
+        samplesheet_ch_alignments.lng,
+        mmi,
+        fasta,
+        fai,
+    )
+    ch_versions = ch_versions.mix(ALIGN_MERGE_LONG.out.versions)
+    ch_multiqc_files = ch_multiqc_files.mix(ALIGN_MERGE_LONG.out.stat.collect { _meta, file -> file })
+    ch_multiqc_files = ch_multiqc_files.mix(ALIGN_MERGE_LONG.out.flagstat.collect { _meta, file -> file })
+
+    ch_bams = FASTQ_ALIGN_BWA_MARKDUPLICATES.out.bam.join(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.bai, by: 0).mix(ALIGN_MERGE_LONG.out.bam.join(ALIGN_MERGE_LONG.out.bai, by: 0))
 
     // prepare mosdepth inputs
     // for WGS: defined bed files of ~400 genes
