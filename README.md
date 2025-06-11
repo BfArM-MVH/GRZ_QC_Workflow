@@ -193,13 +193,17 @@ if reference build involved:
 - 618 CPU hours
 - 72 GB maximum RAM (genome indexing)
 - 2 TB storage (including the input files)
+- Takes around 3 days
 
 The biggest jobs were the two bwa-mem2 alignments which used 300 CPU hours each
 and a maximum of 32 GB of RAM.
 
 Without reference build:
 
-TODO
+- 600 to 620 CPU hours
+- 56 GB maximum RAM
+- 2 TB storage (saving alignment files)
+- Takes around 2 and half days.
 
 ## Contributions and Support
 
