@@ -43,7 +43,7 @@ def main(submission_root: Path):
                     match file.file_type:
                         case FileType.bed:
                             targets = file.file_path
-                        case FileType.fastq:
+                        case FileType.fastq | FileType.bam:
                             read_files.append(file)
 
                 if read_files:
@@ -92,10 +92,17 @@ def main(submission_root: Path):
                                 "sequenceSubtype": lab_datum.sequence_subtype,
                                 "genomicStudySubtype": metadata.submission.genomic_study_subtype,
                                 "sequencerManufacturer": lab_datum.sequencer_manufacturer,
-                                "reads1": resolve(reads1.file_path),
+                                "reads_long": resolve(reads1.file_path)
+                                if lab_datum.library_type.endswith("_lr")
+                                else None,
+                                "reads1": resolve(reads1.file_path)
+                                if not lab_datum.library_type.endswith("_lr")
+                                else None,
                                 "reads2": resolve(
                                     None if reads2 is None else reads2.file_path
-                                ),
+                                )
+                                if not lab_datum.library_type.endswith("_lr")
+                                else None,
                                 "bed_file": resolve(targets),
                                 "reference": lab_datum.sequence_data.reference_genome,
                                 "meanDepthOfCoverage": lab_datum.sequence_data.mean_depth_of_coverage,

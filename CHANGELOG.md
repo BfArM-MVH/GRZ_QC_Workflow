@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - sambamba [#91](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/91)
 - Stating the workflow from alignment is possible [#99](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/99)
 - Improve sample naming throughout pipeline [#106](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/106)
+- Add support for long read samples to the pipeline [#103](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/103)
 
 ### `Fixed`
 

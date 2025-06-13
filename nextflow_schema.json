@@ -99,6 +99,13 @@
                     "description": "Path to BWA mem indices.",
                     "help_text": "If none provided, will be generated automatically from the FASTA reference."
                 },
+                "mmi": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "description": "Path to a minimap2 index for the specified genome.",
+                    "fa_icon": "far fa-file-code"
+                },
                 "fasta": {
                     "type": "string",
                     "format": "file-path",

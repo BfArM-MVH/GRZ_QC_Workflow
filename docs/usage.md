@@ -45,23 +45,24 @@ nextflow run main.nf \
 
 ### Column descriptions
 
-| Column                  | Required            | Description                                                                                                                                              |
-| ----------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`                | yes                 | Unique sample identifier. Must be identical for multiple sequencing runs from the same sample and not contain spaces.                                    |
-| `runId`                 | for unaligned input | Uniquely identifies a run within a sample. Must not contain spaces.                                                                                      |
-| `donorPseudonym`        | no                  | Unique identifier of the donor.                                                                                                                          |
-| `laneId`                | no                  | Lane ID of run.                                                                                                                                          |
-| `flowcellId`            | no                  | Flowcell ID of run.                                                                                                                                      |
-| `labDataName`           | no                  | Sample name or description.                                                                                                                              |
-| `libraryType`           | yes                 | `panel`, `wgs`, `wes`, `panel_lr`, `wgs_lr`, or `wes_lr`                                                                                                 |
-| `sequenceSubtype`       | yes                 | `somatic` or `germline`                                                                                                                                  |
-| `sequencerManufacturer` | no                  | Sequencing platform manufacturer (e.g. Illumina).                                                                                                        |
-| `genomicStudySubtype`   | yes                 | `tumor+germline`, `tumor-only`, or `germline-only`                                                                                                       |
-| `reads1`                | for unaligned input | Full path to FASTQ file for Illumina short reads pair 1 (R1). Must be gzipped and have the extension ".fastq.gz" or ".fq.gz".                            |
-| `reads2`                | for unaligned input | Full path to FASTQ file for Illumina short reads pair 2 (R2). Must be gzipped and have the extension ".fastq.gz" or ".fq.gz".                            |
-| `aligned_reads`         | for aligned input   | Full path to aligned reads (BAM file). Can be used as an alternative to FASTQ reads. See starting from aligned reads section below for more information. |
-| `bed_file`              | for WES and panel   | Target region BED for WES and panels with the extension ".bed.gz" or ".bed". Empty for WGS.                                                              |
-| `fastp_json`            | no                  | Corresponding FASTP JSON report for `aligned_reads`.                                                                                                     |
+| Column                  | Required                       | Description                                                                                                                                              |
+| ----------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`                | yes                            | Unique sample identifier. Must be identical for multiple sequencing runs from the same sample and not contain spaces.                                    |
+| `runId`                 | for unaligned input            | Uniquely identifies a run within a sample. Must not contain spaces.                                                                                      |
+| `donorPseudonym`        | no                             | Unique identifier of the donor.                                                                                                                          |
+| `laneId`                | no                             | Lane ID of run.                                                                                                                                          |
+| `flowcellId`            | no                             | Flowcell ID of run.                                                                                                                                      |
+| `labDataName`           | no                             | Sample name or description.                                                                                                                              |
+| `libraryType`           | yes                            | `panel`, `wgs`, `wes`, `panel_lr`, `wgs_lr`, or `wes_lr`                                                                                                 |
+| `sequenceSubtype`       | yes                            | `somatic` or `germline`                                                                                                                                  |
+| `sequencerManufacturer` | no                             | Sequencing platform manufacturer (e.g. Illumina).                                                                                                        |
+| `genomicStudySubtype`   | yes                            | `tumor+germline`, `tumor-only`, or `germline-only`                                                                                                       |
+| `reads1`                | for unaligned short read input | Full path to FASTQ file for Illumina short reads pair 1 (R1). Must be gzipped and have the extension ".fastq.gz" or ".fq.gz".                            |
+| `reads2`                | for unaligned short read input | Full path to FASTQ file for Illumina short reads pair 2 (R2). Must be gzipped and have the extension ".fastq.gz" or ".fq.gz".                            |
+| `reads_long`            | for unaligned long read input  | Full path to FASTQ or BAM (PacBio) file for long reads. Must have the extension ".fastq.gz", ".fq.gz", or ".bam".                                        |
+| `aligned_reads`         | for aligned input              | Full path to aligned reads (BAM file). Can be used as an alternative to FASTQ reads. See starting from aligned reads section below for more information. |
+| `bed_file`              | for WES and panel              | Target region BED for WES and panels with the extension ".bed.gz" or ".bed". Empty for WGS.                                                              |
+| `fastp_json`            | no                             | Corresponding FASTP JSON report for `aligned_reads`.                                                                                                     |
 
 ## Reference files
 
@@ -78,7 +79,8 @@ $ tree .
 │   │   ├── genome.bwt.2bit.64
 │   │   └── genome.pac
 │   ├── genome.fa
-│   └── genome.fa.fai
+│   ├── genome.fa.fai
+│   └── genome.mmi
 └── GRCh38
     ├── bwamem2
     │   ├── genome.0123
@@ -87,7 +89,8 @@ $ tree .
     │   ├── genome.bwt.2bit.64
     │   └── genome.pac
     ├── genome.fa
-    └── genome.fa.fai
+    ├── genome.fa.fai
+    └── genome.mmi
 ```
 
 The other option is to set `--fasta`, `--fai`, `--bwa` individually, or prepare config a file like this:
@@ -96,20 +99,22 @@ The other option is to set `--fasta`, `--fai`, `--bwa` individually, or prepare 
     fasta = "your/path/to/reference/GRCh37/genome.fa"
     fai   = "your/path/to/reference/GRCh37/genome.fa.fai"
     bwa   = "your/path/to/reference/GRCh37/bwamem2"
+    mmi   = "your/path/to/reference/GRCh37/genome.mmi"
 ```
 
 You can also set only the genome file with `--fasta <genome file>`. The pipeline will prepare the genome index and bwa index automatically.
 
 Of note, `--fasta`, `--fai`, `--bwa` will only be considered when `--reference_path` is not given.
 
-| Parameters            | Description                                                                                     |
-| --------------------- | ----------------------------------------------------------------------------------------------- |
-| `save_reference`      | save reference when `--save_reference true` , default false                                     |
-| `save_reference_path` | save reference path, default `${outdir}`                                                        |
-| `reference_path`      | reference path , default null                                                                   |
-| `fasta`               | genome fasta path , only use when reference path is null , default null                         |
-| `fai`                 | genome fai path , only use when reference path is null and fasta is also given, default null    |
-| `bwa`                 | bwamem index path , only use when reference path is null and fasta is also given , default null |
+| Parameters            | Description                                                                                       |
+| --------------------- | ------------------------------------------------------------------------------------------------- |
+| `save_reference`      | save reference when `--save_reference true` , default false                                       |
+| `save_reference_path` | save reference path, default `${outdir}`                                                          |
+| `reference_path`      | reference path , default null                                                                     |
+| `fasta`               | genome fasta path , only use when reference path is null , default null                           |
+| `fai`                 | genome fai path , only use when reference path is null and fasta is also given, default null      |
+| `bwa`                 | bwamem index path , only use when reference path is null and fasta is also given , default null   |
+| `mmi`                 | minimap2 index path , only use when reference path is null and fasta is also given , default null |
 
 ## Starting from aligned reads (BAM)
 
