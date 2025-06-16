@@ -42,80 +42,150 @@ workflow GRZQC {
         println("\033[1;31mERROR:\033[0m 'bwa' or 'fai' is provided, but 'fasta' is not present. Please provide a valid FASTA file.")
         System.exit(1)
     }
-    // Warning if reference_path is provided together with fasta, fai, or bwa
-    if ((params.reference_path && params.fasta) || (params.reference_path && params.fai) || (params.reference_path && params.bwa)) {
-        println("\033[1;33mWARNING:\033[0m 'reference_path' is provided together with 'fasta', 'fai', or 'bwa'. Only 'reference_path' will be considered.")
-    }
-    // Specific warning if reference_path is given with bwa or fai, but fasta is missing
-    if (params.reference_path && (params.bwa || params.fai) && !params.fasta) {
-        println("\033[1;33mWARNING:\033[0m 'reference_path' is provided together with 'fasta', 'fai', or 'bwa'. Only 'reference_path' will be considered.")
-    }
+    // // Warning if reference_path is provided together with fasta, fai, or bwa
+    // if ((params.reference_path && params.fasta) || (params.reference_path && params.fai) || (params.reference_path && params.bwa)) {
+    //     println("\033[1;33mWARNING:\033[0m 'reference_path' is provided together with 'fasta', 'fai', or 'bwa'. Only 'reference_path' will be considered.")
+    // }
+    // // Specific warning if reference_path is given with bwa or fai, but fasta is missing
+    // if (params.reference_path && (params.bwa || params.fai) && !params.fasta) {
+    //     println("\033[1;33mWARNING:\033[0m 'reference_path' is provided together with 'fasta', 'fai', or 'bwa'. Only 'reference_path' will be considered.")
+    // }
 
     //
-    // set up channels 
+    // set up channels
     //
     // match fa and fasta extensions
-    def fastaExts = ['.fa', '.fasta', '.fa.gz', '.fasta.gz']
-    def faiExts = ['.fa.fai', '.fasta.fai', '.fa.gz.fai', '.fasta.gz.fai']
+    fastaExts = ['.fa', '.fasta', '.fa.gz', '.fasta.gz']
+    faiExts = ['.fa.fai', '.fasta.fai', '.fa.gz.fai', '.fasta.gz.fai']
 
     // create reference channels
     if (params.reference_path) {
 
         fasta = ch_genome
             .map { genome ->
-                def candidates = fastaExts.collect { ext -> file("${params.reference_path}/${genome}/*${ext}") }.flatten()
-                def f = candidates.find { it.exists() }
-                if (!f) {
-                    error("Reference FASTA missing: ${f}")
+                // 1) Look for any FASTA under reference_path/genome
+                candidates = fastaExts.collect { ext -> file("${params.reference_path}/${genome}/*${ext}") }.flatten()
+                f = candidates.find { it.exists() }
+                if (f) {
+                    tuple([id: f.baseName], f)
                 }
-                tuple([id: f.baseName], f)
+                else {
+                    // 2) If user passed --fasta, use that (error if missing)
+                    if( params.fasta ) {
+                        def f2 = file(params.fasta)
+                        if( ! f2.exists() ) { error "User-specified FASTA not found: ${params.fasta}" }
+                        return tuple([ id: f2.baseName ], f2)
+                    }
+                    else {
+                        // 3) Otherwise download the default for this genome name
+                        defaultFasta = genome == 'GRCh38'
+                            ? "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz"
+                            : "s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
+                        def f3 = file(defaultFasta)
+                        return tuple([ id: f3.baseName ], f3)
+                    }
+                }
             }
             .collect()
 
-        fai = ch_genome
-            .map { genome ->
-                def candidates = faiExts.collect { ext -> file("${params.reference_path}/${genome}/*${ext}") }.flatten()
-                def f = candidates.find { it.exists() }
-                if (!f) {
-                    error("Reference FASTA missing: ${f}")
-                }
-                tuple([id: f.baseName], f)
-            }
-            .collect()
+    }
 
-        bwa = ch_genome
-            .map { genome ->
-                def f = file("${params.reference_path}/${genome}/bwamem2/")
-                if (!f.exists()) {
-                    error("BWA binary missing: ${f}")
-                }
-                tuple('bwa', f)
-            }
-            .collect()
+    //
+    // build BWA index and FAI under reference_path
+    //
+    genomeStr = ch_genome.toString()
+
+    // BWA index
+    refBwa = params.reference_path ? file("${params.reference_path}/${genomeStr}/bwamem2") : null
+
+    // DEBUG prints
+    println ">>> DEBUG: params.reference_path = ${params.reference_path}"
+    println ">>> DEBUG: genomeStr         = ${genomeStr}"
+    println ">>> DEBUG: checking refBwa at ${refBwa}"
+    // turn it into a File object (or null)
+    println ">>> DEBUG: refBwa is $refBwa, exists? ${refBwa?.exists()}"
+
+    if( refBwa && refBwa.exists() ) {
+        // 1) existing bwamem2 under reference_path
+        println ">>> DEBUG: using existing bwa index"
+        bwa = Channel
+            .fromPath(refBwa.toString(), checkIfExists: true)
+            .map { f -> tuple([id: f.baseName], f) }
+    }
+    else if( params.bwa ) {
+        // 2) user-provided bwa binary
+        bwa = Channel
+            .fromPath(params.bwa, checkIfExists: true)
+            .map { f -> tuple([id: 'bwa'], f) }
     }
     else {
-
-        fasta = params.fasta
-            ? Channel.fromPath(params.fasta, checkIfExists: true).map { file -> tuple([id: file.baseName], file) }.collect()
-            : ch_genome.flatMap { genome ->
-                def defaultFasta = genome == 'GRCh38'
-                    ? "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz"
-                    : "s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
-                def f = file(defaultFasta)
-                if (!f.exists()) {
-                    error("Default genome on ignomes s3 missing: ${f}")
-                }
-                return f
-            }.map { file -> tuple([id: file.baseName], file) }.collect()
-
-        bwa = params.bwa
-            ? Channel.fromPath(params.bwa).map { it -> [[id: 'bwa'], it] }.collect()
-            : Channel.empty()
-
-        fai = params.fai
-            ? Channel.fromPath(params.fai, checkIfExists: true).map { file -> tuple([id: file.getSimpleName()], file) }.collect()
-            : Channel.empty()
+        // 3) fallback: build index via your process
+        println ">>> DEBUG: fallback: build index via your process"
+        BWAMEM2_INDEX(
+            fasta
+        )
+        ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
+        bwa = BWAMEM2_INDEX.out.index
     }
+
+    // fai
+    reffai = params.reference_path ? file("${params.reference_path}/${genomeStr}/*.fai")[0] : null
+    if( reffai && reffai.exists() ) {
+        // 1) existing fai under reference_path
+        fai = Channel
+            .fromPath(reffai.toString(), checkIfExists: true)
+            .map { f -> tuple([id: f.baseName], f) }
+    }
+    else if( params.fai ) {
+        // 2) user-provided fai
+        fai = Channel
+            .fromPath(params.fai, checkIfExists: true)
+            .map { f -> tuple([id: 'fai'], f) }
+    }
+    else {
+        // 3) fallback: build index via your process
+        SAMTOOLS_FAIDX(
+            fasta,
+            [[], []],
+            false,
+        )
+        ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
+        fai = SAMTOOLS_FAIDX.out.fai
+    }
+
+    // if (!params.reference_path) {
+
+    //     // if (!params.bwa) {
+    //     //     // create bwa index if not provided
+    //     //     BWAMEM2_INDEX(
+    //     //         fasta
+    //     //     )
+
+    //     //     ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
+    //     //     bwa = BWAMEM2_INDEX.out.index
+    //     // }
+    //     // if (!params.fai) {
+    //     //     // create fai index if not provided
+    //     //     SAMTOOLS_FAIDX(
+    //     //         fasta,
+    //     //         [[], []],
+    //     //         false,
+    //     //     )
+
+    //     //     fai = SAMTOOLS_FAIDX.out.fai
+    //     //     ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
+    //     // }
+
+    //     if (params.save_reference) {
+    //         // save reference for the first run
+    //         SAVE_REFERENCE(
+    //             fasta,
+    //             fai,
+    //             bwa,
+    //             ch_genome,
+    //         )
+    //     }
+    // }
 
     // TARGET BED channel
     if (params.target) {
@@ -184,40 +254,6 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect { _meta, json -> json })
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect { _meta, html -> html })
     ch_versions = ch_versions.mix(FASTP.out.versions)
-
-    if (!params.reference_path) {
-
-        if (!params.bwa) {
-            // create bwa index if not provided
-            BWAMEM2_INDEX(
-                fasta
-            )
-
-            ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
-            bwa = BWAMEM2_INDEX.out.index
-        }
-        if (!params.fai) {
-            // create fai index if not provided
-            SAMTOOLS_FAIDX(
-                fasta,
-                [[], []],
-                false,
-            )
-
-            fai = SAMTOOLS_FAIDX.out.fai
-            ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
-        }
-
-        if (params.save_reference) {
-            // save reference for the first run
-            SAVE_REFERENCE(
-                fasta,
-                fai,
-                bwa,
-                ch_genome,
-            )
-        }
-    }
 
     // align FASTQs per lane, merge, and sort
     FASTQ_ALIGN_BWA_MARKDUPLICATES(

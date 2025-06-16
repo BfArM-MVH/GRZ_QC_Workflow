@@ -16,14 +16,17 @@ process SAVE_REFERENCE {
     output:
     tuple val(meta), path("reference/${genome}"), emit: reference
 
+    when:
+    params.reference_path
+
     script:
     """
     #!/bin/bash
 
     mkdir -p reference/${genome}
-    cp ${fasta} reference/${genome}
-    cp ${fai} reference/${genome}
-    cp -r ${index} reference/${genome}
+    rsync -rvth ${fasta} reference/${genome}
+    rsync -rvth ${fai} reference/${genome}
+    rsync -rvth ${index} reference/${genome}
 
 
     cat <<-END_VERSIONS > versions.yml
