@@ -69,55 +69,53 @@ nextflow run main.nf \
 
 ## Reference files
 
-You can use reference files with `nextflow run main.nf --reference_path "your/reference/path/references"`. Your reference folder needs a specific directory stucture, with subdirectory of both GRCh37 and GRCh38. In each subdirectory, it contains a genome file, a genome index file and a folder with bwa-mem index. The advantage to use `--reference_path` is that the pipeline can automatically use the right genome reference, you do not have to check the genome version in your GRZ submission beforehand.
+You can use re-use cached reference files with `nextflow run main.nf --reference_path "your/reference/path"`.
+The pipeline will automatically create the files in the correct structure if they don't exist.
+
+While not recommended, you may also manually populate this folder according to the directory structure below.
+Please make sure the reference FASTA is in **BGZIP** format, not just GZIP.
 
 ```bash
-$ tree .
-.
+$ tree your/reference/path
+your/reference/path
 ├── GRCh37
 │   ├── bwamem2
-│   │   ├── genome.0123
-│   │   ├── genome.amb
-│   │   ├── genome.ann
-│   │   ├── genome.bwt.2bit.64
-│   │   └── genome.pac
-│   ├── genome.fa
-│   ├── genome.fa.fai
-│   └── genome.mmi
+│   │   ├── GRCh37.0123
+│   │   ├── GRCh37.amb
+│   │   ├── GRCh37.ann
+│   │   ├── GRCh37.bwt.2bit.64
+│   │   └── GRCh37.pac
+│   ├── GRCh37.fasta.gz
+│   ├── GRCh37.fasta.gz.fai
+│   ├── GRCh37.fasta.gz.gzi
+│   └── GRCh37.fasta.mmi
 └── GRCh38
     ├── bwamem2
-    │   ├── genome.0123
-    │   ├── genome.amb
-    │   ├── genome.ann
-    │   ├── genome.bwt.2bit.64
-    │   └── genome.pac
-    ├── genome.fa
-    ├── genome.fa.fai
-    └── genome.mmi
+    │   ├── GRCh38.0123
+    │   ├── GRCh38.amb
+    │   ├── GRCh38.ann
+    │   ├── GRCh38.bwt.2bit.64
+    │   └── GRCh38.pac
+    ├── GRCh38.fasta.gz
+    ├── GRCh38.fasta.gz.fai
+    ├── GRCh38.fasta.gz.gzi
+    └── GRCh38.fasta.mmi
 ```
 
-The other option is to set `--fasta`, `--fai`, `--bwa` individually, or prepare config a file like this:
+A final alternative is providing `--fasta` directly, or preparing a config file like this:
 
 ```bash
-    fasta = "your/path/to/reference/GRCh37/genome.fa"
-    fai   = "your/path/to/reference/GRCh37/genome.fa.fai"
-    bwa   = "your/path/to/reference/GRCh37/bwamem2"
-    mmi   = "your/path/to/reference/GRCh37/genome.mmi"
+fasta = "your/path/to/reference/GRCh37/genome.fa"
 ```
 
-You can also set only the genome file with `--fasta <genome file>`. The pipeline will prepare the genome index and bwa index automatically.
+Please note that reference files already in `--reference_path` will always be chosen over the path provided through `--fasta`.
 
-Of note, `--fasta`, `--fai`, `--bwa` will only be considered when `--reference_path` is not given.
+All of the parameters below default to undefined/null.
 
-| Parameters            | Description                                                                                       |
-| --------------------- | ------------------------------------------------------------------------------------------------- |
-| `save_reference`      | save reference when `--save_reference true` , default false                                       |
-| `save_reference_path` | save reference path, default `${outdir}`                                                          |
-| `reference_path`      | reference path , default null                                                                     |
-| `fasta`               | genome fasta path , only use when reference path is null , default null                           |
-| `fai`                 | genome fai path , only use when reference path is null and fasta is also given, default null      |
-| `bwa`                 | bwamem index path , only use when reference path is null and fasta is also given , default null   |
-| `mmi`                 | minimap2 index path , only use when reference path is null and fasta is also given , default null |
+| Parameters       | Description                                                                                        |
+| ---------------- | -------------------------------------------------------------------------------------------------- |
+| `reference_path` | reference cache path                                                                               |
+| `fasta`          | genome FASTA path. Only used when reference path is not set or it is missing in the reference path |
 
 ## Starting from aligned reads (BAM)
 
