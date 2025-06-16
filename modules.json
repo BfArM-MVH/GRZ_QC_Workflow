@@ -82,6 +82,13 @@
                             "modules"
                         ]
                     },
+                    "samtools/bgzip": {
+                        "branch": "master",
+                        "git_sha": "f2dba87f4793a4015f0611cd1743cbfb598c74e7",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
                     "samtools/faidx": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
