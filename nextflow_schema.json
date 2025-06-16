@@ -54,18 +54,6 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
-                "save_reference": {
-                    "type": "boolean",
-                    "description": "If true saves fasta, fai and bwa indexes to reference directory",
-                    "default": false,
-                    "fa_icon": "fas fa-folder-open"
-                },
-                "save_reference_path": {
-                    "type": "string",
-                    "format": "directory-path",
-                    "description": "Path to save fasta, fai and bwa indexes. require save_reference is true",
-                    "fa_icon": "fas fa-folder-open"
-                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
@@ -93,19 +81,6 @@
                     "description": "Path to reference.",
                     "help_text": "A directory including both GRCh38 and GRCh37 references. If provided, it will use the refernce genome fasta, fai and BWA mem indices for the corresponding genome version."
                 },
-                "bwa": {
-                    "type": "string",
-                    "fa_icon": "fas fa-copy",
-                    "description": "Path to BWA mem indices.",
-                    "help_text": "If none provided, will be generated automatically from the FASTA reference."
-                },
-                "mmi": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "description": "Path to a minimap2 index for the specified genome.",
-                    "fa_icon": "far fa-file-code"
-                },
                 "fasta": {
                     "type": "string",
                     "format": "file-path",
@@ -115,15 +90,6 @@
                     "description": "Path to FASTA genome file.",
                     "help_text": "This parameter is *mandatory* automatically",
                     "fa_icon": "far fa-file-code"
-                },
-                "fai": {
-                    "type": "string",
-                    "fa_icon": "fas fa-file",
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/plain",
-                    "help_text": "> **NB** If none provided, will be generated automatically from the FASTA reference.",
-                    "description": "Path to FASTA reference index."
                 },
                 "target": {
                     "type": "string",

@@ -14,15 +14,12 @@ include { MULTIQC                        } from '../modules/nf-core/multiqc'
 include { CONVERT_BED_CHROM              } from '../modules/local/convert_bed_chrom'
 include { COMPARE_THRESHOLD              } from '../modules/local/compare_threshold'
 include { MERGE_REPORTS                  } from '../modules/local/merge_reports'
-include { BWAMEM2_INDEX                  } from '../modules/nf-core/bwamem2/index'
 include { MOSDEPTH                       } from '../modules/nf-core/mosdepth'
-include { SAMTOOLS_FAIDX                 } from '../modules/nf-core/samtools/faidx'
-include { SAVE_REFERENCE                 } from '../modules/local/save_reference'
 include { FASTQ_ALIGN_BWA_MARKDUPLICATES } from '../subworkflows/local/fastq_align_bwa_markduplicates'
 include { ALIGN_MERGE_LONG               } from '../subworkflows/local/align_merge_long'
 include { PBTK_PBINDEX                   } from '../modules/nf-core/pbtk/pbindex'
 include { PBTK_BAM2FASTQ                 } from '../modules/nf-core/pbtk/bam2fastq'
-include { MINIMAP2_INDEX                 } from '../modules/nf-core/minimap2/index'
+include { PREPARE_REFERENCES             } from '../subworkflows/local/prepare_references'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,104 +35,6 @@ workflow GRZQC {
     main:
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-
-    //
-    // conflicting parameters
-    //
-    // Error if BWA or FAI is given without FASTA and reference_path is not present
-    if ((params.bwa || params.fai) && !params.fasta && !params.reference_path) {
-        println("\033[1;31mERROR:\033[0m 'bwa' or 'fai' is provided, but 'fasta' is not present. Please provide a valid FASTA file.")
-        System.exit(1)
-    }
-    // Warning if reference_path is provided together with fasta, fai, or bwa
-    if ((params.reference_path && params.fasta) || (params.reference_path && params.fai) || (params.reference_path && params.bwa)) {
-        println("\033[1;33mWARNING:\033[0m 'reference_path' is provided together with 'fasta', 'fai', or 'bwa'. Only 'reference_path' will be considered.")
-    }
-    // Specific warning if reference_path is given with bwa or fai, but fasta is missing
-    if (params.reference_path && (params.bwa || params.fai) && !params.fasta) {
-        println("\033[1;33mWARNING:\033[0m 'reference_path' is provided together with 'fasta', 'fai', or 'bwa'. Only 'reference_path' will be considered.")
-    }
-
-    //
-    // set up channels 
-    //
-    // match fa and fasta extensions
-    def fastaExts = ['.fa', '.fasta', '.fa.gz', '.fasta.gz']
-    def faiExts = ['.fa.fai', '.fasta.fai', '.fa.gz.fai', '.fasta.gz.fai']
-
-    // create reference channels
-    if (params.reference_path) {
-
-        fasta = ch_genome
-            .map { genome ->
-                def candidates = fastaExts.collect { ext -> file("${params.reference_path}/${genome}/*${ext}") }.flatten()
-                def f = candidates.find { it.exists() }
-                if (!f) {
-                    error("Reference FASTA missing: ${f}")
-                }
-                tuple([id: f.baseName], f)
-            }
-            .collect()
-
-        fai = ch_genome
-            .map { genome ->
-                def candidates = faiExts.collect { ext -> file("${params.reference_path}/${genome}/*${ext}") }.flatten()
-                def f = candidates.find { it.exists() }
-                if (!f) {
-                    error("Reference FASTA missing: ${f}")
-                }
-                tuple([id: f.baseName], f)
-            }
-            .collect()
-
-        bwa = ch_genome
-            .map { genome ->
-                def f = file("${params.reference_path}/${genome}/bwamem2/")
-                if (!f.exists()) {
-                    error("BWA binary missing: ${f}")
-                }
-                tuple('bwa', f)
-            }
-            .collect()
-
-        mmi = ch_genome
-            .map { genome ->
-                def candidates = file("${params.reference_path}/${genome}/*.mmi").flatten()
-                def f = candidates.find { it.exists() }
-                if (!f) {
-                    error("minimap2 index missing: ${f}")
-                }
-                tuple('mmi', f)
-            }
-            .collect()
-    }
-    else {
-
-        fasta = params.fasta
-            ? Channel.fromPath(params.fasta, checkIfExists: true).map { file -> tuple([id: file.baseName], file) }.collect()
-            : ch_genome.flatMap { genome ->
-                def defaultFasta = genome == 'GRCh38'
-                    ? "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz"
-                    : "s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa"
-                def f = file(defaultFasta)
-                if (!f.exists()) {
-                    error("Default genome on ignomes s3 missing: ${f}")
-                }
-                return f
-            }.map { file -> tuple([id: file.baseName], file) }.collect()
-
-        bwa = params.bwa
-            ? Channel.fromPath(params.bwa).map { it -> [[id: 'bwa'], it] }.collect()
-            : Channel.empty()
-
-        mmi = params.mmi
-            ? Channel.fromPath(params.mmi).map { it -> [[id: 'mmi'], it] }.collect()
-            : Channel.empty()
-
-        fai = params.fai
-            ? Channel.fromPath(params.fai, checkIfExists: true).map { file -> tuple([id: file.getSimpleName()], file) }.collect()
-            : Channel.empty()
-    }
 
     // TARGET BED channel
     if (params.target) {
@@ -193,6 +92,18 @@ workflow GRZQC {
         }
         .set { samplesheet_ch_reads }
 
+    PREPARE_REFERENCES(
+        samplesheet_ch_reads.srt,
+        samplesheet_ch_reads.lng,
+        ch_genome,
+    )
+    ch_versions = ch_versions.mix(PREPARE_REFERENCES.out.versions)
+
+    def fasta = PREPARE_REFERENCES.out.fasta
+    def fai = PREPARE_REFERENCES.out.fai
+    def bwa = PREPARE_REFERENCES.out.bwa
+    def mmi = PREPARE_REFERENCES.out.mmi
+
     // split rows starting from alignments into short and long read alignments
     samplesheet_ch.alignments
         .branch { meta, _alignment ->
@@ -247,52 +158,6 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(FASTPLONG.out.json.collect { _meta, json -> json })
     ch_multiqc_files = ch_multiqc_files.mix(FASTPLONG.out.html.collect { _meta, html -> html })
     ch_versions = ch_versions.mix(FASTPLONG.out.versions)
-
-    if (!params.reference_path) {
-
-        if (!params.bwa) {
-            // create bwa index if not provided and short read runs are in samplesheet
-            def fasta_if_have_short_reads = fasta.combine(samplesheet_ch_reads.srt).map { meta_fasta, path_fasta, _meta_row, _reads -> [meta_fasta, path_fasta] }.first()
-            BWAMEM2_INDEX(
-                fasta_if_have_short_reads
-            )
-
-            ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
-            bwa = BWAMEM2_INDEX.out.index
-        }
-        if (!params.mmi) {
-            // create minimap2 index if not provided and long read runs are in samplesheet
-            def fasta_if_have_long_reads = fasta.combine(samplesheet_ch_reads.lng).map { meta_fasta, path_fasta, _meta_row, _reads -> [meta_fasta, path_fasta] }.first()
-            MINIMAP2_INDEX(
-                fasta_if_have_long_reads
-            )
-
-            ch_versions = ch_versions.mix(MINIMAP2_INDEX.out.versions)
-            mmi = MINIMAP2_INDEX.out.index
-        }
-        if (!params.fai) {
-            // create fai index if not provided
-            SAMTOOLS_FAIDX(
-                fasta,
-                [[], []],
-                false,
-            )
-
-            fai = SAMTOOLS_FAIDX.out.fai
-            ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
-        }
-
-        if (params.save_reference) {
-            // save reference for the first run
-            SAVE_REFERENCE(
-                fasta,
-                fai,
-                bwa,
-                mmi,
-                ch_genome,
-            )
-        }
-    }
 
     // align FASTQs per lane, merge, and sort
     FASTQ_ALIGN_BWA_MARKDUPLICATES(

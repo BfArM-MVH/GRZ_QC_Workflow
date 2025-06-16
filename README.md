@@ -63,17 +63,18 @@ nextflow run main.nf \
 
 Depending on the resouces on your machine and your task, it is recommended to create and and run with your own config file, see [estimated resource requirements for WGS](#estimated-resource-requirements) and [nextflow documentation](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
-## Prepare reference files
+## Caching reference files
 
 With the above code, the pipeline can automatically download the necessary _reference genomes_ and creates indices from them.
 However, when running this pipeline multiple times on different submissions, the download and indexing steps create _unnecessary overhead_.
+Further, some environments will not have internet access to download references for each run.
 
-Therefore, **it is recommended** to run `test_GRCh37` and `test_GRCh38` profiles to set up reference files and to be sure if all the necessary images and containers are set up correctly. Thus, depending on the reference genome you will use, run the profile:
+Therefore, **it is recommended** to run the `test_GRCh37` and `test_GRCh38` profiles to set up reference files and to be sure that all of the necessary images and containers are set up correctly. Thus, depending on the reference genome you will use, run the profile:
 
 ```bash
 nextflow run main.nf \
     -profile test_GRCh37,docker
-    --save_reference_path "your/reference/path"
+    --reference_path "your/reference/path"
 ```
 
 or/and
@@ -81,47 +82,17 @@ or/and
 ```bash
 nextflow run main.nf \
     -profile test_GRCh38,docker
-    --save_reference_path "your/reference/path"
+    --reference_path "your/reference/path"
 ```
 
-**Please use replace `docker` with `singularity` or `conda` depending on your system. This pipeline is able to run all profiles.**
+**Please replace `docker` with `singularity` or `conda` depending on your system. This pipeline is able to run with any of those three profiles.**
 
-Now, all the necessary files are saved into `your/reference/path/references`. In the next section you will see how can use these files and avoid rerunning the genome downloading and indexing steps. You can now delete test results safely:
+Now, all the necessary files are saved into `your/reference/path` and will be re-used for subsequent pipeline runs that specify the same `--reference_path`.
 
-```bash
-rm -rf ${projectDir}/tests/results
-```
-
-## Use reference files
-
-There are different options to use prepared reference files to avoid rerunning the genome downloading and bwa-mem indexing steps. The easiest way is to use `--reference_path` parameter. If you ran the both tests above successfully, you shall see references files for both GRCh38 and GRCh37 in `your/reference/path/reference`. And you can run:
+You can also safely remove the test pipeline results by running the following from the cloned repository root.
 
 ```bash
-nextflow run main.nf \
-    -profile docker \
-    --outdir "${output_basepath}/grzqc_output/" \
-    --submission_basepath "${submission_basepath}" \
-    --reference_path "your/reference/path/reference"
-```
-
-This approach lets the pipeline automatically use the correct reference files — it is helpful when you have multiple runs containing both GRCh37 and GRCh38. If you decide to skip the test runs and prepare references files by yourself, please read this [documentation](docs/usage.md#reference-files) to have the right directory structure.
-
-Alternatively, one can prepare a config file for each genome. You can also change the lines in `conf/grzqc_GRCh37.config` and `conf/grzqc_GRCh38.config` to point the files to the correct path.
-
-```bash
-    fasta = "your/path/to/reference/GRCh37/genome.fa"
-    fai   = "your/path/to/reference/GRCh37/genome.fa.fai"
-    bwa   = "your/path/to/reference/GRCh37/bwamem2"
-```
-
-and run
-
-```bash
-nextflow run main.nf \
-    -profile docker \
-    --outdir "${output_basepath}/grzqc_output/" \
-    --submission_basepath "${submission_basepath}" \
-    -c conf/grzqc_GRCh37.config # or conf/grzqc_GRCh38.config
+rm -rf tests/results
 ```
 
 A more detailed description of reference files usage can be found [here](docs/usage.md#reference-files).
@@ -176,10 +147,10 @@ nextflow plugin install nf-schema@2.1.1
 
 ```
 
-The default reference files used in this pipeline is part of AWS iGenomes. Please follow the instructions [here](https://ewels.github.io/AWS-iGenomes/) to download:
+The default reference files used in this pipeline are as follows:
 
-- `s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/`
-- `s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/`
+- `GRCh37`: `s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa`
+- `GRCh38`: `https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz`
 
 For more detailed information please check ["Running offline by nf-core"](https://nf-co.re/docs/usage/getting_started/offline)
 
