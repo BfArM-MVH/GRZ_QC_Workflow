@@ -4,4 +4,3 @@ channels:
 dependencies:
   - conda-forge::pandas=2.2.3
   - conda-forge::openpyxl=3.1.5
-  - conda-forge::gzip=1.14
