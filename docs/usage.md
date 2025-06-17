@@ -31,7 +31,7 @@ CONTROL_REP1,run2,wgs,somatic,tumor+germline,AEG588A1_S1_L003_R1_001.fastq.gz,AE
 CONTROL_REP1,run3,wgs,somatic,tumor+germline,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 ```
 
-A more complete example samplesheet is available [here](../tests/data/test-datasets_sarek/samplesheet.example.csv).
+A more complete example samplesheet is available [here](../tests/data/test-datasets_tiny/samplesheet.example.csv).
 
 ### Example pipeline execution
 

@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         test:
-          - sarek
+          - tiny
           - panel
           - wgs
           - wgs_lr
@@ -36,7 +36,7 @@ jobs:
           - docker
           - conda
         exclude:
-          - test: sarek
+          - test: tiny
             environment: conda
           - test: panel
             environment: docker
