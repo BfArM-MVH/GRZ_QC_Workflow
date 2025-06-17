@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - pandas =2.2.3
-  - grz-pydantic-models =1.4.0
+  - conda-forge::pandas=2.2.3
+  - bioconda::grz-pydantic-models=1.4.0
