@@ -17,6 +17,7 @@ This workflow is designed to compute [quality metrics as required by BfArM](http
 This workflow is built using [Nextflow](https://www.nextflow.io/) and processes data roughly according to the following steps:
 
 1. Read QC and trimming ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) and [`fastp`](https://github.com/OpenGene/fastp)/[`fastplong`](https://github.com/OpenGene/fastplong))
+   - The pipeline uses the default settings for `fastp`/`fastplong`: adapter trimming is enabled and reads with >40% Q15 or lower bases are dropped.
 2. Alignment using [`bwa-mem2`](https://github.com/bwa-mem2/bwa-mem2) or [`minimap2`](https://github.com/lh3/minimap2)
 3. MarkDuplicates using [`Sambamba`](https://github.com/biod/sambamba) (short reads only)
 4. Coverage calculation by [`mosdepth`](https://github.com/brentp/mosdepth)
