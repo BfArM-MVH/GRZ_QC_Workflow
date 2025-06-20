@@ -77,10 +77,10 @@ workflow PREPARE_REFERENCES {
     def ch_mmi = ch_mmi_cached.mix(MINIMAP2_INDEX.out.index).dump(tag: 'mmi')
 
     emit:
-    fasta    = ch_fasta
-    fai      = ch_fai
-    bwa      = ch_bwa
-    mmi      = ch_mmi
+    fasta    = ch_fasta.collect()
+    fai      = ch_fai.collect()
+    bwa      = ch_bwa.collect()
+    mmi      = ch_mmi.collect()
     versions = ch_versions
 }
 
