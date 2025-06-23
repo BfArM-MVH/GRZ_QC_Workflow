@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.0.2 - [23.06.2025]
+
+### Fixed
+
+- Fix bug where fastplong channel is not used as input for COMPARE_THRESHOLDS [#124](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/124)
+
 ## v1.0.1 - [20.06.2025]
 
 ### Fixed
