@@ -49,6 +49,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
 
+    // make sure ch_alignemnt has the same metadata for downstream joins
     def ch_alignments_newMeta = ch_alignments.map { meta, bam ->
         def newMeta = meta.clone()
         newMeta.remove('runId')
@@ -56,6 +57,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
         newMeta.remove('flowcellId')
         [newMeta + [id: newMeta.sample], bam]
     }
+
     // run calculate_basequality.py on the alogned bam file (from samplesheet)
     CALCULATE_BASEQUALITY(
         ch_alignments_newMeta
