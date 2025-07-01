@@ -245,7 +245,7 @@ workflow GRZQC {
 
     // Remove laneId, read_group, flowcellId, bed_file from the metadata to enable sample based grouping
     FASTP.out.json
-        .mix( FASTPLONG.out.json )
+        .mix(FASTPLONG.out.json)
         .map { meta, json ->
             def newMeta = meta.clone()
             newMeta.remove('laneId')
