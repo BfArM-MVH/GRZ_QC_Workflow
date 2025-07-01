@@ -54,7 +54,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
         newMeta.remove('runId')
         newMeta.remove('laneId')
         newMeta.remove('flowcellId')
-        [ newMeta + [id: newMeta.sample], bam ]   // keep full meta, but add a simple id
+        [newMeta + [id: newMeta.sample], bam]
     }
     // run calculate_basequality.py on the alogned bam file (from samplesheet)
     CALCULATE_BASEQUALITY(
