@@ -49,7 +49,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
 
-    // make sure ch_alignemnt has the same metadata for downstream joins
+    // make sure ch_alignment has the same metadata for downstream joins
     def ch_alignments_newMeta = ch_alignments.map { meta, bam ->
         def newMeta = meta.clone()
         newMeta.remove('runId')
