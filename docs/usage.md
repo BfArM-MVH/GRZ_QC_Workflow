@@ -136,7 +136,7 @@ Note:
 
 - running with `--submission_basepath` is not possible when using alignments as input.
 - when using a manually-prepared samplesheet, you need to either provide `--genome`, or include a column named `reference` in your samplesheet, with all entries set to either GRCh37 or GRCh38.
-- If you provide your own BAM files, the reference sequence names must follow the UCSC style (e.g., chr1 instead of 1).
+- If you provide your own BAM files, the reference sequence names must follow the UCSC style (e.g. chr1 instead of 1).
 
 ## Running the pipeline
 
