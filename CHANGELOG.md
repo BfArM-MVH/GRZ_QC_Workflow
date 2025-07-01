@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix bug where run with bam input are incomplete [#124](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/130)
+- Fix bug where runs with alignment input are incomplete [#124](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/130)
 
 ## v1.0.2 - [23.06.2025]
 
