@@ -49,10 +49,16 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
 
-
+    def ch_alignments_newMeta = ch_alignments.map { meta, bam ->
+        def newMeta = meta.clone()
+        newMeta.remove('runId')
+        newMeta.remove('laneId')
+        newMeta.remove('flowcellId')
+        [ newMeta + [id: newMeta.sample], bam ]   // keep full meta, but add a simple id
+    }
     // run calculate_basequality.py on the alogned bam file (from samplesheet)
     CALCULATE_BASEQUALITY(
-        ch_alignments
+        ch_alignments_newMeta
     )
     ch_versions = ch_versions.mix(CALCULATE_BASEQUALITY.out.versions)
 
@@ -60,7 +66,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
 
     // Sort, index BAM file and run samtools stats, flagstat and idxstats
     BAM_INDEX_STATS_SAMTOOLS(
-        SAMTOOLS_MERGE.out.bam.mix(ch_alignments),
+        SAMTOOLS_MERGE.out.bam.mix(ch_alignments_newMeta),
         ch_fasta,
     )
 

@@ -262,7 +262,6 @@ workflow GRZQC {
         .map { meta, json ->
             def newMeta = meta.clone()
             newMeta.remove('bed_file')
-            newMeta.remove('runId')
             [newMeta + [id: newMeta.sample], json]
         }
         .set { ch_fastp_mosdepth_aligned }
