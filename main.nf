@@ -81,7 +81,18 @@ workflow {
         ch_genome = Channel.of(params.genome)
     }
     else {
-        ch_genome = ch_samplesheet.map { meta, _reads, _alignments -> meta.reference }.unique().first().ifEmpty(error("No reference genome chosen. Either use --genome or add a reference column to the samplesheet."))
+        ch_genome = ch_samplesheet
+            .map { meta, _reads, _alignments -> meta.reference }
+            .unique()
+            .first()
+            .map { ref ->
+                if (ref) {
+                    ref
+                }
+                else {
+                    error("No reference genome chosen. Either use --genome or add a reference column to the samplesheet.")
+                }
+            }
     }
 
     GRZQC(
