@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Properly bump version in Nextflow manifest so that logged version is correct
+- Properly bump version in Nextflow manifest so that logged version is correct [#132](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/132)
 
 ## v1.0.3 - [01.07.2025]
 
