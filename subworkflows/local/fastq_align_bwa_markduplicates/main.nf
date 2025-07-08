@@ -46,6 +46,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
         ch_bams,
         ch_fasta,
         ch_fai,
+        [[], []],
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
 
