@@ -4,6 +4,14 @@
 
 This document describes the output produced by the pipeline.
 
+## `report.csv`
+
+This is the summary CSV report for the entire samplesheet/submission.
+
+If no pre-computed metrics were provided, the quality control status and percent deviations columns will be empty and can be ignored.
+
+Hover over the column names in the MultiQC HTML report for detailed descriptions of each column in this file.
+
 ## mosdepth
 
 **Output directory: `{outdir}/results/mosdepth/<sample>`**
@@ -17,6 +25,7 @@ This document describes the output produced by the pipeline.
 
 - `multiqc/`
   - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+    - You can hover over the column names to see a longer description.
   - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
   - `multiqc_plots/`: directory containing static images from the report in various formats.
 
