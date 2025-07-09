@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  MINI_TEST_VER: "0.1.0"
+  MINI_TEST_VER: "0.2.0"
   NXF_ANSI_LOG: false
 
 concurrency:
