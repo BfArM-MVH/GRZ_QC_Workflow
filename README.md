@@ -99,26 +99,40 @@ A more detailed description of reference files usage can be found [here](docs/us
 
 ## Pipeline output
 
-Output :
-
-| Column                                      | Description                                                             |
-| ------------------------------------------- | ----------------------------------------------------------------------- |
-| `sampleId`                                  | Sample ID                                                               |
-| `labDataName`                               | Lab data name                                                           |
-| `libraryType`                               | Library type, e.g., `wes` for whole-exome sequencing                    |
-| `sequenceSubtype`                           | Sequence subtype, e.g., `somatic` or `germline`                         |
-| `genomicStudySubtype`                       | Genomic study subtype, e.g., `tumor+germline`                           |
-| `meanDepthOfCoverage`                       | Mean depth of coverage                                                  |
-| `meanDepthOfCoverageRequired`               | Mean depth of coverage required to pass QC                              |
-| `percentBasesAboveQualityThreshold`         | Percent of bases passing the quality threshold                          |
-| `qualityThreshold`                          | The quality threshold to pass                                           |
-| `percentBasesAboveQualityThresholdRequired` | Percent of bases above the quality threshold required to pass QC        |
-| `targetedRegionsAboveMinCoverage`           | Fraction of targeted regions above minimum coverage                     |
-| `minCoverage`                               | Minimum coverage for target regions                                     |
-| `targetedRegionsAboveMinCoverageRequired`   | Fraction of targeted regions above minimum coverage required to pass QC |
-| `passedQC`                                  | `true` when QC passed, otherwise `false`                                |
-
 For more details about the output files and reports, please refer to the [output documentation](docs/output.md).
+
+### `report.csv`
+
+| Column                                       | Description                                                                                  |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `sampleId`                                   | Sample ID                                                                                    |
+| `donorPseudonym`                             | A unique identifier given by the Leistungserbringer for each donor.                          |
+| `labDataName`                                | Lab data name                                                                                |
+| `libraryType`                                | Library type, e.g., `wes` for whole-exome sequencing                                         |
+| `sequenceSubtype`                            | Sequence subtype, e.g., `somatic` or `germline`                                              |
+| `genomicStudySubtype`                        | Genomic study subtype, e.g., `tumor+germline`                                                |
+| `qualityControlStatus`                       | Submission quality control status. Only reported if pre-computed metrics provided.           |
+| `meanDepthOfCoverage`                        | Mean depth of coverage                                                                       |
+| `meanDepthOfCoverageProvided`                | Mean depth of coverage from metadata/samplesheet, if provided.                               |
+| `meanDepthOfCoverageRequired`                | Mean depth of coverage required to pass QC                                                   |
+| `meanDepthOfCoverageDeviation`               | Percent deviation of computed coverage from provided coverage.                               |
+| `meanDepthOfCoverageQCStatus`                | `PASS`, `TOO LOW`, or `TOO HIGH`, depending on percent deviation.                            |
+| `percentBasesAboveQualityThreshold`          | Percent of bases passing the quality threshold                                               |
+| `qualityThreshold`                           | The quality threshold to pass                                                                |
+| `percentBasesAboveQualityThresholdProvided`  | Percent of bases passing the quality threshold from metadata/samplesheet, if provided.       |
+| `percentBasesAboveQualityThresholdRequired`  | Percent of bases above the quality threshold required to pass QC                             |
+| `percentBasesAboveQualityThresholdDeviation` | Percent deviation of computed metric from provided metric.                                   |
+| `percentBasesAboveQualityThresholdQCStatus`  | `PASS`, `TOO LOW`, or `TOO HIGH`, depending on percent devation.                             |
+| `targetedRegionsAboveMinCoverage`            | Fraction of targeted regions above minimum coverage                                          |
+| `minCoverage`                                | Minimum coverage for target regions                                                          |
+| `targetedRegionsAboveMinCoverageProvided`    | Fraction of targeted regions above minimum coverage from metadataa/samplesheet, if provided. |
+| `targetedRegionsAboveMinCoverageRequired`    | Fraction of targeted regions above minimum coverage required to pass QC                      |
+| `targetedRegionsAboveMinCoverageQCStatus`    | `PASS`, `TOO LOW`, or `TOO HIGH`, depending on percent devation.                             |
+
+### MultiQC
+
+A MultiQC HTML report is also generated by the pipeline.
+Descriptions of the table columns can be found by hovering over the headers.
 
 ## Thresholds
 
