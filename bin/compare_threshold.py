@@ -178,9 +178,9 @@ def main(args: argparse.Namespace):
         )
     ):
         quality_check_passed = (
-            (abs(pct_dev_mean_depth_of_coverage) <= 5.0)
-            and (abs(pct_dev_percent_bases_above_quality_threshold) <= 5.0)
-            and (abs(pct_dev_targeted_regions_above_min_coverage) <= 5.0)
+            (abs(pct_dev_mean_depth_of_coverage) <= PCT_DEV_CUTOFF)
+            and (abs(pct_dev_percent_bases_above_quality_threshold) <= PCT_DEV_CUTOFF)
+            and (abs(pct_dev_targeted_regions_above_min_coverage) <= PCT_DEV_CUTOFF)
         )
         quality_control_status = "PASS" if quality_check_passed else "FAIL"
     else:
