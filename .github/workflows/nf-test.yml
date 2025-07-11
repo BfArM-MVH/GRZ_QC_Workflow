@@ -93,8 +93,8 @@ jobs:
             profile: "singularity"
         NXF_VER:
           # renovate: datasource=github-releases depName=nextflow/nextflow versioning=semver
-          - "24.04.2"
-          - "latest-everything"
+          - "25.04.2"
+
     env:
       NXF_ANSI_LOG: false
       TOTAL_SHARDS: ${{ needs.nf-test-changes.outputs.total_shards }}
