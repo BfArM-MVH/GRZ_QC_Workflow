@@ -43,6 +43,13 @@ nextflow run main.nf \
     --genome "GRCh37"  # or "GRCh38"
 ```
 
+### Providing pre-computed metrics
+
+You may _optionally_ provide `meanDepthOfCoverage`, `targetedRegionsAboveMinCoverage`, `percentBasesAboveQualityThreshold` if you would like the pipeline to automatically report if the metrics it calculates deviate more than 5% from the provided metrics.
+This is how the GRZs will run the pipeline to determine QC issues.
+
+If you are using the pipeline to obtain your metrics first, then you can omit these columns and no deviation will be calculated.
+
 ### Column descriptions
 
 | Column                              | Required                       | Description                                                                                                                                                    |
@@ -63,9 +70,9 @@ nextflow run main.nf \
 | `aligned_reads`                     | for aligned input              | Full path to aligned reads (BAM file). Can be used as an alternative to FASTQ reads. See starting from aligned reads section below for more information.       |
 | `bed_file`                          | for WES and panel              | Target region BED for WES and panels with the extension ".bed.gz" or ".bed". Empty for WGS.                                                                    |
 | `fastp_json`                        | no                             | Corresponding FASTP JSON report for `aligned_reads`.                                                                                                           |
-| `meanDepthOfCoverage`               | **yes**                        | Mean depth of coverage across target regions (panel/WES) or genome-wide (WGS). (also see [details](details.md))                                                |
-| `targetedRegionsAboveMinCoverage`   | **yes**                        | Fraction (between 0 and 1) of target regions with coverage above the minimum required for the library type. (also see [details](details.md))                   |
-| `percentBasesAboveQualityThreshold` | **yes**                        | Percentage (between 0 and 100) of **untrimmed** read bases that are above the minimum quality threshold for the library type. (also see [details](details.md)) |
+| `meanDepthOfCoverage`               | no                             | Mean depth of coverage across target regions (panel/WES) or genome-wide (WGS). (also see [details](details.md))                                                |
+| `targetedRegionsAboveMinCoverage`   | no                             | Fraction (between 0 and 1) of target regions with coverage above the minimum required for the library type. (also see [details](details.md))                   |
+| `percentBasesAboveQualityThreshold` | no                             | Percentage (between 0 and 100) of **untrimmed** read bases that are above the minimum quality threshold for the library type. (also see [details](details.md)) |
 
 ## Reference files
 
@@ -132,7 +139,11 @@ CONTROL_REP2,AEG588A1_S2001.bam,
 
 Find a complete example samplesheet [here](../tests/data/test-dataset-alignments/samplesheet_alignment.csv).
 
-Note: running with `--submission_basepath` is not possible when using alignments as input.
+Note:
+
+- running with `--submission_basepath` is not possible when using alignments as input.
+- when using a manually-prepared samplesheet, you need to either provide `--genome`, or include a column named `reference` in your samplesheet, with all entries set to either GRCh37 or GRCh38.
+- If you provide your own BAM files, the reference sequence names must follow the UCSC style (e.g. chr1 instead of 1).
 
 ## Running the pipeline
 

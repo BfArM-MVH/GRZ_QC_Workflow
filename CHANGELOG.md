@@ -1,7 +1,24 @@
-# BfArM-MVH/GRZ_QC_Workflow: Changelog
+# Changelog
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## v1.1.0 - [04.07.2025]
+
+### Added
+
+- Support for Nanopore submitted as BAM [#133](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/133)
+
+### Fixed
+
+- Update manifest version to match tag
+- Update changelog specification link to latest release
+
+## v1.0.3 - [01.07.2025]
+
+### Fixed
+
+- Fix bug where runs with alignment input are incomplete [#124](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/130)
 
 ## v1.0.2 - [23.06.2025]
 

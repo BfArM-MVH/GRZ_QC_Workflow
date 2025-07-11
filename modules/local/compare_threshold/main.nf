@@ -2,8 +2,8 @@ process COMPARE_THRESHOLD {
     tag "${meta.id}"
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/a9/a9edc101b57b3042094a569950f2d0772333156ef83984bb24d701d71bd22030/data'
-        : 'community.wave.seqera.io/library/grz-pydantic-models_pandas:b31707c70fa2229e'}"
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/b1/b1d4885e454d031667ebde3af6798d5fed939309c8db196fb3289fa468d6e04f/data'
+        : 'community.wave.seqera.io/library/grz-pydantic-models_pandas:5ab296ffe88a31f9'}"
 
     input:
     tuple val(meta), path(summary), path(bed), path(fastp_jsons)
@@ -13,17 +13,21 @@ process COMPARE_THRESHOLD {
     path ('versions.yml'), emit: versions
 
     script:
+    def arg_meanDepthOfCoverage = meta.meanDepthOfCoverage ? "--meanDepthOfCoverage ${meta.meanDepthOfCoverage}" : ''
+    def arg_targetedRegionsAboveMinCoverage = meta.targetedRegionsAboveMinCoverage ? "--targetedRegionsAboveMinCoverage ${meta.targetedRegionsAboveMinCoverage}" : ''
+    def arg_percentBasesAboveQualityThreshold = meta.percentBasesAboveQualityThreshold ? "--percentBasesAboveQualityThreshold ${meta.percentBasesAboveQualityThreshold}" : ''
+
     """
     compare_threshold.py \\
         --sample_id ${meta.id} \\
-        --labDataName "${meta.labDataName}" \\
-        --donorPseudonym "${meta.donorPseudonym}" \\
+        --labDataName "${meta.labDataName ?: ''}" \\
+        --donorPseudonym "${meta.donorPseudonym ?: ''}" \\
         --libraryType "${meta.libraryType}" \\
         --sequenceSubtype "${meta.sequenceSubtype}" \\
         --genomicStudySubtype "${meta.genomicStudySubtype}" \\
-        --meanDepthOfCoverage "${meta.meanDepthOfCoverage}" \\
-        --targetedRegionsAboveMinCoverage "${meta.targetedRegionsAboveMinCoverage}" \\
-        --percentBasesAboveQualityThreshold "${meta.percentBasesAboveQualityThreshold}" \\
+        ${arg_meanDepthOfCoverage} \\
+        ${arg_targetedRegionsAboveMinCoverage} \\
+        ${arg_percentBasesAboveQualityThreshold} \\
         --fastp_json ${fastp_jsons} \\
         --mosdepth_global_summary ${summary} \\
         --mosdepth_target_regions_bed ${bed} \\

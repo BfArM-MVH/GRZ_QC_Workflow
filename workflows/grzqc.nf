@@ -16,9 +16,8 @@ include { COMPARE_THRESHOLD              } from '../modules/local/compare_thresh
 include { MERGE_REPORTS                  } from '../modules/local/merge_reports'
 include { MOSDEPTH                       } from '../modules/nf-core/mosdepth'
 include { FASTQ_ALIGN_BWA_MARKDUPLICATES } from '../subworkflows/local/fastq_align_bwa_markduplicates'
+include { SAMTOOLS_FASTQ                 } from '../modules/nf-core/samtools/fastq/main'
 include { ALIGN_MERGE_LONG               } from '../subworkflows/local/align_merge_long'
-include { PBTK_PBINDEX                   } from '../modules/nf-core/pbtk/pbindex'
-include { PBTK_BAM2FASTQ                 } from '../modules/nf-core/pbtk/bam2fastq'
 include { PREPARE_REFERENCES             } from '../subworkflows/local/prepare_references'
 
 /*
@@ -120,17 +119,18 @@ workflow GRZQC {
         }
         .set { samplesheet_ch_reads_lng }
 
-    // Index PacBio long-read BAMs
-    PBTK_PBINDEX(samplesheet_ch_reads_lng.bam)
-    ch_versions = ch_versions.mix(PBTK_PBINDEX.out.versions)
-
-    // Convert PacBio long-read BAMs to FASTQs
-    PBTK_BAM2FASTQ(samplesheet_ch_reads_lng.bam.join(PBTK_PBINDEX.out.pbi))
-    ch_versions = ch_versions.mix(PBTK_BAM2FASTQ.out.versions)
+    // Convert read BAMs to FASTQs
+    def samtools_fastq_interleave = false
+    SAMTOOLS_FASTQ(
+        samplesheet_ch_reads_lng.bam,
+        samtools_fastq_interleave,
+    )
+    ch_versions = ch_versions.mix(SAMTOOLS_FASTQ.out.versions)
 
     // Run FASTQC on short + long FASTQ files - per lane
+    // using the 'other' output because long-reads won't be paired-end
     FASTQC(
-        samplesheet_ch_reads.srt.mix(samplesheet_ch_reads_lng.fastq).mix(PBTK_BAM2FASTQ.out.fastq)
+        samplesheet_ch_reads.srt.mix(samplesheet_ch_reads_lng.fastq).mix(SAMTOOLS_FASTQ.out.other)
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect { it[1] })
     ch_versions = ch_versions.mix(FASTQC.out.versions)
@@ -150,7 +150,7 @@ workflow GRZQC {
     ch_versions = ch_versions.mix(FASTP.out.versions)
 
     FASTPLONG(
-        samplesheet_ch_reads_lng.fastq.mix(PBTK_BAM2FASTQ.out.fastq),
+        samplesheet_ch_reads_lng.fastq.mix(SAMTOOLS_FASTQ.out.other),
         [],
         false,
         false,
@@ -262,7 +262,6 @@ workflow GRZQC {
         .map { meta, json ->
             def newMeta = meta.clone()
             newMeta.remove('bed_file')
-            newMeta.remove('runId')
             [newMeta + [id: newMeta.sample], json]
         }
         .set { ch_fastp_mosdepth_aligned }
