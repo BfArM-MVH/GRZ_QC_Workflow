@@ -4,7 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     config "../conf/tests/test_tiny.config"
 
-    test("Should run without failures") {
+    test("Tiny dataset should run without failures and produce expected files") {
 
         when {
             params {
