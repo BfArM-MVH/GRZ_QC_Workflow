@@ -10,6 +10,7 @@ def main(args: argparse.Namespace):
     # concat all csv files
     dfs = [pd.read_csv(f) for f in args.inputs]
     df_merged = pd.concat(dfs, ignore_index=True)
+    df_merged.sort_values(by="sampleId", inplace=True)
     df_merged.to_csv(f"{args.output_prefix}.csv", index=False)
     df_merged.to_excel(f"{args.output_prefix}.xlsx", index=False)
 

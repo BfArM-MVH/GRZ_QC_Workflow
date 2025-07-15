@@ -2,9 +2,9 @@ nextflow_pipeline {
 
     name "Test Workflow main.nf"
     script "../main.nf"
-    config "../conf/tests/test_tiny.config"
+    config "../conf/tests/test_alignment.config"
 
-    test("Tiny dataset should run without failures and produce expected files") {
+    test("Alignment dataset should run without failures and produce expected files") {
 
         when {
             params {
@@ -28,7 +28,6 @@ nextflow_pipeline {
                 ).match() }
             )
         }
-
     }
 
 }

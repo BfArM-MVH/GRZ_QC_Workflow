@@ -1,6 +1,7 @@
 {
-    "Should run without failures": {
+    "Tiny dataset should run without failures and produce expected files": {
         "content": [
+            58,
             [
                 "index0_somatic0/alignments/index0_somatic0.md.bam",
                 "index0_somatic0/compare_threshold/index0_somatic0.result.csv",
@@ -174,12 +175,13 @@
                 "multiqc/multiqc_plots/svg/samtools_alignment_plot-pct.svg",
                 "report.csv",
                 "report.xlsx"
-            ]
+            ],
+            "report.csv:md5,698e6185afdabc9fb13a978b2a39a20d"
         ],
         "meta": {
             "nf-test": "0.9.2",
             "nextflow": "25.04.3"
         },
-        "timestamp": "2025-07-11T13:34:38.948974819"
+        "timestamp": "2025-07-15T13:36:11.056574846"
     }
 }
