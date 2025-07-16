@@ -41,6 +41,7 @@ env:
   NXF_ANSI_LOG: false
   NXF_SINGULARITY_CACHEDIR: ${{ github.workspace }}/.singularity
   NXF_SINGULARITY_LIBRARYDIR: ${{ github.workspace }}/.singularity
+  MINI_TEST_VER: "0.2.1"
 
 jobs:
   nf-test-changes:
@@ -103,6 +104,18 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
+
+      - name: Download mini-test data
+        run: |
+          mkdir -p grz-mini-test-data
+          # references
+          curl -L "https://github.com/twrightsman/grz-mini-test-data/releases/download/version%2F${MINI_TEST_VER}/references.tgz" |
+            tar -xzC grz-mini-test-data/
+          for ds in panel wgs wgs_lr; do
+            mkdir -p "grz-mini-test-data/submissions/${ds}"
+            curl -L "https://github.com/twrightsman/grz-mini-test-data/releases/download/version%2F${MINI_TEST_VER}/${ds}.tgz" |
+              tar -xzC "grz-mini-test-data/submissions/${ds}"
+          done
 
       - name: Run nf-test
         uses: ./.github/actions/nf-test
