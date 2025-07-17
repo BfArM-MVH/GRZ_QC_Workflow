@@ -3,6 +3,19 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.1.2 - [17.07.2025]
+
+### Fixed
+
+- Only fail QC if pipeline computes metrics more than 5% less than reported values [#141](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/141)
+
+## v1.1.1 - [15.07.2025]
+
+### Fixed
+
+- Improve QC reports by @twrightsman in [#137](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/137)
+- Use latest grz-pydantic-models for end-to-end tests by @twrightsman in [#140](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/140)
+
 ## v1.1.0 - [04.07.2025]
 
 ### Added
