@@ -14,8 +14,6 @@ on:
       - "**/*.md"
       - "**/*.png"
       - "**/*.svg"
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       runners:
@@ -85,11 +83,9 @@ jobs:
         shard: ${{ fromJson(needs.nf-test-changes.outputs.shard) }}
         profile: [conda, docker, singularity]
         isMaster:
-          - ${{ github.base_ref == 'master' }}
-        # Exclude conda and singularity on dev
+          - ${{ github.base_ref == 'main' }}
+        # Exclude singularity
         exclude:
-          - isMaster: false
-            profile: "conda"
           - isMaster: false
             profile: "singularity"
         NXF_VER:
