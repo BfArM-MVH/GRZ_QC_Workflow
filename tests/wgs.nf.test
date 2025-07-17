@@ -4,7 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     config "../conf/tests/test_wgs.config"
 
-    test("Mini test - WGS dataset should run without failures and produce expected files") {
+    test("Test case scenario: WGS, trio, tumor-only. --submussion_basepath=wgs --fasta=mini.fa.gz target=mini.genes.bed, should fail" ) {
 
         when {
             params {

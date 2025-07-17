@@ -4,7 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     config "../conf/tests/test_tiny.config"
 
-    test("Tiny dataset should run without failures and produce expected files") {
+    test("Tiny Test, case senario: input=samplesheet.example.csv, 3 samples in total, 2 samples of WES, tumor+germline, 1 sample of WGS_lr; multi lanes; fasta reference is being pulled") {
 
         when {
             params {

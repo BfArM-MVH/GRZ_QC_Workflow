@@ -4,7 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     config "../conf/tests/test_alignment.config"
 
-    test("Alignment dataset should run without failures and produce expected files") {
+    test("Alignement Test, case senario: input=test-dataset-alignments, 2 samples of WES, tumor+germline, bam input, 1 sample has fastp_json") {
 
         when {
             params {

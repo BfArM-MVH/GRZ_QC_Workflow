@@ -4,7 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     config "../conf/tests/test_panel.config"
 
-    test("Mini test - panel dataset should run without failures and produce expected files") {
+    test("Test case scenario: Panel, tumor-only. 1 samples tested with --submussion_basepath=panel --fasta=mini.fa.gz target=mini.genes.bed") {
 
         when {
             params {
