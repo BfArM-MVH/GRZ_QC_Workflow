@@ -118,13 +118,28 @@ jobs:
           shard: ${{ matrix.shard }}
           total_shards: ${{ env.TOTAL_SHARDS }}
 
+      - name: Debug nf-test filesystem layout
+        if: always()
+        run: |
+          echo "→ GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          echo "→ HOME            = $HOME"
+          echo
+          echo "Listing .nf-test in the workspace:"
+          ls -R "$GITHUB_WORKSPACE/.nf-test" || echo "  (no .nf-test in workspace)"
+          echo
+          echo "Listing .nf-test in home directory:"
+          find "$HOME/.nf-test" -maxdepth 4 -type f || echo "  (no .nf-test in home)"
+          echo
+          echo "Full workspace file tree (depth 4):"
+          find "$GITHUB_WORKSPACE" -maxdepth 4 -type f
+
       - name: Upload nf-test results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: nf-test_${{ matrix.profile }}_${{ matrix.shard }}
           path: |
-            .nf-test/*/tests/output/pipeline_info/*
-            .nf-test/*/tests/output/multiqc/multiqc_report.html
+            $HOME/.nf-test/*/tests/output/pipeline_info/*
+            $HOME/.nf-test/*/tests/output/multiqc/multiqc_report.html
 
   confirm-pass:
     runs-on: ${{ github.event.inputs.runners || github.run_number > 1 && 'ubuntu-latest' || 'self-hosted' }}
