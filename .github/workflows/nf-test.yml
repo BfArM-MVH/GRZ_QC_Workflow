@@ -118,28 +118,60 @@ jobs:
           shard: ${{ matrix.shard }}
           total_shards: ${{ env.TOTAL_SHARDS }}
 
-      - name: Debug nf-test filesystem layout
+      - name: Debug nf-test outputs
         if: always()
         run: |
-          echo "→ GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-          echo "→ HOME            = $HOME"
-          echo
-          echo "Listing .nf-test in the workspace:"
-          ls -R "$GITHUB_WORKSPACE/.nf-test" || echo "  (no .nf-test in workspace)"
-          echo
-          echo "Listing .nf-test in home directory:"
-          find "$HOME/.nf-test" -maxdepth 4 -type f || echo "  (no .nf-test in home)"
-          echo
-          echo "Full workspace file tree (depth 4):"
-          find "$GITHUB_WORKSPACE" -maxdepth 4 -type f
+          echo "::group::Environment"
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          echo "HOME             = $HOME"
+          echo "NFT_WORKDIR      = ${NFT_WORKDIR:-'(unset)'}"
+          echo "::endgroup::"
+
+          # ---------- look under $NFT_WORKDIR/tests ----------
+          echo "::group::\$NFT_WORKDIR/tests"
+          if [ -n "$NFT_WORKDIR" ] && [ -d "$NFT_WORKDIR/tests" ]; then
+            find "$NFT_WORKDIR/tests" -maxdepth 3 -type f | sed 's/^/  /'
+          else
+            echo "  (no tests/ dir under \$NFT_WORKDIR)"
+          fi
+          echo "::endgroup::"
+
+          # ---------- look under $HOME/tests ----------
+          echo "::group::\$HOME/tests"
+          if [ -d "$HOME/tests" ]; then
+            find "$HOME/tests" -maxdepth 3 -type f | sed 's/^/  /'
+          else
+            echo "  (no ~/tests dir)"
+          fi
+          echo "::endgroup::"
+
+          # ---------- look under workspace/tests ----------
+          echo "::group::workspace/tests"
+          if [ -d "$GITHUB_WORKSPACE/tests" ]; then
+            find "$GITHUB_WORKSPACE/tests" -maxdepth 3 -type f | sed 's/^/  /'
+          else
+            echo "  (no tests dir in workspace)"
+          fi
+          echo "::endgroup::"
+
+          # ---------- locate the TAP file ----------
+          echo "::group::TAP file"
+          if [ -f "test.tap" ]; then
+            echo "Found TAP at $(pwd)/test.tap"
+            head -n 10 test.tap
+          else
+            echo "Searching for test.tap …"
+            find . -name test.tap -type f | sed 's/^/  /' || true
+          fi
+          echo "::endgroup::"
 
       - name: Upload nf-test results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: nf-test_${{ matrix.profile }}_${{ matrix.shard }}
           path: |
-            $HOME/.nf-test/*/tests/output/pipeline_info/*
-            $HOME/.nf-test/*/tests/output/multiqc/multiqc_report.html
+            $HOME/tests/*/output/pipeline_info/*
+            $HOME/tests/*/output/multiqc/multiqc_report.html
 
   confirm-pass:
     runs-on: ${{ github.event.inputs.runners || github.run_number > 1 && 'ubuntu-latest' || 'self-hosted' }}
