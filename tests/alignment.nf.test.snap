@@ -1,5 +1,5 @@
 {
-    "Alignment dataset should run without failures and produce expected files": {
+    "Alignement Test, case senario: input=test-dataset-alignments, 2 samples of WES, tumor+germline, bam input, 1 sample has fastp_json": {
         "content": [
             22,
             [
@@ -68,6 +68,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.3"
         },
-        "timestamp": "2025-07-15T13:34:41.064632938"
+        "timestamp": "2025-07-21T15:25:51.467457167"
     }
 }

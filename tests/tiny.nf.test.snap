@@ -1,5 +1,5 @@
 {
-    "Tiny dataset should run without failures and produce expected files": {
+    "Tiny Test, case senario: input=samplesheet.example.csv, 3 samples in total, 2 samples of WES, tumor+germline, 1 sample of WGS_lr; multi lanes; fasta reference is being pulled": {
         "content": [
             58,
             [
@@ -176,12 +176,12 @@
                 "report.csv",
                 "report.xlsx"
             ],
-            "report.csv:md5,698e6185afdabc9fb13a978b2a39a20d"
+            "report.csv:md5,3ce26beede69516b6927e88d1b0867a9"
         ],
         "meta": {
             "nf-test": "0.9.2",
             "nextflow": "25.04.3"
         },
-        "timestamp": "2025-07-15T13:36:11.056574846"
+        "timestamp": "2025-07-21T15:28:03.153016038"
     }
 }
