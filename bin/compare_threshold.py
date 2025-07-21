@@ -147,8 +147,6 @@ def main(args: argparse.Namespace):
     if pct_dev_mean_depth_of_coverage is not None:
         if pct_dev_mean_depth_of_coverage < -PCT_DEV_CUTOFF:
             qc_status_mean_depth_of_coverage = "TOO LOW"
-        elif pct_dev_mean_depth_of_coverage > PCT_DEV_CUTOFF:
-            qc_status_mean_depth_of_coverage = "TOO HIGH"
         else:
             qc_status_mean_depth_of_coverage = "PASS"
 
@@ -156,8 +154,6 @@ def main(args: argparse.Namespace):
     if pct_dev_percent_bases_above_quality_threshold is not None:
         if pct_dev_percent_bases_above_quality_threshold < -PCT_DEV_CUTOFF:
             qc_status_percent_bases_above_quality_threshold = "TOO LOW"
-        elif pct_dev_percent_bases_above_quality_threshold > PCT_DEV_CUTOFF:
-            qc_status_percent_bases_above_quality_threshold = "TOO HIGH"
         else:
             qc_status_percent_bases_above_quality_threshold = "PASS"
 
@@ -165,8 +161,6 @@ def main(args: argparse.Namespace):
     if pct_dev_targeted_regions_above_min_coverage is not None:
         if pct_dev_targeted_regions_above_min_coverage < -PCT_DEV_CUTOFF:
             qc_status_targeted_regions_above_min_coverage = "TOO LOW"
-        elif pct_dev_targeted_regions_above_min_coverage > PCT_DEV_CUTOFF:
-            qc_status_targeted_regions_above_min_coverage = "TOO HIGH"
         else:
             qc_status_targeted_regions_above_min_coverage = "PASS"
 
@@ -178,9 +172,9 @@ def main(args: argparse.Namespace):
         )
     ):
         quality_check_passed = (
-            (abs(pct_dev_mean_depth_of_coverage) <= PCT_DEV_CUTOFF)
-            and (abs(pct_dev_percent_bases_above_quality_threshold) <= PCT_DEV_CUTOFF)
-            and (abs(pct_dev_targeted_regions_above_min_coverage) <= PCT_DEV_CUTOFF)
+            (pct_dev_mean_depth_of_coverage >= -PCT_DEV_CUTOFF)
+            and (pct_dev_percent_bases_above_quality_threshold >= -PCT_DEV_CUTOFF)
+            and (pct_dev_targeted_regions_above_min_coverage >= -PCT_DEV_CUTOFF)
         )
         quality_control_status = "PASS" if quality_check_passed else "FAIL"
     else:
