@@ -63,7 +63,6 @@ def main(args: argparse.Namespace):
         #         - s_eq: "PASS"
         #       fail:
         #         - s_eq: "TOO LOW"
-        #         - s_eq: "TOO HIGH"
         #   percentBasesAboveQualityThreshold:
         #     title: "Percent Bases Above Quality Threshold"
         #     description: "Percentage of unfiltered read bases that are above the minimum quality score."
@@ -91,7 +90,6 @@ def main(args: argparse.Namespace):
         #         - s_eq: "PASS"
         #       fail:
         #         - s_eq: "TOO LOW"
-        #         - s_eq: "TOO HIGH"
         #   targetedRegionsAboveMinCoverage:
         #     title: "Targeted Regions Above Minimum Coverage"
         #     description: "Proportion of target regions above the minimum coverage threshold."
@@ -116,7 +114,6 @@ def main(args: argparse.Namespace):
         #         - s_eq: "PASS"
         #       fail:
         #         - s_eq: "TOO LOW"
-        #         - s_eq: "TOO HIGH"
         """)
         )
         df_merged.to_csv(mqc_out, index=False)
