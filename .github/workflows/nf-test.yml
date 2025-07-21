@@ -127,42 +127,28 @@ jobs:
           echo "NFT_WORKDIR      = ${NFT_WORKDIR:-'(unset)'}"
           echo "::endgroup::"
 
-          # ---------- look under $NFT_WORKDIR/tests ----------
+          # ---------- $NFT_WORKDIR/tests ----------
           echo "::group::\$NFT_WORKDIR/tests"
-          if [ -n "$NFT_WORKDIR" ] && [ -d "$NFT_WORKDIR/tests" ]; then
-            find "$NFT_WORKDIR/tests" -maxdepth 3 -type f | sed 's/^/  /'
+          [ -n "$NFT_WORKDIR" ] && find "$NFT_WORKDIR/tests" -maxdepth 3 -type f 2>/dev/null | sed 's/^/  /' || echo "  (not found)"
+          echo "::endgroup::"
+
+          # ---------- literal ~/tests inside workspace ----------
+          echo "::group::workspace/~/tests"
+          if [ -d "$GITHUB_WORKSPACE/~/tests" ]; then
+            find "$GITHUB_WORKSPACE/~/tests" -maxdepth 3 -type f | sed 's/^/  /'
           else
-            echo "  (no tests/ dir under \$NFT_WORKDIR)"
+            echo "  (no ~/tests dir under workspace)"
           fi
           echo "::endgroup::"
 
-          # ---------- look under $HOME/tests ----------
-          echo "::group::\$HOME/tests"
-          if [ -d "$HOME/tests" ]; then
-            find "$HOME/tests" -maxdepth 3 -type f | sed 's/^/  /'
-          else
-            echo "  (no ~/tests dir)"
-          fi
-          echo "::endgroup::"
-
-          # ---------- look under workspace/tests ----------
+          # ---------- workspace/tests (if you switch workdir) ----------
           echo "::group::workspace/tests"
-          if [ -d "$GITHUB_WORKSPACE/tests" ]; then
-            find "$GITHUB_WORKSPACE/tests" -maxdepth 3 -type f | sed 's/^/  /'
-          else
-            echo "  (no tests dir in workspace)"
-          fi
+          [ -d "$GITHUB_WORKSPACE/tests" ] && find "$GITHUB_WORKSPACE/tests" -maxdepth 3 -type f | sed 's/^/  /' || echo "  (not found)"
           echo "::endgroup::"
 
-          # ---------- locate the TAP file ----------
+          # ---------- TAP file ----------
           echo "::group::TAP file"
-          if [ -f "test.tap" ]; then
-            echo "Found TAP at $(pwd)/test.tap"
-            head -n 10 test.tap
-          else
-            echo "Searching for test.tap …"
-            find . -name test.tap -type f | sed 's/^/  /' || true
-          fi
+          find . -name test.tap -type f -print -exec head -n 5 {} \;
           echo "::endgroup::"
 
       - name: Upload nf-test results
@@ -170,8 +156,8 @@ jobs:
         with:
           name: nf-test_${{ matrix.profile }}_${{ matrix.shard }}
           path: |
-            $HOME/tests/*/output/pipeline_info/*
-            $HOME/tests/*/output/multiqc/multiqc_report.html
+            ~/tests/*/output/pipeline_info/*
+            ~/tests/*/output/multiqc/multiqc_report.html
 
   confirm-pass:
     runs-on: ${{ github.event.inputs.runners || github.run_number > 1 && 'ubuntu-latest' || 'self-hosted' }}
