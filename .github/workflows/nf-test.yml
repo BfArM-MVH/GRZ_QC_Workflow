@@ -35,7 +35,7 @@ env:
   NFT_DIFF_ARGS: "--line-numbers --width 120 --expand-tabs=2"
   # renovate: datasource=github-releases depName=askimed/nf-test versioning=semver
   NFT_VER: "0.9.2"
-  NFT_WORKDIR: "~"
+  NFT_WORKDIR: ${{ github.workspace }}
   NXF_ANSI_LOG: false
   NXF_SINGULARITY_CACHEDIR: ${{ github.workspace }}/.singularity
   NXF_SINGULARITY_LIBRARYDIR: ${{ github.workspace }}/.singularity
@@ -156,9 +156,8 @@ jobs:
         with:
           name: nf-test_${{ matrix.profile }}_${{ matrix.shard }}
           path: |
-            ~/tests/*/output/pipeline_info/*
-            ~/tests/*/output/multiqc/multiqc_report.html
-            ~/tests/*/output/report.csv
+            tests/*/output/pipeline_info/*
+            tests/*/output/multiqc/multiqc_report.html
 
   confirm-pass:
     runs-on: ${{ github.event.inputs.runners || github.run_number > 1 && 'ubuntu-latest' || 'self-hosted' }}
