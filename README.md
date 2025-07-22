@@ -23,7 +23,7 @@ This workflow is built using [Nextflow](https://www.nextflow.io/) and processes 
 4. Coverage calculation by [`mosdepth`](https://github.com/brentp/mosdepth)
 5. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
-![metro map](docs/images/qc_metromap.svg)
+![A high-level diagram of the GRZ QC workflow in a metro map style](docs/images/qc_metromap.png)
 
 Details on the coverage calculation of different library types can be found in the [documentation](docs/details.md).
 
