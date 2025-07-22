@@ -118,40 +118,8 @@ jobs:
           shard: ${{ matrix.shard }}
           total_shards: ${{ env.TOTAL_SHARDS }}
 
-      - name: Debug nf-test outputs
-        if: always()
-        run: |
-          echo "::group::Environment"
-          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-          echo "HOME             = $HOME"
-          echo "NFT_WORKDIR      = ${NFT_WORKDIR:-'(unset)'}"
-          echo "::endgroup::"
-
-          # ---------- $NFT_WORKDIR/tests ----------
-          echo "::group::\$NFT_WORKDIR/tests"
-          [ -n "$NFT_WORKDIR" ] && find "$NFT_WORKDIR/tests" -maxdepth 6 -type f 2>/dev/null | sed 's/^/  /' || echo "  (not found)"
-          echo "::endgroup::"
-
-          # ---------- literal ~/tests inside workspace ----------
-          echo "::group::workspace/~/tests"
-          if [ -d "$GITHUB_WORKSPACE/~/tests" ]; then
-            find "$GITHUB_WORKSPACE/~/tests" -maxdepth 6 -type f | sed 's/^/  /'
-          else
-            echo "  (no ~/tests dir under workspace)"
-          fi
-          echo "::endgroup::"
-
-          # ---------- workspace/tests (if you switch workdir) ----------
-          echo "::group::workspace/tests"
-          [ -d "$GITHUB_WORKSPACE/tests" ] && find "$GITHUB_WORKSPACE/tests" -maxdepth 6 -type f | sed 's/^/  /' || echo "  (not found)"
-          echo "::endgroup::"
-
-          # ---------- TAP file ----------
-          echo "::group::TAP file"
-          find . -name test.tap -type f -print -exec head -n 5 {} \;
-          echo "::endgroup::"
-
       - name: Upload nf-test results
+        if: ${{ matrix.profile == 'docker' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: nf-test_${{ matrix.profile }}_${{ matrix.shard }}
