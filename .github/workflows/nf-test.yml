@@ -129,13 +129,13 @@ jobs:
 
           # ---------- $NFT_WORKDIR/tests ----------
           echo "::group::\$NFT_WORKDIR/tests"
-          [ -n "$NFT_WORKDIR" ] && find "$NFT_WORKDIR/tests" -maxdepth 3 -type f 2>/dev/null | sed 's/^/  /' || echo "  (not found)"
+          [ -n "$NFT_WORKDIR" ] && find "$NFT_WORKDIR/tests" -maxdepth 6 -type f 2>/dev/null | sed 's/^/  /' || echo "  (not found)"
           echo "::endgroup::"
 
           # ---------- literal ~/tests inside workspace ----------
           echo "::group::workspace/~/tests"
           if [ -d "$GITHUB_WORKSPACE/~/tests" ]; then
-            find "$GITHUB_WORKSPACE/~/tests" -maxdepth 3 -type f | sed 's/^/  /'
+            find "$GITHUB_WORKSPACE/~/tests" -maxdepth 6 -type f | sed 's/^/  /'
           else
             echo "  (no ~/tests dir under workspace)"
           fi
@@ -143,7 +143,7 @@ jobs:
 
           # ---------- workspace/tests (if you switch workdir) ----------
           echo "::group::workspace/tests"
-          [ -d "$GITHUB_WORKSPACE/tests" ] && find "$GITHUB_WORKSPACE/tests" -maxdepth 3 -type f | sed 's/^/  /' || echo "  (not found)"
+          [ -d "$GITHUB_WORKSPACE/tests" ] && find "$GITHUB_WORKSPACE/tests" -maxdepth 6 -type f | sed 's/^/  /' || echo "  (not found)"
           echo "::endgroup::"
 
           # ---------- TAP file ----------
@@ -158,6 +158,7 @@ jobs:
           path: |
             ~/tests/*/output/pipeline_info/*
             ~/tests/*/output/multiqc/multiqc_report.html
+            ~/tests/*/output/report.csv
 
   confirm-pass:
     runs-on: ${{ github.event.inputs.runners || github.run_number > 1 && 'ubuntu-latest' || 'self-hosted' }}
