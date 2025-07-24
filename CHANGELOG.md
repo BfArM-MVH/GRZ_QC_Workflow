@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Patch bwa-mem2 nf-core modules to use v2.3 to fix possible memory-related crash [#143](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/143)
+
 ## v1.1.2 - [17.07.2025]
 
 ### Fixed
