@@ -43,13 +43,13 @@ runs:
         mkdir -p $NXF_SINGULARITY_CACHEDIR
         mkdir -p $NXF_SINGULARITY_LIBRARYDIR
 
-    - name: Conda setup
+    - name: Set up development Conda environment
       if: ${{inputs.profile == 'conda'}}
-      uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 # v3
+      uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830 # v3.1.1
       with:
-        auto-update-conda: true
-        conda-solver: libmamba
-        conda-remove-defaults: true
+        miniforge-version: latest
+        conda-remove-defaults: "true"
+        environment-file: environment-dev.conda.linux-64.lock
 
     - name: Install pdiff
       shell: bash
