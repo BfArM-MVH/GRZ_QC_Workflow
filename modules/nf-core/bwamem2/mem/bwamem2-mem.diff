@@ -1,0 +1,33 @@
+Changes in component 'nf-core/bwamem2/mem'
+Changes in 'bwamem2/mem/environment.yml':
+--- modules/nf-core/bwamem2/mem/environment.yml
++++ modules/nf-core/bwamem2/mem/environment.yml
+@@ -6,7 +6,7 @@
+ 
+ dependencies:
+   # renovate: datasource=conda depName=bioconda/bwa-mem2
+-  - bwa-mem2=2.2.1
++  - bwa-mem2=2.3
+   # renovate: datasource=conda depName=bioconda/htslib
+   - htslib=1.21
+   # renovate: datasource=conda depName=bioconda/samtools
+
+Changes in 'bwamem2/mem/main.nf':
+--- modules/nf-core/bwamem2/mem/main.nf
++++ modules/nf-core/bwamem2/mem/main.nf
+@@ -4,8 +4,8 @@
+ 
+     conda "${moduleDir}/environment.yml"
+     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/9a/9ac054213e67b3c9308e409b459080bbe438f8fd6c646c351bc42887f35a42e7/data' :
+-        'community.wave.seqera.io/library/bwa-mem2_htslib_samtools:e1f420694f8e42bd' }"
++        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/f1/f12d80863d4600ccb2e76e339a6dd05e0394ce93cc8199b0d1ef146747ba86cc/data' :
++        'community.wave.seqera.io/library/bwa-mem2_htslib_samtools:0be3a9a9fbf26332' }"
+ 
+     input:
+     tuple val(meta), path(reads)
+
+'modules/nf-core/bwamem2/mem/meta.yml' is unchanged
+'modules/nf-core/bwamem2/mem/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/bwamem2/mem/tests/main.nf.test' is unchanged
+************************************************************
