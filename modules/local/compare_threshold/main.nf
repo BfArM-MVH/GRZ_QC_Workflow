@@ -2,8 +2,8 @@ process COMPARE_THRESHOLD {
     tag "${meta.id}"
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/2b/2b249411a56a717bd02e6029ed0c540f170fe9d197dfa6ded0b2ce3581270c39/data'
-        : 'community.wave.seqera.io/library/grz-pydantic-models_pandas:b9466bd2ba15f092'}"
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/93/93adbb05c1b65c9c4fdc43b5142ea9a045a0373c37e1ec1097d47c8d8c01c405/data'
+        : 'community.wave.seqera.io/library/grz-pydantic-models_pandas:d192123ee8af7fc4'}"
 
     input:
     tuple val(meta), path(summary), path(bed), path(fastp_jsons)
