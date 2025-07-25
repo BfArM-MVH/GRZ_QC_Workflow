@@ -136,7 +136,7 @@ Descriptions of the table columns can be found by hovering over the headers.
 
 ## Thresholds
 
-QC thresholds are read from [`thresholds.json`](https://github.com/BfArM-MVH/grz-pydantic-models/blob/main/src/grz_pydantic_models/resources/thresholds.json), which uses the values [defined by BfArM](https://www.bfarm.de/SharedDocs/Downloads/DE/Forschung/modellvorhaben-genomsequenzierung/Qs-durch-GRZ.pdf?__blob=publicationFile).
+QC thresholds are read from [`thresholds.json`](https://github.com/BfArM-MVH/grz-tools/blob/main/packages/grz-pydantic-models/src/grz_pydantic_models/resources/thresholds.json), which uses the values [defined by BfArM](https://www.bfarm.de/SharedDocs/Downloads/DE/Forschung/modellvorhaben-genomsequenzierung/Qs-durch-GRZ.pdf?__blob=publicationFile).
 
 ## Running the pipeline offline
 
