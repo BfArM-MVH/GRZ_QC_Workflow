@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Bump grz-pydantic-models to v2.1.2 to allow missing VCFs
+- Bump grz-pydantic-models to v2.1.2 to allow missing VCFs [#144](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/144)
 - Patch bwa-mem2 nf-core modules to use v2.3 to fix possible memory-related crash [#143](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/143)
 
 ## v1.1.2 - [17.07.2025]
