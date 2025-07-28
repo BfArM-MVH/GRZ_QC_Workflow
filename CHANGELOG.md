@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix manifest version to match release tag
+- Fix manifest version to match release tag [#145](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/145)
 
 ## v1.1.3 - [25.07.2025]
 
