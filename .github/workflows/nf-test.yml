@@ -39,7 +39,7 @@ env:
   NXF_ANSI_LOG: false
   NXF_SINGULARITY_CACHEDIR: ${{ github.workspace }}/.singularity
   NXF_SINGULARITY_LIBRARYDIR: ${{ github.workspace }}/.singularity
-  MINI_TEST_VER: "0.2.1"
+  MINI_TEST_VER: "0.2.2"
 
 jobs:
   nf-test-changes:
