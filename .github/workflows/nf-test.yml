@@ -7,8 +7,6 @@ on:
       - "**/*.md"
       - "**/*.png"
       - "**/*.svg"
-  release:
-    types: [published]
   workflow_dispatch:
 
 # Cancel if a newer run is started
