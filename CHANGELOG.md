@@ -3,6 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.1.5 - [01.08.2025]
+
+### Added
+
+- High-level diagram of workflow [#142](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/142)
+
+### Fixed
+
+- Use correct minimap2 prefix for PacBio samples [#147](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/147)
+
 ## v1.1.4 - [28.07.2025]
 
 ### Fixed
