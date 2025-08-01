@@ -173,8 +173,8 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.flagstat.collect { _meta, file -> file })
 
     ch_reads_long_trimmed = FASTPLONG.out.reads.map { meta, reads ->
-        def sequencer = meta.sequencer.toLowerCase()
-        def is_pacbio = "pacbio" in sequencer || "pacific biosciences" in sequencer
+        def sequencer_manufacturer = meta.sequencer.toLowerCase()
+        def is_pacbio = sequencer_manufacturer.contains("pacbio") || sequencer_manufacturer.contains("pacific biosciences")
         def mm2_preset = is_pacbio ? "map-hifi" : "map-ont"
 
         [meta + [mm2_preset: mm2_preset], reads]
