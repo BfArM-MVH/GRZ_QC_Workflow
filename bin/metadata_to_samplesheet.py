@@ -14,6 +14,8 @@ from grz_pydantic_models.submission.metadata import (
     SequencingLayout,
 )
 
+QCED_LIBRARY_TYPES = {"panel", "wgs", "wes", "panel_lr", "wgs_lr", "wes_lr"}
+
 
 def sanitize(s: str) -> str:
     return s.replace(" ", "_")
@@ -36,7 +38,9 @@ def main(submission_root: Path):
         for lab_datum_index, lab_datum in enumerate(donor.lab_data):
             sample_id = f"{donor.relation}{donor_index}_{lab_datum.sequence_subtype}{lab_datum_index}"
 
-            if lab_datum.sequence_data is not None:
+            if (lab_datum.sequence_data is not None) and (
+                lab_datum.library_type in QCED_LIBRARY_TYPES
+            ):
                 read_files = []
 
                 for file in lab_datum.sequence_data.files:
