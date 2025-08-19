@@ -45,7 +45,7 @@ workflow ALIGN_MERGE_LONG {
             newMeta.remove('read_group')
             newMeta.remove('flowcellId')
             newMeta.remove('runId')
-            newMeta.remove('mm2_preset')
+            newMeta.remove('is_pacbio')
             [newMeta + [id: newMeta.sample], bam]
         }
         .groupTuple()

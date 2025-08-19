@@ -149,8 +149,16 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect { _meta, html -> html })
     ch_versions = ch_versions.mix(FASTP.out.versions)
 
+    def ch_reads_long_untrimmed = samplesheet_ch_reads_lng.fastq
+        .mix(SAMTOOLS_FASTQ.out.other)
+        .map { meta, reads ->
+            def sequencer_manufacturer = meta.sequencer.toLowerCase()
+            def is_pacbio = sequencer_manufacturer.contains("pacbio") || sequencer_manufacturer.contains("pacific biosciences")
+
+            [meta + [is_pacbio: is_pacbio], reads]
+        }
     FASTPLONG(
-        samplesheet_ch_reads_lng.fastq.mix(SAMTOOLS_FASTQ.out.other),
+        ch_reads_long_untrimmed,
         [],
         false,
         false,
@@ -172,15 +180,8 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.stat.collect { _meta, file -> file })
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.flagstat.collect { _meta, file -> file })
 
-    ch_reads_long_trimmed = FASTPLONG.out.reads.map { meta, reads ->
-        def sequencer_manufacturer = meta.sequencer.toLowerCase()
-        def is_pacbio = sequencer_manufacturer.contains("pacbio") || sequencer_manufacturer.contains("pacific biosciences")
-        def mm2_preset = is_pacbio ? "map-hifi" : "map-ont"
-
-        [meta + [mm2_preset: mm2_preset], reads]
-    }
     ALIGN_MERGE_LONG(
-        ch_reads_long_trimmed,
+        FASTPLONG.out.reads,
         samplesheet_ch_alignments.lng,
         mmi,
         fasta,
