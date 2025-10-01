@@ -48,6 +48,12 @@
                     "help_text": "GRCh38 or GRCh37: User have to define genome",
                     "enum": ["GRCh38", "GRCh37"]
                 },
+                "skip_markdup": {
+                    "type": "boolean",
+                    "description": "If true skips marking duplicate step with sambamba markdup.",
+                    "default": false,
+                    "fa_icon": "fas fa-check-square"
+                },
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
