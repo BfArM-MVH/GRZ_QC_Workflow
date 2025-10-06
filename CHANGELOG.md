@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Ignore non-QCed library types in submission metadata (e.g. RNA) [#149](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/149)
+- The `calculate_basequality` module is deprecated as it was not performant for big files. fastp JSON input is not mandatory for aligned file input.
 
 ## v1.1.5 - [01.08.2025]
 

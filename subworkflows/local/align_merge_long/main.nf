@@ -5,7 +5,6 @@
 include { MINIMAP2_ALIGN           } from '../../../modules/nf-core/minimap2/align/main'
 include { BAM_INDEX_STATS_SAMTOOLS } from '../../local/bam_index_stats_samtools/main'
 include { SAMTOOLS_MERGE           } from '../../../modules/nf-core/samtools/merge/main'
-include { CALCULATE_BASEQUALITY    } from '../../../modules/local/calculate_basequality/main'
 
 workflow ALIGN_MERGE_LONG {
     take:
@@ -67,11 +66,9 @@ workflow ALIGN_MERGE_LONG {
         [newMeta + [id: newMeta.sample], bam]
     }
 
-    // run calculate_basequality.py on the alogned bam file (from samplesheet)
-    CALCULATE_BASEQUALITY(
-        ch_alignments_newMeta
-    )
-    ch_versions = ch_versions.mix(CALCULATE_BASEQUALITY.out.versions)
+    ch_alignments_newMeta.map { meta, _bam ->
+        tuple(meta, meta.fastp_json)
+    }.set{jsonstats}
 
     // Merge aligned bams with the alignments coming from samplesheet
 
@@ -88,6 +85,6 @@ workflow ALIGN_MERGE_LONG {
     bai       = BAM_INDEX_STATS_SAMTOOLS.out.bai // channel: [ val(meta), path(bai) ]
     flagstat  = BAM_INDEX_STATS_SAMTOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
     stat      = BAM_INDEX_STATS_SAMTOOLS.out.stats // channel: [ val(meta), path(stats) ]
-    jsonstats = CALCULATE_BASEQUALITY.out.json // channel: [ val(meta), path(json) ]
+    jsonstats // channel: [ val(meta), path(json) ]
     versions  = ch_versions // channel: [ path(versions.yml) ]
 }

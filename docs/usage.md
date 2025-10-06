@@ -128,13 +128,27 @@ All of the parameters below default to undefined/null.
 
 When running the pipeline directly from aligned reads each row in the samplesheet is a sample, instead of a run.
 This assumes that you have merged the alignments from each run already into a single alignment file.
+Since raw input files are missing, the user must provide a fastp JSON report. As this will correspond to the alignment file in case of multiple lanes, please take the average. Below is an example for merged fastp JSON reports. Only "before_filtering" statistics are important for the quality control thresholds of the workflow.
 
-If `fastp_json` is not provided, base quality calculation will be carried out using a [python script](../bin/calculate_basequality.py).
+```json
+{
+	"summary": {
+		"before_filtering": {
+			"total_reads":1094,
+			"total_bases":110494,
+			"q20_bases":94654,
+			"q30_bases":83570,
+			"q20_rate":0.856644,
+			"q30_rate":0.756331
+		},
+  }
+}
+```
 
 ```
 sample,aligned_reads,fastp_json
-CONTROL_REP1,AEG588A1_S1001.bam,AEG588A1_S1_L002_R2_001.fastp.json
-CONTROL_REP2,AEG588A1_S2001.bam,
+CONTROL_REP1,AEG588A1_S1001.bam,AEG588A1_S1_L002.fastp.json
+CONTROL_REP2,AEG588A1_S2001.bam,AEG588A1_S2_L002.fastp.json
 ```
 
 Find a complete example samplesheet [here](../tests/data/test-dataset-alignments/samplesheet_alignment.csv).
