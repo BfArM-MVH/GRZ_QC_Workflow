@@ -50,7 +50,7 @@
                 },
                 "skip_markdup": {
                     "type": "boolean",
-                    "description": "If true skips marking duplicate step with sambamba markdup.",
+                    "description": "Skip marking duplicates with sambamba markdup.",
                     "default": false,
                     "fa_icon": "fas fa-check-square"
                 },

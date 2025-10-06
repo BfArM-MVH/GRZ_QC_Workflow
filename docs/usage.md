@@ -128,9 +128,9 @@ All of the parameters below default to undefined/null.
 
 When running the pipeline directly from aligned reads each row in the samplesheet is a sample, instead of a run.
 This assumes that you have merged the alignments from each run already into a single alignment file.
-As, raw input files are missing, user has to provide a fastp json file. As this will correspond to the alignment file in case of multiple lanes, please take the average. Below is an example for merged fastp json files. Only "before_filtering" statistics are important for statistical inherence if the workflow.
+Since raw input files are missing, the user must provide a fastp JSON report. As this will correspond to the alignment file in case of multiple lanes, please take the average. Below is an example for merged fastp JSON reports. Only "before_filtering" statistics are important for the quality control thresholds of the workflow.
 
-```
+```json
 {
 	"summary": {
 		"before_filtering": {

@@ -86,14 +86,14 @@
                 "format": "file-path",
                 "exists": true,
                 "pattern": "\\S+\\.(bam|cram)$",
-                "errorMessage": "Path to aligned reads must exist, end in '.bam' or '.cram', and cannot contain spaces. fastp_json has to be provided together with aligned_reads"
+                "errorMessage": "Path to aligned reads must exist, end in '.bam' or '.cram', and cannot contain spaces. fastp_json must be provided together with aligned_reads."
             },
             "fastp_json": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "\\S+\\.(json)$",
-                "errorMessage": "Path to fastp/fastplong JSON report must exist, end in '.json', and cannot contain spaces. It has to be provided for the runs with aligned_reads",
+                "errorMessage": "Path to fastp/fastplong JSON report must exist, end in '.json', and cannot contain spaces. It must be provided for runs with aligned_reads.",
                 "meta": ["fastp_json"]
             },
             "bed_file": {
