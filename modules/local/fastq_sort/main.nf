@@ -17,8 +17,7 @@ process FASTQ_SORT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def cpus_per_subtask = task.cpus
-    // reads.size()
+    def cpus_per_subtask = max(task.cpus.intdiv(reads.size()), 1)
 
     if (meta.single_end) {
         // single-end FASTQs don't require sorting
@@ -35,7 +34,7 @@ process FASTQ_SORT {
     }
     else {
         """
-        parallel 'fastq-sort ${args} {} | bgzip --stdout --threads ${cpus_per_subtask} > ${prefix}.R{#}.sorted.fastq.gz' ::: ${reads.join(' ')}
+        parallel 'bgzip --stdout --decompress --threads ${cpus_per_subtask} {} | fastq-sort ${args} | bgzip --stdout --threads ${cpus_per_subtask} > ${prefix}.R{#}.sorted.fastq.gz' ::: ${reads.join(' ')}
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
