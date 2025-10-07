@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::parallel=20250822
+  - bioconda::fastq-tools=0.8.3
+  - bioconda::samtools=1.22.1
