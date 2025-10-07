@@ -4,6 +4,7 @@
 
 include { BWAMEM2_MEM              } from '../../../modules/nf-core/bwamem2/mem/main'
 include { BAM_INDEX_STATS_SAMTOOLS } from '../../local/bam_index_stats_samtools/main'
+include { FASTQ_SORT               } from '../../../modules/local/fastq_sort/main'
 include { SAMTOOLS_MERGE           } from '../../../modules/nf-core/samtools/merge/main'
 include { SAMBAMBA_MARKDUP         } from '../../../modules/nf-core/sambamba/markdup/main'
 
@@ -19,9 +20,16 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     main:
     ch_versions = Channel.empty()
 
+    // Sort paired-end FASTQ files (required for bwa-mem)
+    FASTQ_SORT(
+        ch_reads
+    )
+
+    ch_versions = ch_versions.mix(FASTQ_SORT.out.versions)
+
     // Map reads with BWA - per lane
     BWAMEM2_MEM(
-        ch_reads,
+        FASTQ_SORT.out.reads,
         ch_index,
         ch_fasta,
         val_sort_bam,
