@@ -17,7 +17,7 @@ process FASTQ_SORT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def cpus_per_subtask = max(task.cpus.intdiv(reads.size()), 1)
+    def cpus_per_subtask = Math.max(task.cpus.intdiv(reads.size()), 1)
 
     if (meta.single_end) {
         // single-end FASTQs don't require sorting
