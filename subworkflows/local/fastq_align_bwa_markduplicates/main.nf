@@ -72,9 +72,11 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
         [newMeta + [id: newMeta.sample], bam]
     }
 
-    ch_alignments_newMeta.map { meta, _bam ->
-        tuple(meta, meta.fastp_json)
-    }.set{jsonstats}
+    ch_alignments_newMeta
+        .map { meta, _bam ->
+            tuple(meta, meta.fastp_json)
+        }
+        .set { jsonstats }
 
     // Sort, index BAM file and run samtools stats, flagstat and idxstats
     BAM_INDEX_STATS_SAMTOOLS(
