@@ -54,6 +54,12 @@
                     "default": false,
                     "fa_icon": "fas fa-check-square"
                 },
+                "sort_paired_fastq": {
+                    "type": "boolean",
+                    "description": "Whether to sort paired-end FASTQ files before alignment.",
+                    "default": false,
+                    "fa_icon": "fas fa-check-square"
+                },
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
