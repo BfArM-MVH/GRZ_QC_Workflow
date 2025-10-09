@@ -66,9 +66,11 @@ workflow ALIGN_MERGE_LONG {
         [newMeta + [id: newMeta.sample], bam]
     }
 
-    ch_alignments_newMeta.map { meta, _bam ->
-        tuple(meta, meta.fastp_json)
-    }.set{jsonstats}
+    ch_alignments_newMeta
+        .map { meta, _bam ->
+            tuple(meta, meta.fastp_json)
+        }
+        .set { jsonstats }
 
     // Merge aligned bams with the alignments coming from samplesheet
 

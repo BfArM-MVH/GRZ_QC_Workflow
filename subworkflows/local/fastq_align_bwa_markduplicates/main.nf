@@ -20,16 +20,22 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     main:
     ch_versions = Channel.empty()
 
-    // Sort paired-end FASTQ files (required for bwa-mem)
-    FASTQ_SORT(
-        ch_reads
-    )
+    ch_alignment_reads = ch_reads
 
-    ch_versions = ch_versions.mix(FASTQ_SORT.out.versions)
+    if (params.sort_paired_fastq) {
+        // Sort paired-end FASTQ files (required for bwa-mem)
+        FASTQ_SORT(
+            ch_reads
+        )
+
+        ch_versions = ch_versions.mix(FASTQ_SORT.out.versions)
+
+        ch_alignment_reads = FASTQ_SORT.out.reads
+    }
 
     // Map reads with BWA - per lane
     BWAMEM2_MEM(
-        FASTQ_SORT.out.reads,
+        ch_alignment_reads,
         ch_index,
         ch_fasta,
         val_sort_bam,
@@ -66,9 +72,11 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
         [newMeta + [id: newMeta.sample], bam]
     }
 
-    ch_alignments_newMeta.map { meta, _bam ->
-        tuple(meta, meta.fastp_json)
-    }.set{jsonstats}
+    ch_alignments_newMeta
+        .map { meta, _bam ->
+            tuple(meta, meta.fastp_json)
+        }
+        .set { jsonstats }
 
     // Sort, index BAM file and run samtools stats, flagstat and idxstats
     BAM_INDEX_STATS_SAMTOOLS(
@@ -80,14 +88,15 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     ch_bam = BAM_INDEX_STATS_SAMTOOLS.out.bam
     ch_bai = BAM_INDEX_STATS_SAMTOOLS.out.bai
 
-    if (!params.skip_markdup){
+    if (!params.skip_markdup) {
         // Mark duplicates with sambamba
         SAMBAMBA_MARKDUP(
             BAM_INDEX_STATS_SAMTOOLS.out.bam
         )
         ch_versions = ch_versions.mix(SAMBAMBA_MARKDUP.out.versions)
-        ch_bam  = SAMBAMBA_MARKDUP.out.bam // channel: [ val(meta), path(bam) ]
-        ch_bai  = SAMBAMBA_MARKDUP.out.bai // channel: [ val(meta), path(bai) ]
+        ch_bam = SAMBAMBA_MARKDUP.out.bam
+        // channel: [ val(meta), path(bam) ]
+        ch_bai = SAMBAMBA_MARKDUP.out.bai
     }
 
     emit:

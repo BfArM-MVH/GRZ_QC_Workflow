@@ -132,15 +132,15 @@ Since raw input files are missing, the user must provide a fastp JSON report. As
 
 ```json
 {
-	"summary": {
-		"before_filtering": {
-			"total_reads":1094,
-			"total_bases":110494,
-			"q20_bases":94654,
-			"q30_bases":83570,
-			"q20_rate":0.856644,
-			"q30_rate":0.756331
-		},
+  "summary": {
+    "before_filtering": {
+      "total_reads": 1094,
+      "total_bases": 110494,
+      "q20_bases": 94654,
+      "q30_bases": 83570,
+      "q20_rate": 0.856644,
+      "q30_rate": 0.756331
+    }
   }
 }
 ```
