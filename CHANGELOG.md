@@ -3,12 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## v1.2.0 - [09.10.2025]
 
 - Ignore non-QCed library types in submission metadata (e.g. RNA) [#149](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/149)
 - The `calculate_basequality` module is deprecated as it was not performant for big files. fastp JSON input is not mandatory for aligned file input.
 - Bump grz-pydantic-models to support metadata v1.3 [#153](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/153)
-- Sort paired-end FASTQ files before alignment [#152](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/152)
+- Add parameter to enable sorting paired-end FASTQ files before alignment [#152](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/152)
 
 ## v1.1.5 - [01.08.2025]
 
