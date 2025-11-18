@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump grz-pydantic-models to 2.4.0 [#160](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/160)
   - uses new mean read length threshold
+- Add instructions for bumping Docker/Singularity local module environments [#162](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/162)
 
 ## v1.2.0 - [09.10.2025]
 
