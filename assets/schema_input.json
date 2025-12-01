@@ -129,6 +129,38 @@
                 "maximum": 100,
                 "errorMessage": "Must be a number between 0 and 100.",
                 "meta": ["percentBasesAboveQualityThreshold"]
+            },
+            "meanDepthOfCoverageRequired": {
+                "type": "number",
+                "minimum": 0,
+                "errorMessage": "Must be a positive number.",
+                "meta": ["meanDepthOfCoverageRequired"]
+            },
+            "minCoverage": {
+                "type": "number",
+                "minimum": 0,
+                "errorMessage": "Must be a positive number.",
+                "meta": ["minCoverage"]
+            },
+            "targetedRegionsAboveMinCoverageRequired": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "errorMessage": "Must be a number between 0 and 1.",
+                "meta": ["targetedRegionsAboveMinCoverageRequired"]
+            },
+            "qualityThreshold": {
+                "type": "number",
+                "minimum": 0,
+                "errorMessage": "Must be a positive number.",
+                "meta": ["qualityThreshold"]
+            },
+            "percentBasesAboveQualityThresholdRequired": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "errorMessage": "Must be a number between 0 and 100.",
+                "meta": ["percentBasesAboveQualityThresholdRequired"]
             }
         },
         "oneOf": [
