@@ -68,7 +68,7 @@ workflow ALIGN_MERGE_LONG {
 
     ch_alignments_newMeta
         .map { meta, _bam ->
-            tuple(meta, meta.fastp_json)
+            tuple(meta + [is_deduplicated: false], meta.fastp_json)
         }
         .set { jsonstats }
 
@@ -82,9 +82,13 @@ workflow ALIGN_MERGE_LONG {
 
     ch_versions = ch_versions.mix(BAM_INDEX_STATS_SAMTOOLS.out.versions)
 
+    bam       = BAM_INDEX_STATS_SAMTOOLS.out.bam.map{ meta, bam -> [meta + [is_deduplicated: false], bam] }
+    bai       = BAM_INDEX_STATS_SAMTOOLS.out.bai.map{ meta, bai -> [meta + [is_deduplicated: false], bai] }
+
+
     emit:
-    bam       = BAM_INDEX_STATS_SAMTOOLS.out.bam // channel: [ val(meta), path(bam) ]
-    bai       = BAM_INDEX_STATS_SAMTOOLS.out.bai // channel: [ val(meta), path(bai) ]
+    bam       // channel: [ val(meta), path(bam) ]
+    bai       // channel: [ val(meta), path(bai) ]
     flagstat  = BAM_INDEX_STATS_SAMTOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
     stat      = BAM_INDEX_STATS_SAMTOOLS.out.stats // channel: [ val(meta), path(stats) ]
     jsonstats // channel: [ val(meta), path(json) ]

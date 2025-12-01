@@ -9,14 +9,16 @@ process MERGE_REPORTS {
     path csv_files
 
     output:
-    path "report.csv"
-    path "report.xlsx"
-    path "report_mqc.csv", emit: multiqc
-    path ('versions.yml'), emit: versions
+    path "*report.csv"
+    path "*report.xlsx"
+    path "*report_mqc.csv", emit: multiqc
+    path ('versions.yml') , emit: versions
 
     script:
+    def prefix = task.ext.prefix ?: ""
+
     """
-    merge_reports.py ${csv_files} --output_prefix "report"
+    merge_reports.py ${csv_files} --output_prefix ${prefix}report
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

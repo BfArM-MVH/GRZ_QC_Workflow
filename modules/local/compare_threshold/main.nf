@@ -9,13 +9,14 @@ process COMPARE_THRESHOLD {
     tuple val(meta), path(summary), path(bed), path(fastp_jsons)
 
     output:
-    path ('*.result.csv'), emit: result_csv
+    tuple val(meta), path ('*.result.csv'), emit: result_csv
     path ('versions.yml'), emit: versions
 
     script:
     def arg_meanDepthOfCoverage = meta.meanDepthOfCoverage ? "--meanDepthOfCoverage ${meta.meanDepthOfCoverage}" : ''
     def arg_targetedRegionsAboveMinCoverage = meta.targetedRegionsAboveMinCoverage ? "--targetedRegionsAboveMinCoverage ${meta.targetedRegionsAboveMinCoverage}" : ''
     def arg_percentBasesAboveQualityThreshold = meta.percentBasesAboveQualityThreshold ? "--percentBasesAboveQualityThreshold ${meta.percentBasesAboveQualityThreshold}" : ''
+    def dedup = meta.is_deduplicated ? 'nonredundant' : 'redundant' // if using deduplicated data name output to redundant
 
     """
     compare_threshold.py \\
@@ -31,7 +32,7 @@ process COMPARE_THRESHOLD {
         --fastp_json ${fastp_jsons} \\
         --mosdepth_global_summary ${summary} \\
         --mosdepth_target_regions_bed ${bed} \\
-        --output ${meta.id}.result.csv
+        --output ${meta.id}.${dedup}.result.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -5,6 +5,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+- Disable filters in fastp and fastplong, and report both deduplicated and non-deduplicated reads [#161](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/165)
 - Add `micromamba` profile to support `micromamba` as a single-binary conda replacement [#156](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/156)
 - Bump grz-pydantic-models to 2.4.0 [#160](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/160)
   - uses new mean read length threshold
