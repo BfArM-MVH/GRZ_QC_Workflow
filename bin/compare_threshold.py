@@ -1,38 +1,14 @@
 #!/usr/bin/env python3
 
 import argparse
-import importlib.resources
 import json
 
-import grz_pydantic_models.resources
 import pandas as pd
 
 PCT_DEV_CUTOFF = 5
 
 
 def main(args: argparse.Namespace):
-    threshold_defs = json.loads(
-        (
-            importlib.resources.files(grz_pydantic_models.resources) / "thresholds.json"
-        ).read_text()
-    )
-    keys2threshold = {}
-    for threshold_def in threshold_defs:
-        key = (
-            threshold_def["libraryType"],
-            threshold_def["sequenceSubtype"],
-            threshold_def["genomicStudySubtype"],
-        )
-        if key in keys2threshold:
-            raise ValueError(
-                "Thresholds definition file contains duplicate definitions"
-            )
-        keys2threshold[key] = threshold_def
-
-    thresholds = keys2threshold[
-        (args.libraryType, args.sequenceSubtype, args.genomicStudySubtype)
-    ]["thresholds"]
-
     # threshold - mean depth of coverage
     mosdepth_summary_df = pd.read_csv(
         args.mosdepth_global_summary, sep="\t", header=0, index_col="chrom"
@@ -48,7 +24,7 @@ def main(args: argparse.Namespace):
         raise ValueError(f"Unknown library type: {args.libraryType}")
 
     mean_depth_of_coverage = mosdepth_summary_df.loc[depth_key, "mean"]
-    mean_depth_of_coverage_required = float(thresholds["meanDepthOfCoverage"])
+    mean_depth_of_coverage_required = float(args.meanDepthOfCoverageRequired)
 
     # percent deviation - mean depth of coverage
     if args.meanDepthOfCoverage:
@@ -60,12 +36,8 @@ def main(args: argparse.Namespace):
         pct_dev_mean_depth_of_coverage = None
 
     # Base quality threshold
-    quality_threshold = thresholds["percentBasesAboveQualityThreshold"][
-        "qualityThreshold"
-    ]
-    percent_bases_above_quality_threshold_required = thresholds[
-        "percentBasesAboveQualityThreshold"
-    ]["percentBasesAbove"]
+    quality_threshold = args.qualityThreshold
+    percent_bases_above_quality_threshold_required = args.percentBasesAboveQualityThresholdRequired
 
     total_bases = 0
     total_bases_above_quality = 0
@@ -110,11 +82,9 @@ def main(args: argparse.Namespace):
         pct_dev_percent_bases_above_quality_threshold = None
 
     # Minimum coverage of target regions to pass
-    min_coverage = thresholds["targetedRegionsAboveMinCoverage"]["minCoverage"]
+    min_coverage = args.minCoverage
     # Fraction of target regions that must have a coverage above the minimum coverage threshold to pass the validation
-    targeted_regions_above_min_coverage_required = thresholds[
-        "targetedRegionsAboveMinCoverage"
-    ]["fractionAbove"]
+    targeted_regions_above_min_coverage_required = args.targetedRegionsAboveMinCoverageRequired
 
     # Read mosdepth target region result
     mosdepth_target_regions_df = pd.read_csv(
