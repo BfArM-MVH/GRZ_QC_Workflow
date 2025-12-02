@@ -120,11 +120,31 @@ def main(submission_root: Path):
                                 "meanDepthOfCoverage": lab_datum.sequence_data.mean_depth_of_coverage,
                                 "targetedRegionsAboveMinCoverage": lab_datum.sequence_data.targeted_regions_above_min_coverage,
                                 "percentBasesAboveQualityThreshold": lab_datum.sequence_data.percent_bases_above_quality_threshold.percent,
-                                "meanDepthOfCoverageRequired": 0 if thresholds is None else thresholds.mean_depth_of_coverage,
-                                "minCoverage": 0 if thresholds is None else thresholds.targeted_regions_above_min_coverage.min_coverage,
-                                "targetedRegionsAboveMinCoverageRequired": 0 if thresholds is None else thresholds.targeted_regions_above_min_coverage.fraction_above,
-                                "qualityThreshold": 0 if thresholds is None else thresholds.percent_bases_above_quality_threshold.quality_threshold,
-                                "percentBasesAboveQualityThresholdRequired": 0 if thresholds is None else thresholds.percent_bases_above_quality_threshold.percent_bases_above,
+                                "meanDepthOfCoverageRequired": (
+                                    0
+                                    if thresholds is None
+                                    else thresholds.mean_depth_of_coverage
+                                ),
+                                "minCoverage": (
+                                    0
+                                    if thresholds is None
+                                    else thresholds.targeted_regions_above_min_coverage.min_coverage
+                                ),
+                                "targetedRegionsAboveMinCoverageRequired": (
+                                    0
+                                    if thresholds is None
+                                    else thresholds.targeted_regions_above_min_coverage.fraction_above
+                                ),
+                                "qualityThreshold": (
+                                    0
+                                    if thresholds is None
+                                    else thresholds.percent_bases_above_quality_threshold.quality_threshold
+                                ),
+                                "percentBasesAboveQualityThresholdRequired": (
+                                    0
+                                    if thresholds is None
+                                    else thresholds.percent_bases_above_quality_threshold.percent_bases_above
+                                ),
                             }
                         )
 

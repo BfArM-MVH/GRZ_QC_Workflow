@@ -37,7 +37,9 @@ def main(args: argparse.Namespace):
 
     # Base quality threshold
     quality_threshold = args.qualityThreshold
-    percent_bases_above_quality_threshold_required = args.percentBasesAboveQualityThresholdRequired
+    percent_bases_above_quality_threshold_required = (
+        args.percentBasesAboveQualityThresholdRequired
+    )
 
     total_bases = 0
     total_bases_above_quality = 0
@@ -84,7 +86,9 @@ def main(args: argparse.Namespace):
     # Minimum coverage of target regions to pass
     min_coverage = args.minCoverage
     # Fraction of target regions that must have a coverage above the minimum coverage threshold to pass the validation
-    targeted_regions_above_min_coverage_required = args.targetedRegionsAboveMinCoverageRequired
+    targeted_regions_above_min_coverage_required = (
+        args.targetedRegionsAboveMinCoverageRequired
+    )
 
     # Read mosdepth target region result
     mosdepth_target_regions_df = pd.read_csv(

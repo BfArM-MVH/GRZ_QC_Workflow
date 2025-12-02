@@ -20,7 +20,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     main:
     ch_versions = Channel.empty()
     ch_bam = Channel.empty()
-    ch_bai  = Channel.empty()
+    ch_bai = Channel.empty()
 
     ch_alignment_reads = ch_reads
 
@@ -87,8 +87,8 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     )
 
     ch_versions = ch_versions.mix(BAM_INDEX_STATS_SAMTOOLS.out.versions)
-    ch_bam = ch_bam.mix(BAM_INDEX_STATS_SAMTOOLS.out.bam.map{ meta, bam -> [meta + [is_deduplicated: false], bam] })
-    ch_bai = ch_bai.mix(BAM_INDEX_STATS_SAMTOOLS.out.bai.map{ meta, bai -> [meta + [is_deduplicated: false], bai] })    
+    ch_bam = ch_bam.mix(BAM_INDEX_STATS_SAMTOOLS.out.bam.map { meta, bam -> [meta + [is_deduplicated: false], bam] })
+    ch_bai = ch_bai.mix(BAM_INDEX_STATS_SAMTOOLS.out.bai.map { meta, bai -> [meta + [is_deduplicated: false], bai] })
 
     if (!params.skip_markdup) {
         // Mark duplicates with sambamba
@@ -96,8 +96,8 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
             BAM_INDEX_STATS_SAMTOOLS.out.bam
         )
         ch_versions = ch_versions.mix(SAMBAMBA_MARKDUP.out.versions)
-        ch_bam = ch_bam.mix(SAMBAMBA_MARKDUP.out.bam.map{ meta, bam -> [meta + [is_deduplicated: true], bam] })
-        ch_bai = ch_bai.mix(SAMBAMBA_MARKDUP.out.bai.map{ meta, bai -> [meta + [is_deduplicated: true], bai] })
+        ch_bam = ch_bam.mix(SAMBAMBA_MARKDUP.out.bam.map { meta, bam -> [meta + [is_deduplicated: true], bam] })
+        ch_bai = ch_bai.mix(SAMBAMBA_MARKDUP.out.bai.map { meta, bai -> [meta + [is_deduplicated: true], bai] })
     }
 
     emit:
