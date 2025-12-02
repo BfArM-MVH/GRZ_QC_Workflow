@@ -73,8 +73,8 @@
                         "bioinformaticsPipelineVersion": "v3.4.1",
                         "referenceGenome": "GRCh37",
                         "percentBasesAboveQualityThreshold": {
-                                "minimumQuality": 20,
-                                "percent": 80
+                                "minimumQuality": 30,
+                                "percent": 85
                         },
                         "meanDepthOfCoverage": 200,
                         "minCoverage": 100,
@@ -227,8 +227,8 @@
                         "bioinformaticsPipelineVersion": "v3.4.1",
                         "referenceGenome": "GRCh37",
                         "percentBasesAboveQualityThreshold": {
-                                "minimumQuality": 20,
-                                "percent": 80
+                                "minimumQuality": 30,
+                                "percent": 85
                         },
                         "meanDepthOfCoverage": 200,
                         "minCoverage": 100,
