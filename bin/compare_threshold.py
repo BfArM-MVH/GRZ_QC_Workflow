@@ -5,7 +5,7 @@ import json
 
 import pandas as pd
 
-PCT_DEV_CUTOFF = 5
+PCT_DEV_CUTOFF = 10
 
 
 def main(args: argparse.Namespace):
