@@ -22,7 +22,7 @@ process MERGE_REPORTS {
     merge_reports.py ${csv_files} --output_prefix ${prefix}report
 
     # If enabled, create a symbolic link named 'report.csv' pointing to the prefixed output
-    if [ "${create_alias}" == "true" ]; then
+    if [ "${create_alias}" ]; then
         ln -fs ${prefix}report.csv report.csv
     fi
 
