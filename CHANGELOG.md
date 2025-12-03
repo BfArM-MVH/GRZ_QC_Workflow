@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - uses new mean read length threshold
 - Add `micromamba` profile to support `micromamba` as a single-binary conda replacement [#156](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/156)
 - Disable filters in fastp and fastplong, and report both deduplicated and non-deduplicated reads [#161](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/165)
+- Add symbolic link to final report.csv [#172](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/172)
 
 ## v1.2.0 - [09.10.2025]
 
