@@ -205,6 +205,50 @@ def main(args: argparse.Namespace):
     qc_df.to_csv(args.output, index=False)
 
 
+def non_negative_float(value: str) -> float:
+    """Argparse type: float >= 0, else error matching schema message."""
+    try:
+        f = float(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Must be a positive number.")
+    if f < 0:
+        raise argparse.ArgumentTypeError("Must be a positive number.")
+    return f
+
+
+def fraction_0_1(value: str) -> float:
+    """Argparse type: 0 <= float <= 1, else error matching schema message."""
+    try:
+        f = float(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Must be a number between 0 and 1.")
+    if f < 0 or f > 1:
+        raise argparse.ArgumentTypeError("Must be a number between 0 and 1.")
+    return f
+
+
+def percentage_0_100(value: str) -> float:
+    """Argparse type: 0 <= float <= 100, else error matching schema message."""
+    try:
+        f = float(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Must be a number between 0 and 100.")
+    if f < 0 or f > 100:
+        raise argparse.ArgumentTypeError("Must be a number between 0 and 100.")
+    return f
+
+
+def non_negative_int(value: str) -> int:
+    """Argparse type: int >= 0, else error matching schema message."""
+    try:
+        i = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Must be a positive number.")
+    if i < 0:
+        raise argparse.ArgumentTypeError("Must be a positive number.")
+    return i
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Compare the results with the thresholds."
@@ -220,9 +264,44 @@ if __name__ == "__main__":
     parser.add_argument("--libraryType", "-l", required=True)
     parser.add_argument("--sequenceSubtype", "-a", required=True)
     parser.add_argument("--genomicStudySubtype", "-g", required=True)
-    parser.add_argument("--meanDepthOfCoverage", "-m", type=float)
-    parser.add_argument("--targetedRegionsAboveMinCoverage", "-t", type=float)
-    parser.add_argument("--percentBasesAboveQualityThreshold", "-p", type=float)
+    parser.add_argument("--meanDepthOfCoverage", "-m", type=non_negative_float)
+    parser.add_argument("--targetedRegionsAboveMinCoverage", "-t", type=fraction_0_1)
+    parser.add_argument(
+        "--percentBasesAboveQualityThreshold", "-p", type=percentage_0_100
+    )
+
+    # required thresholds
+    parser.add_argument(
+        "--meanDepthOfCoverageRequired",
+        type=non_negative_float,
+        required=True,
+        help="Required mean depth of coverage",
+    )
+    parser.add_argument(
+        "--qualityThreshold",
+        type=non_negative_int,
+        required=True,
+        help="Base quality threshold (Q score) used to compute percent of bases above this quality",
+    )
+    parser.add_argument(
+        "--percentBasesAboveQualityThresholdRequired",
+        type=percentage_0_100,
+        required=True,
+        help="Required percent of bases above the quality threshold",
+    )
+    parser.add_argument(
+        "--minCoverage",
+        type=non_negative_float,
+        required=True,
+        help="Minimum per-region coverage threshold for target regions",
+    )
+    parser.add_argument(
+        "--targetedRegionsAboveMinCoverageRequired",
+        type=fraction_0_1,
+        required=True,
+        help="Required fraction of target regions that must be above minCoverage to pass QC",
+    )
+
     parser.add_argument("--output", "-o", required=True)
     args = parser.parse_args()
 
