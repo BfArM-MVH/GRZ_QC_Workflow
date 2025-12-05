@@ -13,6 +13,12 @@ process COMPARE_THRESHOLD {
     path ('versions.yml'), emit: versions
 
     script:
+    def arg_meanDepthOfCoverageRequired = meta.meanDepthOfCoverageRequired ? "${meta.meanDepthOfCoverageRequired}" : '0'
+    def arg_qualityThreshold = meta.qualityThreshold ? "${meta.qualityThreshold}" : '0'
+    def arg_percentBasesAboveQualityThresholdRequired = meta.percentBasesAboveQualityThresholdRequired ? "${meta.percentBasesAboveQualityThresholdRequired}" : '0'
+    def arg_minCoverage = meta.minCoverage ? "${meta.minCoverage}" : '0'
+    def arg_targetedRegionsAboveMinCoverageRequired = meta.targetedRegionsAboveMinCoverageRequired ? "${meta.targetedRegionsAboveMinCoverageRequired}" : '0'
+
     def arg_meanDepthOfCoverage = meta.meanDepthOfCoverage ? "--meanDepthOfCoverage ${meta.meanDepthOfCoverage}" : ''
     def arg_targetedRegionsAboveMinCoverage = meta.targetedRegionsAboveMinCoverage ? "--targetedRegionsAboveMinCoverage ${meta.targetedRegionsAboveMinCoverage}" : ''
     def arg_percentBasesAboveQualityThreshold = meta.percentBasesAboveQualityThreshold ? "--percentBasesAboveQualityThreshold ${meta.percentBasesAboveQualityThreshold}" : ''
@@ -27,11 +33,11 @@ process COMPARE_THRESHOLD {
         --libraryType "${meta.libraryType}" \\
         --sequenceSubtype "${meta.sequenceSubtype}" \\
         --genomicStudySubtype "${meta.genomicStudySubtype}" \\
-        --meanDepthOfCoverageRequired ${meta.meanDepthOfCoverageRequired} \\
-        --qualityThreshold ${meta.qualityThreshold} \\
-        --percentBasesAboveQualityThresholdRequired ${meta.percentBasesAboveQualityThresholdRequired} \\
-        --minCoverage ${meta.minCoverage} \\
-        --targetedRegionsAboveMinCoverageRequired ${meta.targetedRegionsAboveMinCoverageRequired} \\
+        --meanDepthOfCoverageRequired ${arg_meanDepthOfCoverageRequired} \\
+        --qualityThreshold ${arg_qualityThreshold} \\
+        --percentBasesAboveQualityThresholdRequired ${arg_percentBasesAboveQualityThresholdRequired} \\
+        --minCoverage ${arg_minCoverage} \\
+        --targetedRegionsAboveMinCoverageRequired ${arg_targetedRegionsAboveMinCoverageRequired} \\
         ${arg_meanDepthOfCoverage} \\
         ${arg_targetedRegionsAboveMinCoverage} \\
         ${arg_percentBasesAboveQualityThreshold} \\
