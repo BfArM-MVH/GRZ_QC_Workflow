@@ -105,31 +105,31 @@ For more details about the output files and reports, please refer to the [output
 
 ### `report.csv`
 
-| Column                                       | Description                                                                                  |
-| -------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `sampleId`                                   | Sample ID                                                                                    |
-| `donorPseudonym`                             | A unique identifier given by the Leistungserbringer for each donor.                          |
-| `labDataName`                                | Lab data name                                                                                |
-| `libraryType`                                | Library type, e.g., `wes` for whole-exome sequencing                                         |
-| `sequenceSubtype`                            | Sequence subtype, e.g., `somatic` or `germline`                                              |
-| `genomicStudySubtype`                        | Genomic study subtype, e.g., `tumor+germline`                                                |
-| `qualityControlStatus`                       | Submission quality control status. Only reported if pre-computed metrics provided.           |
-| `meanDepthOfCoverage`                        | Mean depth of coverage                                                                       |
-| `meanDepthOfCoverageProvided`                | Mean depth of coverage from metadata/samplesheet, if provided.                               |
-| `meanDepthOfCoverageRequired`                | Mean depth of coverage required to pass QC                                                   |
-| `meanDepthOfCoverageDeviation`               | Percent deviation of computed coverage from provided coverage.                               |
-| `meanDepthOfCoverageQCStatus`                | `PASS` or `TOO LOW`, depending on percent deviation.                                         |
-| `percentBasesAboveQualityThreshold`          | Percent of bases passing the quality threshold                                               |
-| `qualityThreshold`                           | The quality threshold to pass                                                                |
-| `percentBasesAboveQualityThresholdProvided`  | Percent of bases passing the quality threshold from metadata/samplesheet, if provided.       |
-| `percentBasesAboveQualityThresholdRequired`  | Percent of bases above the quality threshold required to pass QC                             |
-| `percentBasesAboveQualityThresholdDeviation` | Percent deviation of computed metric from provided metric.                                   |
-| `percentBasesAboveQualityThresholdQCStatus`  | `PASS` or `TOO LOW`, depending on percent devation.                                          |
-| `targetedRegionsAboveMinCoverage`            | Fraction of targeted regions above minimum coverage                                          |
-| `minCoverage`                                | Minimum coverage for target regions                                                          |
-| `targetedRegionsAboveMinCoverageProvided`    | Fraction of targeted regions above minimum coverage from metadataa/samplesheet, if provided. |
-| `targetedRegionsAboveMinCoverageRequired`    | Fraction of targeted regions above minimum coverage required to pass QC                      |
-| `targetedRegionsAboveMinCoverageQCStatus`    | `PASS` or `TOO LOW`, depending on percent devation.                                          |
+| Column                                       | Description                                                                                   |
+| -------------------------------------------- |-----------------------------------------------------------------------------------------------|
+| `sampleId`                                   | Sample ID                                                                                     |
+| `donorPseudonym`                             | A unique identifier given by the Leistungserbringer for each donor.                           |
+| `labDataName`                                | Lab data name                                                                                 |
+| `libraryType`                                | Library type, e.g., `wes` for whole-exome sequencing                                          |
+| `sequenceSubtype`                            | Sequence subtype, e.g., `somatic` or `germline`                                               |
+| `genomicStudySubtype`                        | Genomic study subtype, e.g., `tumor+germline`                                                 |
+| `qualityControlStatus`                       | Submission quality control status. Only reported if pre-computed metrics provided.            |
+| `meanDepthOfCoverage`                        | Mean depth of coverage                                                                        |
+| `meanDepthOfCoverageProvided`                | Mean depth of coverage from metadata/samplesheet, if provided.                                |
+| `meanDepthOfCoverageRequired`                | Mean depth of coverage required to pass QC                                                    |
+| `meanDepthOfCoverageDeviation`               | Percent deviation of computed coverage from provided coverage.                                |
+| `meanDepthOfCoverageQCStatus`                | `THRESHOLD NOT MET` if provided < required, `TOO LOW` if deviation > 10%, otherwise `PASS`.   |
+| `percentBasesAboveQualityThreshold`          | Percent of bases passing the quality threshold                                                |
+| `qualityThreshold`                           | The quality threshold to pass                                                                 |
+| `percentBasesAboveQualityThresholdProvided`  | Percent of bases passing the quality threshold from metadata/samplesheet, if provided.        |
+| `percentBasesAboveQualityThresholdRequired`  | Percent of bases above the quality threshold required to pass QC                              |
+| `percentBasesAboveQualityThresholdDeviation` | Percent deviation of computed metric from provided metric.                                    |
+| `percentBasesAboveQualityThresholdQCStatus`  | `THRESHOLD NOT MET` if provided < required, `TOO LOW` if deviation > 10%, otherwise `PASS`.   |
+| `targetedRegionsAboveMinCoverage`            | Fraction of targeted regions above minimum coverage                                           |
+| `minCoverage`                                | Minimum coverage for target regions                                                           |
+| `targetedRegionsAboveMinCoverageProvided`    | Fraction of targeted regions above minimum coverage from metadataa/samplesheet, if provided.  |
+| `targetedRegionsAboveMinCoverageRequired`    | Fraction of targeted regions above minimum coverage required to pass QC                       |
+| `targetedRegionsAboveMinCoverageQCStatus`    | `THRESHOLD NOT MET` if provided < required, `TOO LOW` if deviation > 10%, otherwise `PASS`.   |
 
 ### MultiQC
 

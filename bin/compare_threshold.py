@@ -23,20 +23,26 @@ def main(args: argparse.Namespace):
     else:
         raise ValueError(f"Unknown library type: {args.libraryType}")
 
-    mean_depth_of_coverage = mosdepth_summary_df.loc[depth_key, "mean"]
+    mean_depth_of_coverage_provided = args.meanDepthOfCoverage
+    mean_depth_of_coverage_measured = mosdepth_summary_df.loc[depth_key, "mean"]
     mean_depth_of_coverage_required = float(args.meanDepthOfCoverageRequired)
 
     # percent deviation - mean depth of coverage
-    if args.meanDepthOfCoverage:
-        prp_dev_mean_depth_of_coverage = (
-            mean_depth_of_coverage - args.meanDepthOfCoverage
+    if mean_depth_of_coverage_provided:
+        mean_depth_of_coverage__threshold_passed = (
+            mean_depth_of_coverage_provided >= mean_depth_of_coverage_required
+        )
+        mean_depth_of_coverage__prp_dev = (
+            mean_depth_of_coverage_measured - args.meanDepthOfCoverage
         ) / args.meanDepthOfCoverage
-        pct_dev_mean_depth_of_coverage = prp_dev_mean_depth_of_coverage * 100
+        mean_depth_of_coverage__pct_dev = mean_depth_of_coverage__prp_dev * 100
     else:
-        pct_dev_mean_depth_of_coverage = None
+        mean_depth_of_coverage__pct_dev = None
+        mean_depth_of_coverage__threshold_passed = True
 
     # Base quality threshold
     quality_threshold = args.qualityThreshold
+    percent_bases_above_quality_threshold_provided = args.percentBasesAboveQualityThreshold
     percent_bases_above_quality_threshold_required = (
         args.percentBasesAboveQualityThresholdRequired
     )
@@ -64,27 +70,33 @@ def main(args: argparse.Namespace):
         ]
 
     if total_bases == 0:
-        percent_bases_above_quality_threshold = 0
+        percent_bases_above_quality_threshold_measured = 0
     else:
-        fraction_bases_above_quality_threshold = total_bases_above_quality / total_bases
-        percent_bases_above_quality_threshold = (
-            fraction_bases_above_quality_threshold * 100
+        fraction_bases_above_quality_threshold_measured = total_bases_above_quality / total_bases
+        percent_bases_above_quality_threshold_measured = (
+            fraction_bases_above_quality_threshold_measured * 100
         )
 
     # percent deviation - percent bases above quality threshold
-    if args.percentBasesAboveQualityThreshold:
-        prp_dev_percent_bases_above_quality_threshold = (
-            percent_bases_above_quality_threshold
+    if percent_bases_above_quality_threshold_provided:
+        percent_bases_above_quality_threshold__threshold_passed = (
+            percent_bases_above_quality_threshold_provided
+            >= percent_bases_above_quality_threshold_required
+        )
+        percent_bases_above_quality_threshold__prp_dev = (
+            percent_bases_above_quality_threshold_measured
             - args.percentBasesAboveQualityThreshold
         ) / args.percentBasesAboveQualityThreshold
-        pct_dev_percent_bases_above_quality_threshold = (
-            prp_dev_percent_bases_above_quality_threshold * 100
+        percent_bases_above_quality_threshold__pct_dev = (
+            percent_bases_above_quality_threshold__prp_dev * 100
         )
     else:
-        pct_dev_percent_bases_above_quality_threshold = None
+        percent_bases_above_quality_threshold__pct_dev = None
+        percent_bases_above_quality_threshold__threshold_passed = True
 
     # Minimum coverage of target regions to pass
     min_coverage = args.minCoverage
+    targeted_regions_above_min_coverage_provided = args.targetedRegionsAboveMinCoverage
     # Fraction of target regions that must have a coverage above the minimum coverage threshold to pass the validation
     targeted_regions_above_min_coverage_required = (
         args.targetedRegionsAboveMinCoverageRequired
@@ -100,55 +112,65 @@ def main(args: argparse.Namespace):
     )
     # Compute the fraction of the target regions that have a coverage above the threshold
     if mosdepth_target_regions_df.empty:
-        targeted_regions_above_min_coverage = 0
+        targeted_regions_above_min_coverage_measured = 0
     else:
-        targeted_regions_above_min_coverage = (
+        targeted_regions_above_min_coverage_measured = (
             mosdepth_target_regions_df["coverage"] >= min_coverage
         ).mean()
 
-    if args.targetedRegionsAboveMinCoverage:
-        prp_dev_targeted_regions_above_min_coverage = (
-            targeted_regions_above_min_coverage - args.targetedRegionsAboveMinCoverage
+    if targeted_regions_above_min_coverage_provided:
+        targeted_regions_above_min_coverage__threshold_passed = (
+            targeted_regions_above_min_coverage_provided            >= args.targetedRegionsAboveMinCoverage
+        )
+        targeted_regions_above_min_coverage__prp_dev = (
+            targeted_regions_above_min_coverage_measured - args.targetedRegionsAboveMinCoverage
         ) / args.targetedRegionsAboveMinCoverage
-        pct_dev_targeted_regions_above_min_coverage = (
-            prp_dev_targeted_regions_above_min_coverage * 100
+        targeted_regions_above_min_coverage__pct_dev = (
+            targeted_regions_above_min_coverage__prp_dev * 100
         )
     else:
-        pct_dev_targeted_regions_above_min_coverage = None
+        targeted_regions_above_min_coverage__pct_dev = None
+        targeted_regions_above_min_coverage__threshold_passed = True
 
     ### Perform the quality check(s)
-    qc_status_mean_depth_of_coverage = None
-    if pct_dev_mean_depth_of_coverage is not None:
-        if pct_dev_mean_depth_of_coverage < -PCT_DEV_CUTOFF:
-            qc_status_mean_depth_of_coverage = "TOO LOW"
+    mean_depth_of_coverage__qc_status = None
+    if mean_depth_of_coverage__pct_dev is not None:
+        if not mean_depth_of_coverage__threshold_passed:
+            mean_depth_of_coverage__qc_status = "THRESHOLD NOT MET"
+        elif mean_depth_of_coverage__pct_dev < -PCT_DEV_CUTOFF:
+            mean_depth_of_coverage__qc_status = "TOO LOW"
         else:
-            qc_status_mean_depth_of_coverage = "PASS"
+            mean_depth_of_coverage__qc_status = "PASS"
 
-    qc_status_percent_bases_above_quality_threshold = None
-    if pct_dev_percent_bases_above_quality_threshold is not None:
-        if pct_dev_percent_bases_above_quality_threshold < -PCT_DEV_CUTOFF:
-            qc_status_percent_bases_above_quality_threshold = "TOO LOW"
+    percent_bases_above_quality_threshold__qc_status = None
+    if percent_bases_above_quality_threshold__pct_dev is not None:
+        if not percent_bases_above_quality_threshold__threshold_passed:
+            percent_bases_above_quality_threshold__qc_status = "THRESHOLD NOT MET"
+        elif percent_bases_above_quality_threshold__pct_dev < -PCT_DEV_CUTOFF:
+            percent_bases_above_quality_threshold__qc_status = "TOO LOW"
         else:
-            qc_status_percent_bases_above_quality_threshold = "PASS"
+            percent_bases_above_quality_threshold__qc_status = "PASS"
 
-    qc_status_targeted_regions_above_min_coverage = None
-    if pct_dev_targeted_regions_above_min_coverage is not None:
-        if pct_dev_targeted_regions_above_min_coverage < -PCT_DEV_CUTOFF:
-            qc_status_targeted_regions_above_min_coverage = "TOO LOW"
+    targeted_regions_above_min_coverage__qc_status = None
+    if targeted_regions_above_min_coverage__pct_dev is not None:
+        if not targeted_regions_above_min_coverage__threshold_passed:
+            targeted_regions_above_min_coverage__qc_status = "THRESHOLD NOT MET"
+        elif targeted_regions_above_min_coverage__pct_dev < -PCT_DEV_CUTOFF:
+            targeted_regions_above_min_coverage__qc_status = "TOO LOW"
         else:
-            qc_status_targeted_regions_above_min_coverage = "PASS"
+            targeted_regions_above_min_coverage__qc_status = "PASS"
 
     if all(
         (
-            pct_dev_mean_depth_of_coverage is not None,
-            pct_dev_percent_bases_above_quality_threshold is not None,
-            pct_dev_targeted_regions_above_min_coverage is not None,
+            mean_depth_of_coverage__qc_status is not None,
+            percent_bases_above_quality_threshold__qc_status is not None,
+            targeted_regions_above_min_coverage__qc_status is not None,
         )
     ):
         quality_check_passed = (
-            (pct_dev_mean_depth_of_coverage >= -PCT_DEV_CUTOFF)
-            and (pct_dev_percent_bases_above_quality_threshold >= -PCT_DEV_CUTOFF)
-            and (pct_dev_targeted_regions_above_min_coverage >= -PCT_DEV_CUTOFF)
+            (mean_depth_of_coverage__qc_status == "PASS")
+            and (percent_bases_above_quality_threshold__qc_status == "PASS")
+            and (targeted_regions_above_min_coverage__qc_status == "PASS")
         )
         quality_control_status = "PASS" if quality_check_passed else "FAIL"
     else:
@@ -164,13 +186,13 @@ def main(args: argparse.Namespace):
             "sequenceSubtype": [args.sequenceSubtype],
             "genomicStudySubtype": [args.genomicStudySubtype],
             "qualityControlStatus": [quality_control_status],
-            "meanDepthOfCoverage": [mean_depth_of_coverage],
+            "meanDepthOfCoverage": [mean_depth_of_coverage_measured],
             "meanDepthOfCoverageProvided": [args.meanDepthOfCoverage],
             "meanDepthOfCoverageRequired": [mean_depth_of_coverage_required],
-            "meanDepthOfCoverageDeviation": [pct_dev_mean_depth_of_coverage],
-            "meanDepthOfCoverageQCStatus": [qc_status_mean_depth_of_coverage],
+            "meanDepthOfCoverageDeviation": [mean_depth_of_coverage__pct_dev],
+            "meanDepthOfCoverageQCStatus": [mean_depth_of_coverage__qc_status],
             "percentBasesAboveQualityThreshold": [
-                percent_bases_above_quality_threshold
+                percent_bases_above_quality_threshold_measured
             ],
             "qualityThreshold": [quality_threshold],
             "percentBasesAboveQualityThresholdProvided": [
@@ -180,12 +202,12 @@ def main(args: argparse.Namespace):
                 percent_bases_above_quality_threshold_required
             ],
             "percentBasesAboveQualityThresholdDeviation": [
-                pct_dev_percent_bases_above_quality_threshold
+                percent_bases_above_quality_threshold__pct_dev
             ],
             "percentBasesAboveQualityThresholdQCStatus": [
-                qc_status_percent_bases_above_quality_threshold
+                percent_bases_above_quality_threshold__qc_status
             ],
-            "targetedRegionsAboveMinCoverage": [targeted_regions_above_min_coverage],
+            "targetedRegionsAboveMinCoverage": [targeted_regions_above_min_coverage_measured],
             "minCoverage": [min_coverage],
             "targetedRegionsAboveMinCoverageProvided": [
                 args.targetedRegionsAboveMinCoverage
@@ -194,10 +216,10 @@ def main(args: argparse.Namespace):
                 targeted_regions_above_min_coverage_required
             ],
             "targetedRegionsAboveMinCoverageDeviation": [
-                pct_dev_targeted_regions_above_min_coverage
+                targeted_regions_above_min_coverage__pct_dev
             ],
             "targetedRegionsAboveMinCoverageQCStatus": [
-                qc_status_targeted_regions_above_min_coverage
+                targeted_regions_above_min_coverage__qc_status
             ],
         }
     )

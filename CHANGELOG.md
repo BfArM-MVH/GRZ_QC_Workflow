@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Derive required thresholds directly from the submission metadata.json / samplesheet.csv [#171](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/171)
   - Use new thresholds API from `grz-pydantic-models`. This will allow to update required thresholds by bumping `grz-pydantic-models` from now on.
+  - Add check whether provided metrics pass the required thresholds
   - Update MultiQC module to v1.32
 - Bump grz-pydantic-models to 2.4.0 [#160](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/160)
   - uses new mean read length threshold
