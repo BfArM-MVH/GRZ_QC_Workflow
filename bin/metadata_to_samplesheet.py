@@ -136,9 +136,12 @@ def main(submission_root: Path):
                                     else thresholds.targeted_regions_above_min_coverage.fraction_above
                                 ),
                                 "qualityThreshold": (
-                                    0
+                                    30
                                     if thresholds is None
-                                    else thresholds.percent_bases_above_quality_threshold.quality_threshold
+                                    else int(
+                                        # int cast to workaround wrong float type in grz-pydantic-models v2.4.0
+                                        thresholds.percent_bases_above_quality_threshold.quality_threshold
+                                    )
                                 ),
                                 "percentBasesAboveQualityThresholdRequired": (
                                     0
