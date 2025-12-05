@@ -243,9 +243,9 @@ def non_negative_int(value: str) -> int:
     try:
         i = int(value)
     except ValueError:
-        raise argparse.ArgumentTypeError("Must be a positive number.")
+        raise argparse.ArgumentTypeError("Must be a positive integer.")
     if i < 0:
-        raise argparse.ArgumentTypeError("Must be a positive number.")
+        raise argparse.ArgumentTypeError("Must be a positive integer.")
     return i
 
 

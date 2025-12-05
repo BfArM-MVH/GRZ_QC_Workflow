@@ -153,10 +153,10 @@
                 "meta": ["targetedRegionsAboveMinCoverageRequired"]
             },
             "qualityThreshold": {
-                "type": "number",
+                "type": "integer",
                 "minimum": 0,
                 "description": "Minimum Phred base quality used to define high-quality bases (typically 20 or 30).",
-                "errorMessage": "qualityThreshold is required and must be a positive number.",
+                "errorMessage": "qualityThreshold is required and must be a positive integer.",
                 "meta": ["qualityThreshold"]
             },
             "percentBasesAboveQualityThresholdRequired": {
