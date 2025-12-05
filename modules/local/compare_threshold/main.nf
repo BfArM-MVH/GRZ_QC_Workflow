@@ -14,7 +14,7 @@ process COMPARE_THRESHOLD {
 
     script:
     def arg_meanDepthOfCoverageRequired = meta.meanDepthOfCoverageRequired ? "${meta.meanDepthOfCoverageRequired}" : '0'
-    def arg_qualityThreshold = meta.qualityThreshold ? "${meta.qualityThreshold}" : '0'
+    def arg_qualityThreshold = "${meta.qualityThreshold}"
     def arg_percentBasesAboveQualityThresholdRequired = meta.percentBasesAboveQualityThresholdRequired ? "${meta.percentBasesAboveQualityThresholdRequired}" : '0'
     def arg_minCoverage = meta.minCoverage ? "${meta.minCoverage}" : '0'
     def arg_targetedRegionsAboveMinCoverageRequired = meta.targetedRegionsAboveMinCoverageRequired ? "${meta.targetedRegionsAboveMinCoverageRequired}" : '0'
