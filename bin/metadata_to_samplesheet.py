@@ -41,6 +41,8 @@ def main(submission_root: Path):
             if (lab_datum.sequence_data is not None) and (
                 lab_datum.library_type in QCED_LIBRARY_TYPES
             ):
+                thresholds = metadata.determine_thresholds_for(donor, lab_datum)
+
                 read_files = []
 
                 for file in lab_datum.sequence_data.files:
@@ -96,22 +98,56 @@ def main(submission_root: Path):
                                 "sequenceSubtype": lab_datum.sequence_subtype,
                                 "genomicStudySubtype": metadata.submission.genomic_study_subtype,
                                 "sequencerManufacturer": lab_datum.sequencer_manufacturer,
-                                "reads_long": resolve(reads1.file_path)
-                                if lab_datum.library_type.endswith("_lr")
-                                else None,
-                                "reads1": resolve(reads1.file_path)
-                                if not lab_datum.library_type.endswith("_lr")
-                                else None,
-                                "reads2": resolve(
-                                    None if reads2 is None else reads2.file_path
-                                )
-                                if not lab_datum.library_type.endswith("_lr")
-                                else None,
+                                "reads_long": (
+                                    resolve(reads1.file_path)
+                                    if lab_datum.library_type.endswith("_lr")
+                                    else None
+                                ),
+                                "reads1": (
+                                    resolve(reads1.file_path)
+                                    if not lab_datum.library_type.endswith("_lr")
+                                    else None
+                                ),
+                                "reads2": (
+                                    resolve(
+                                        None if reads2 is None else reads2.file_path
+                                    )
+                                    if not lab_datum.library_type.endswith("_lr")
+                                    else None
+                                ),
                                 "bed_file": resolve(targets),
                                 "reference": lab_datum.sequence_data.reference_genome,
                                 "meanDepthOfCoverage": lab_datum.sequence_data.mean_depth_of_coverage,
                                 "targetedRegionsAboveMinCoverage": lab_datum.sequence_data.targeted_regions_above_min_coverage,
                                 "percentBasesAboveQualityThreshold": lab_datum.sequence_data.percent_bases_above_quality_threshold.percent,
+                                "meanDepthOfCoverageRequired": (
+                                    0
+                                    if thresholds is None
+                                    else thresholds.mean_depth_of_coverage
+                                ),
+                                "minCoverage": (
+                                    0
+                                    if thresholds is None
+                                    else thresholds.targeted_regions_above_min_coverage.min_coverage
+                                ),
+                                "targetedRegionsAboveMinCoverageRequired": (
+                                    0
+                                    if thresholds is None
+                                    else thresholds.targeted_regions_above_min_coverage.fraction_above
+                                ),
+                                "qualityThreshold": (
+                                    30
+                                    if thresholds is None
+                                    else int(
+                                        # int cast to workaround wrong float type in grz-pydantic-models v2.4.0
+                                        thresholds.percent_bases_above_quality_threshold.quality_threshold
+                                    )
+                                ),
+                                "percentBasesAboveQualityThresholdRequired": (
+                                    0
+                                    if thresholds is None
+                                    else thresholds.percent_bases_above_quality_threshold.percent_bases_above
+                                ),
                             }
                         )
 

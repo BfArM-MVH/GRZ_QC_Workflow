@@ -62,6 +62,7 @@ def main(args: argparse.Namespace):
         #         - s_eq: "PASS"
         #       fail:
         #         - s_eq: "TOO LOW"
+        #         - s_eq: "THRESHOLD NOT MET"
         #   percentBasesAboveQualityThreshold:
         #     title: "Percent Bases Above Quality Threshold"
         #     description: "Percentage of unfiltered read bases that are above the minimum quality score."

@@ -5,6 +5,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+- Derive required thresholds directly from the submission metadata.json / samplesheet.csv [#171](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/171)
+  - Use new thresholds API from `grz-pydantic-models` 2.5.0. This will allow to update required thresholds by bumping `grz-pydantic-models` from now on.
+  - Add check whether provided metrics pass the required thresholds
 - Add symbolic link to final report.csv [#175](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/175)
 - Fix conda issues: multiqc is updated to 1.32 as conda was broken in the old version [#173](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/173)
 - Disable filters in fastp and fastplong, and report both deduplicated and non-deduplicated reads [#161](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/165)

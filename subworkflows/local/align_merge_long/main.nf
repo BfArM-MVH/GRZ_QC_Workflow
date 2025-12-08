@@ -82,9 +82,8 @@ workflow ALIGN_MERGE_LONG {
 
     ch_versions = ch_versions.mix(BAM_INDEX_STATS_SAMTOOLS.out.versions)
 
-    bam       = BAM_INDEX_STATS_SAMTOOLS.out.bam.map{ meta, bam -> [meta + [is_deduplicated: false], bam] }
-    bai       = BAM_INDEX_STATS_SAMTOOLS.out.bai.map{ meta, bai -> [meta + [is_deduplicated: false], bai] }
-
+    bam = BAM_INDEX_STATS_SAMTOOLS.out.bam.map { meta, bam -> [meta + [is_deduplicated: false], bam] }
+    bai = BAM_INDEX_STATS_SAMTOOLS.out.bai.map { meta, bai -> [meta + [is_deduplicated: false], bai] }
 
     emit:
     bam       // channel: [ val(meta), path(bam) ]

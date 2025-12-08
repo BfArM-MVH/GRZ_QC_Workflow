@@ -11,13 +11,13 @@
             "sample": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "errorMessage": "Sample ID is required and must not contain spaces.",
                 "meta": ["sample"]
             },
             "runId": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Run ID must be provided, be unique within a sample, and cannot contain spaces",
+                "errorMessage": "runId is required, must be unique per sample, and must not contain spaces.",
                 "meta": ["runId"]
             },
             "donorPseudonym": {
@@ -40,24 +40,24 @@
             "libraryType": {
                 "type": "string",
                 "pattern": "panel|wgs|wes|panel_lr|wgs_lr|wes_lr",
-                "errorMessage": "Library type must be one of the following: panel, wgs, wes, panel_lr, wgs_lr, wes_lr",
+                "errorMessage": "libraryType is required and must be one of: panel, wgs, wes, panel_lr, wgs_lr, wes_lr.",
                 "meta": ["libraryType"]
             },
             "sequenceSubtype": {
                 "type": "string",
                 "pattern": "somatic|germline",
-                "errorMessage": "Sequence subtype must be either somatic or germline",
+                "errorMessage": "sequenceSubtype is required and must be either 'somatic' or 'germline'.",
                 "meta": ["sequenceSubtype"]
             },
             "genomicStudySubtype": {
                 "type": "string",
                 "pattern": "tumor\\+germline|tumor-only|germline-only",
-                "errorMessage": "Genomic study subtype must be either tumor+germline, tumor-only, or germline-only",
+                "errorMessage": "genomicStudySubtype must be one of: 'tumor+germline', 'tumor-only', or 'germline-only'.",
                 "meta": ["genomicStudySubtype"]
             },
             "sequencerManufacturer": {
                 "type": "string",
-                "errorMessage": "Sequencer manufacturer",
+                "errorMessage": "sequencerManufacturer must be a non-empty string naming the sequencing platform manufacturer.",
                 "meta": ["sequencer"]
             },
             "reads_long": {
@@ -65,21 +65,21 @@
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+\\.(bam|fastq.gz|fq.gz)$",
-                "errorMessage": "Path to long read files must exist, end in '.bam' or '.fastq.gz' or '.fq.gz', and cannot contain spaces."
+                "errorMessage": "reads_long must be an existing file path without spaces, ending in '.bam', '.fastq.gz', or '.fq.gz' for long reads."
             },
             "reads1": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "Path to first short reads file (_R1 in a pair) must exist, end in '.fastq.gz' or '.fq.gz', and cannot contain spaces."
+                "errorMessage": "reads1 must be an existing FASTQ file path without spaces, ending in '.fastq.gz' or '.fq.gz' for the first read in a pair (R1)."
             },
             "reads2": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "Path to paired short reads file (_R2 in a pair) must exist, end in '.fastq.gz' or '.fq.gz', and cannot contain spaces."
+                "errorMessage": "reads2 must be an existing FASTQ file path without spaces, ending in '.fastq.gz' or '.fq.gz' for the second read in a pair (R2), and may only be given if reads1 is also provided."
             },
             "aligned_reads": {
                 "type": "string",
@@ -120,15 +120,52 @@
                 "type": "number",
                 "minimum": 0,
                 "maximum": 1,
-                "errorMessage": "Must be a number between 0 and 1.",
+                "errorMessage": "targetedRegionsAboveMinCoverage must be a number between 0 and 1.",
                 "meta": ["targetedRegionsAboveMinCoverage"]
             },
             "percentBasesAboveQualityThreshold": {
                 "type": "number",
                 "minimum": 0,
                 "maximum": 100,
-                "errorMessage": "Must be a number between 0 and 100.",
+                "errorMessage": "percentBasesAboveQualityThreshold must be a number between 0 and 100.",
                 "meta": ["percentBasesAboveQualityThreshold"]
+            },
+            "meanDepthOfCoverageRequired": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Required minimum mean depth of coverage for the sample.",
+                "errorMessage": "meanDepthOfCoverageRequired must be a positive number.",
+                "meta": ["meanDepthOfCoverageRequired"]
+            },
+            "minCoverage": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Minimum per-base coverage used as threshold for coverage-based metrics.",
+                "errorMessage": "minCoverage must be a positive number.",
+                "meta": ["minCoverage"]
+            },
+            "targetedRegionsAboveMinCoverageRequired": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Required fraction (0–1) of targeted bases at or above minCoverage.",
+                "errorMessage": "targetedRegionsAboveMinCoverageRequired must be a number between 0 and 1.",
+                "meta": ["targetedRegionsAboveMinCoverageRequired"]
+            },
+            "qualityThreshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Minimum Phred base quality used to define high-quality bases (typically 20 or 30).",
+                "errorMessage": "qualityThreshold is required and must be a positive integer.",
+                "meta": ["qualityThreshold"]
+            },
+            "percentBasesAboveQualityThresholdRequired": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Required percentage (0–100) of bases with base quality at or above qualityThreshold.",
+                "errorMessage": "percentBasesAboveQualityThresholdRequired must be a number between 0 and 100.",
+                "meta": ["percentBasesAboveQualityThresholdRequired"]
             }
         },
         "oneOf": [
@@ -148,6 +185,6 @@
             "fastp_json": ["aligned_reads"],
             "aligned_reads": ["fastp_json"]
         },
-        "required": ["sample", "libraryType", "sequenceSubtype", "genomicStudySubtype"]
+        "required": ["sample", "libraryType", "sequenceSubtype", "genomicStudySubtype", "qualityThreshold"]
     }
 }
