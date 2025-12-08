@@ -5,6 +5,6 @@ channels:
 dependencies:
   - nextflow =25.04.06
   - prettier =3.6
-  - nf-core =3.3.2
+  - nf-core =3.5.1
   - conda-lock =3
   - ruff =0.12

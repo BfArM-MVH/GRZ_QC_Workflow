@@ -5,6 +5,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v1.3.0 - [08.12.2025]
 
+- Bump nf-core to v3.5.1
 - Derive required thresholds directly from the submission metadata.json / samplesheet.csv [#171](https://github.com/BfArM-MVH/GRZ_QC_Workflow/pull/171)
   - Use new thresholds API from `grz-pydantic-models` 2.5.0. This will allow to update required thresholds by bumping `grz-pydantic-models` from now on.
   - Add check whether provided metrics pass the required thresholds
