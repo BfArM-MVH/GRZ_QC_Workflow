@@ -16,9 +16,16 @@ process MERGE_REPORTS {
 
     script:
     def prefix = task.ext.prefix ?: ""
+    def create_alias = task.ext.create_alias ? true : false
+    def alias = task.ext.create_alias ?: ''
 
     """
     merge_reports.py ${csv_files} --output_prefix ${prefix}report
+
+    # If enabled, create a symbolic link named 'report.csv' pointing to the prefixed output
+    if [ "${create_alias}" = true ]; then
+        ln -s ${prefix}report.csv ${alias}
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -27,9 +34,16 @@ process MERGE_REPORTS {
     """
 
     stub:
+    def prefix = task.ext.prefix ?: ""
+    def create_alias = task.ext.create_alias ? true : false
+    def alias = task.ext.create_alias ?: ''
     """
-    touch report.csv
-    touch report.xlsx
+    touch ${prefix}report.csv
+    touch ${prefix}report.xlsx
+
+    if [ "${create_alias}" = true ]; then
+        ln -s ${prefix}report.csv ${alias}
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
