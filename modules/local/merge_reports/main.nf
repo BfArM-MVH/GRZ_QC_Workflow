@@ -12,7 +12,7 @@ process MERGE_REPORTS {
     path "*report.csv"
     path "*report.xlsx"
     path "*report_mqc.csv", emit: multiqc
-    path ('versions.yml') , emit: versions
+    path ('versions.yml'), emit: versions
 
     script:
     def prefix = task.ext.prefix ?: ""

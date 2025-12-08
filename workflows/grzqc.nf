@@ -4,22 +4,22 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { paramsSummaryMap               } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc           } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML         } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { FASTQC                         } from '../modules/nf-core/fastqc'
-include { FASTP                          } from '../modules/nf-core/fastp'
-include { FASTPLONG                      } from '../modules/local/fastplong'
-include { MULTIQC                        } from '../modules/nf-core/multiqc'
-include { CONVERT_BED_CHROM              } from '../modules/local/convert_bed_chrom'
-include { COMPARE_THRESHOLD              } from '../modules/local/compare_threshold'
-include { MOSDEPTH                       } from '../modules/nf-core/mosdepth'
-include { FASTQ_ALIGN_BWA_MARKDUPLICATES } from '../subworkflows/local/fastq_align_bwa_markduplicates'
-include { SAMTOOLS_FASTQ                 } from '../modules/nf-core/samtools/fastq/main'
-include { ALIGN_MERGE_LONG               } from '../subworkflows/local/align_merge_long'
-include { PREPARE_REFERENCES             } from '../subworkflows/local/prepare_references'
+include { paramsSummaryMap                              } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc                          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML                        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { FASTQC                                        } from '../modules/nf-core/fastqc'
+include { FASTP                                         } from '../modules/nf-core/fastp'
+include { FASTPLONG                                     } from '../modules/local/fastplong'
+include { MULTIQC                                       } from '../modules/nf-core/multiqc'
+include { CONVERT_BED_CHROM                             } from '../modules/local/convert_bed_chrom'
+include { COMPARE_THRESHOLD                             } from '../modules/local/compare_threshold'
+include { MOSDEPTH                                      } from '../modules/nf-core/mosdepth'
+include { FASTQ_ALIGN_BWA_MARKDUPLICATES                } from '../subworkflows/local/fastq_align_bwa_markduplicates'
+include { SAMTOOLS_FASTQ                                } from '../modules/nf-core/samtools/fastq/main'
+include { ALIGN_MERGE_LONG                              } from '../subworkflows/local/align_merge_long'
+include { PREPARE_REFERENCES                            } from '../subworkflows/local/prepare_references'
 include { MERGE_REPORTS as MERGE_REPORTS_DEDUPLICATED   } from '../modules/local/merge_reports'
-include { MERGE_REPORTS as MERGE_REPORTS_UNDEDUPLICATED   } from '../modules/local/merge_reports'
+include { MERGE_REPORTS as MERGE_REPORTS_UNDEDUPLICATED } from '../modules/local/merge_reports'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -272,9 +272,9 @@ workflow GRZQC {
     ch_fastp_fordedup = ch_fastp_mosdepth.mix(ch_fastp_mosdepth_aligned)
     ch_fastp_skipdedup = ch_fastp_mosdepth.mix(ch_fastp_mosdepth_aligned)
 
-    ch_fastp_fordedup.map { meta, json -> [meta + [is_deduplicated: true], json]}.set { ch_fastp_mosdepth_duplicated }
+    ch_fastp_fordedup.map { meta, json -> [meta + [is_deduplicated: true], json] }.set { ch_fastp_mosdepth_duplicated }
 
-    ch_fastp_skipdedup.map { meta, json -> [meta + [is_deduplicated: false], json]}.set { ch_fastp_mosdepth_nodedup }
+    ch_fastp_skipdedup.map { meta, json -> [meta + [is_deduplicated: false], json] }.set { ch_fastp_mosdepth_nodedup }
 
     // Collect the results for comparison
     MOSDEPTH.out.summary_txt
@@ -290,10 +290,12 @@ workflow GRZQC {
     )
     ch_versions = ch_versions.mix(COMPARE_THRESHOLD.out.versions)
 
-    COMPARE_THRESHOLD.out.result_csv.branch { meta, _file ->
-        deduplicated: meta.is_deduplicated == true
-        undeduplicated: meta.is_deduplicated == false
-    }.set { ch_compare_threshold_results }
+    COMPARE_THRESHOLD.out.result_csv
+        .branch { meta, _file ->
+            deduplicated: meta.is_deduplicated == true
+            undeduplicated: meta.is_deduplicated == false
+        }
+        .set { ch_compare_threshold_results }
 
     // Merge compare_threshold results for a final report
     MERGE_REPORTS_DEDUPLICATED(
