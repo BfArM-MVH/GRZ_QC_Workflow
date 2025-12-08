@@ -42,7 +42,9 @@ def main(args: argparse.Namespace):
 
     # Base quality threshold
     quality_threshold = args.qualityThreshold
-    percent_bases_above_quality_threshold_provided = args.percentBasesAboveQualityThreshold
+    percent_bases_above_quality_threshold_provided = (
+        args.percentBasesAboveQualityThreshold
+    )
     percent_bases_above_quality_threshold_required = (
         args.percentBasesAboveQualityThresholdRequired
     )
@@ -72,7 +74,9 @@ def main(args: argparse.Namespace):
     if total_bases == 0:
         percent_bases_above_quality_threshold_measured = 0
     else:
-        fraction_bases_above_quality_threshold_measured = total_bases_above_quality / total_bases
+        fraction_bases_above_quality_threshold_measured = (
+            total_bases_above_quality / total_bases
+        )
         percent_bases_above_quality_threshold_measured = (
             fraction_bases_above_quality_threshold_measured * 100
         )
@@ -120,10 +124,12 @@ def main(args: argparse.Namespace):
 
     if targeted_regions_above_min_coverage_provided:
         targeted_regions_above_min_coverage__threshold_passed = (
-            targeted_regions_above_min_coverage_provided            >= args.targetedRegionsAboveMinCoverage
+            targeted_regions_above_min_coverage_provided
+            >= args.targetedRegionsAboveMinCoverage
         )
         targeted_regions_above_min_coverage__prp_dev = (
-            targeted_regions_above_min_coverage_measured - args.targetedRegionsAboveMinCoverage
+            targeted_regions_above_min_coverage_measured
+            - args.targetedRegionsAboveMinCoverage
         ) / args.targetedRegionsAboveMinCoverage
         targeted_regions_above_min_coverage__pct_dev = (
             targeted_regions_above_min_coverage__prp_dev * 100
@@ -207,7 +213,9 @@ def main(args: argparse.Namespace):
             "percentBasesAboveQualityThresholdQCStatus": [
                 percent_bases_above_quality_threshold__qc_status
             ],
-            "targetedRegionsAboveMinCoverage": [targeted_regions_above_min_coverage_measured],
+            "targetedRegionsAboveMinCoverage": [
+                targeted_regions_above_min_coverage_measured
+            ],
             "minCoverage": [min_coverage],
             "targetedRegionsAboveMinCoverageProvided": [
                 args.targetedRegionsAboveMinCoverage

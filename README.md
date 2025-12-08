@@ -105,6 +105,7 @@ For more details about the output files and reports, please refer to the [output
 
 ### `report.csv`
 
+<!-- prettier-ignore-start -->
 | Column                                       | Description                                                                                                                                                                                                                                                                                                       |
 |----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `sampleId`                                   | Sample ID                                                                                                                                                                                                                                                                                                         |
@@ -131,6 +132,7 @@ For more details about the output files and reports, please refer to the [output
 | `targetedRegionsAboveMinCoverageRequired`    | Fraction of targeted regions above minimum coverage required to pass QC                                                                                                                                                                                                                                           |
 | `percentBasesAboveQualityThresholdDeviation` | Percent deviation of computed metric (`targetedRegionsAboveMinCoverage`) from provided metric (`targetedRegionsAboveMinCoverageProvided`).                                                                                                                                                                        |                                                                                                                                              |
 | `targetedRegionsAboveMinCoverageQCStatus`    | <ul>  <li>`THRESHOLD NOT MET` if provided metric lower than required metric (`targetedRegionsAboveMinCoverageProvided < targetedRegionsAboveMinCoverageRequired`)</li>  <li>`TOO LOW` if deviation lower than -10% (`percentBasesAboveQualityThresholdDeviation < -10`)</li>  <li>`PASS`, otherwise</li></ul>     |
+<!-- prettier-ignore-end -->
 
 ### MultiQC
 
