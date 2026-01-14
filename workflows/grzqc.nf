@@ -140,11 +140,10 @@ workflow GRZQC {
     save_trimmed_fail = false
     save_merged = false
     FASTP(
-        samplesheet_ch_reads.srt,
-        [],
+        samplesheet_ch_reads.srt.map{ meta, reads -> [meta, reads, []] },
         false,
         save_trimmed_fail,
-        save_merged,
+        save_merged
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect { _meta, json -> json })
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect { _meta, html -> html })
