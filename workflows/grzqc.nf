@@ -112,6 +112,8 @@ workflow GRZQC {
         }
         .set { samplesheet_ch_alignments }
 
+    // missing samples samplesheet_ch_alignments.lng
+
     // split long read rows depending on if they are BAM (PacBio) or FASTQ (usually Nanopore)
     samplesheet_ch_reads.lng
         .branch { _meta, reads ->
@@ -258,7 +260,7 @@ workflow GRZQC {
         .set { ch_fastp_mosdepth }
 
     // Remove bed_file from the metadata to enable sample based grouping - this result is coming from alignments in the samplesheet
-    FASTQ_ALIGN_BWA_MARKDUPLICATES.out.jsonstats
+    FASTQ_ALIGN_BWA_MARKDUPLICATES.out.jsonstats.mix(ALIGN_MERGE_LONG.out.jsonstats)
         .map { meta, json ->
             def newMeta = meta.clone()
             newMeta.remove('bed_file')
