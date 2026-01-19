@@ -1,0 +1,2 @@
+sample,labDataName,libraryType,sequenceSubtype,genomicStudySubtype,aligned_reads,fastp_json,reference,qualityThreshold
+s1_Blood_DNA_sample,Blood_DNA_sample,wgs_lr,germline,germline-only,tests/data/test-dataset_wgs_lr_alignments/index0_somatic1_F3.bam,tests/data/test-dataset_wgs_lr_alignments/index0_germline0_F2.fastplong.json,GRCh38,20
