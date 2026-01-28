@@ -29,11 +29,10 @@ def main(submission_root: Path):
     for donor_index, donor in enumerate(metadata.donors):
         targets = None
 
+        is_non_index_patient = donor.relation != Relation.index_
         # the tanG/VNg *CANNOT* be stored permanently
         # the donor_pseudonym for the index patient is the tanG, so redact it
-        donor_pseudonym = (
-            donor.donor_pseudonym if donor.relation != Relation.index_ else "index"
-        )
+        donor_pseudonym = donor.donor_pseudonym if is_non_index_patient else "index"
 
         for lab_datum_index, lab_datum in enumerate(donor.lab_data):
             sample_id = f"{donor.relation}{donor_index}_{lab_datum.sequence_subtype}{lab_datum_index}"
@@ -122,17 +121,17 @@ def main(submission_root: Path):
                                 "percentBasesAboveQualityThreshold": lab_datum.sequence_data.percent_bases_above_quality_threshold.percent,
                                 "meanDepthOfCoverageRequired": (
                                     0
-                                    if thresholds is None
+                                    if is_non_index_patient or thresholds is None
                                     else thresholds.mean_depth_of_coverage
                                 ),
                                 "minCoverage": (
                                     0
-                                    if thresholds is None
+                                    if is_non_index_patient or thresholds is None
                                     else thresholds.targeted_regions_above_min_coverage.min_coverage
                                 ),
                                 "targetedRegionsAboveMinCoverageRequired": (
                                     0
-                                    if thresholds is None
+                                    if is_non_index_patient or thresholds is None
                                     else thresholds.targeted_regions_above_min_coverage.fraction_above
                                 ),
                                 "qualityThreshold": (
@@ -145,7 +144,7 @@ def main(submission_root: Path):
                                 ),
                                 "percentBasesAboveQualityThresholdRequired": (
                                     0
-                                    if thresholds is None
+                                    if is_non_index_patient or thresholds is None
                                     else thresholds.percent_bases_above_quality_threshold.percent_bases_above
                                 ),
                             }
