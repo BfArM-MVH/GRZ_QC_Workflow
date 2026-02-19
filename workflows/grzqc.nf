@@ -142,10 +142,10 @@ workflow GRZQC {
     save_trimmed_fail = false
     save_merged = false
     FASTP(
-        samplesheet_ch_reads.srt.map{ meta, reads -> [meta, reads, []] },
+        samplesheet_ch_reads.srt.map { meta, reads -> [meta, reads, []] },
         false,
         save_trimmed_fail,
-        save_merged
+        save_merged,
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect { _meta, json -> json })
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect { _meta, html -> html })
@@ -260,7 +260,8 @@ workflow GRZQC {
         .set { ch_fastp_mosdepth }
 
     // Remove bed_file from the metadata to enable sample based grouping - this result is coming from alignments in the samplesheet
-    FASTQ_ALIGN_BWA_MARKDUPLICATES.out.jsonstats.mix(ALIGN_MERGE_LONG.out.jsonstats)
+    FASTQ_ALIGN_BWA_MARKDUPLICATES.out.jsonstats
+        .mix(ALIGN_MERGE_LONG.out.jsonstats)
         .map { meta, json ->
             def newMeta = meta.clone()
             newMeta.remove('bed_file')
