@@ -23,7 +23,9 @@ def read_bed_file(
     with open_func(file_path, "rb") as f:
         for line in f:
             line_decoded = line.strip().decode("utf-8")
-            if not line_decoded or any(line_decoded.startswith(x) for x in ["#", "track", "browser"]):
+            if not line_decoded or any(
+                line_decoded.startswith(x) for x in ["#", "track", "browser"]
+            ):
                 data_start_line += 1
                 continue
             num_columns = len(line_decoded.split("\t"))
@@ -31,12 +33,14 @@ def read_bed_file(
 
     # Enforce a minimum of three columns
     if num_columns < 3:
-        raise ValueError(f"Invalid BED: {file_path} has {num_columns} columns. Expected >= 3.")
+        raise ValueError(
+            f"Invalid BED: {file_path} has {num_columns} columns. Expected >= 3."
+        )
 
     if column_names is None:
         # Default column names for the first 6 standard BED fields
         default_names = ["chrom", "start", "end", "name", "score", "strand"]
-        
+
         if num_columns <= len(default_names):
             column_names = default_names[:num_columns]
         else:
@@ -47,10 +51,14 @@ def read_bed_file(
     # Create dtype_dict dynamically based on columns that exist
     # Use 'Int64' for start/end to allow the strict null check later on
     base_types = {
-        "chrom": "str", "start": "Int64", "end": "Int64",
-        "name": "str", "score": "float64", "strand": "str"
+        "chrom": "str",
+        "start": "Int64",
+        "end": "Int64",
+        "name": "str",
+        "score": "float64",
+        "strand": "str",
     }
-    
+
     # Only include types for columns actually present in column_names
     dtype_dict = {col: base_types.get(col, "str") for col in column_names}
     dtype_dict.update(dtypes or {})
@@ -71,7 +79,9 @@ def read_bed_file(
     for col in ["chrom", "start", "end"]:
         if bed_df[col].isnull().any():
             row_idx = bed_df[bed_df[col].isnull()].index[0] + data_start_line + 1
-            raise ValueError(f"ERROR: Null value detected in '{col}' at line {row_idx} of {file_path.name}.")
+            raise ValueError(
+                f"ERROR: Null value detected in '{col}' at line {row_idx} of {file_path.name}."
+            )
 
     # Cast to standard int for output
     bed_df["start"] = bed_df["start"].astype(int)

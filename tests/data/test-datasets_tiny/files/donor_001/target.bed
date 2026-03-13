@@ -1,2 +1,5 @@
-22	13270	13400	gene1
-22	13600	13973	gene2
+track name="TestRegions" description="Regions for testing"
+# This is a comment that should be skipped
+browser position 22:10000-20000
+22	13270	13400	gene1	.	+
+22	13600	13973	gene2	0.9	-
