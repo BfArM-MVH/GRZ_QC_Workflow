@@ -7,6 +7,8 @@ include { BAM_INDEX_STATS_SAMTOOLS } from '../../local/bam_index_stats_samtools/
 include { FASTQ_SORT               } from '../../../modules/local/fastq_sort/main'
 include { SAMTOOLS_MERGE           } from '../../../modules/nf-core/samtools/merge/main'
 include { SAMBAMBA_MARKDUP         } from '../../../modules/nf-core/sambamba/markdup/main'
+include { UMITOOLS_DEDUP           } from '../../../modules/nf-core/umitools/dedup/main'
+include { SAMTOOLS_INDEX           } from '../../../modules/nf-core/samtools/index/main'
 
 workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     take:
@@ -76,7 +78,12 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
 
     ch_alignments_newMeta
         .map { meta, _bam ->
-            tuple(meta, meta.fastp_json)
+            def newMeta = meta.clone()
+            newMeta.remove('umi_base_skip')
+            newMeta.remove('umi_length')
+            newMeta.remove('umi_location')
+            newMeta.remove('umi_in_read_header')  
+            tuple(newMeta, newMeta.fastp_json)      
         }
         .set { jsonstats }
 
@@ -87,13 +94,58 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     )
 
     ch_versions = ch_versions.mix(BAM_INDEX_STATS_SAMTOOLS.out.versions)
-    ch_bam = ch_bam.mix(BAM_INDEX_STATS_SAMTOOLS.out.bam.map { meta, bam -> [meta + [is_deduplicated: false], bam] })
-    ch_bai = ch_bai.mix(BAM_INDEX_STATS_SAMTOOLS.out.bai.map { meta, bai -> [meta + [is_deduplicated: false], bai] })
+    //ch_bam = ch_bam.mix(BAM_INDEX_STATS_SAMTOOLS.out.bam.map { meta, bam -> [meta + [is_deduplicated: false], bam] })
+    //ch_bai = ch_bai.mix(BAM_INDEX_STATS_SAMTOOLS.out.bai.map { meta, bai -> [meta + [is_deduplicated: false], bai] })
+
+    // Deduplicate UMI tagged BAM files with umitools dedup - not optional for UMIreads
+    BAM_INDEX_STATS_SAMTOOLS.out.bam.join(BAM_INDEX_STATS_SAMTOOLS.out.bai)
+        .branch { meta, bam, bai ->
+            umi: (meta.umi_base_skip || meta.umi_length || meta.umi_location || meta.umi_in_read_header)
+            standard: true
+        }
+        .set { ch_for_dedup }
+
+    // remove umi metadata for umitools dedup to avoid confusion in output metadata
+    def umi_bams = ch_for_dedup.umi.map { meta, bam, bai ->
+        def newMeta = meta.clone()
+        newMeta.remove('umi_base_skip')
+        newMeta.remove('umi_length')
+        newMeta.remove('umi_location')
+        newMeta.remove('umi_in_read_header')
+        [newMeta, bam, bai]
+    }
+
+    def standard_bams = ch_for_dedup.standard.map { meta, bam, bai ->
+        def newMeta = meta.clone()
+        newMeta.remove('umi_base_skip')
+        newMeta.remove('umi_length')
+        newMeta.remove('umi_location')
+        newMeta.remove('umi_in_read_header')
+        [newMeta, bam, bai]
+    }
+
+    // We report both duplicated and deduplicated results for no UMI tagged samples, to enable comparison of the effect of deduplication on the results. 
+    // For UMI tagged samples we only report non-deduplicated results. 
+    ch_bam = ch_bam.mix(standard_bams.map{ meta, bam, bai -> [meta + [is_deduplicated: false], bam] })
+    ch_bai = ch_bai.mix(standard_bams.map { meta, bam, bai -> [meta + [is_deduplicated: false], bai] })
+
+    UMITOOLS_DEDUP(
+        umi_bams,
+        true, // get_output_stats
+    )
+    ch_versions = ch_versions.mix(UMITOOLS_DEDUP.out.versions)
+
+    SAMTOOLS_INDEX(
+        UMITOOLS_DEDUP.out.bam
+    )
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+    ch_bam = ch_bam.mix(UMITOOLS_DEDUP.out.bam.map { meta, bam -> [meta + [is_deduplicated: true], bam] })
+    ch_bai = ch_bai.mix(SAMTOOLS_INDEX.out.bai.map { meta, bai -> [meta + [is_deduplicated: true], bai] })
 
     if (!params.skip_markdup) {
         // Mark duplicates with sambamba
         SAMBAMBA_MARKDUP(
-            BAM_INDEX_STATS_SAMTOOLS.out.bam
+            standard_bams
         )
         ch_versions = ch_versions.mix(SAMBAMBA_MARKDUP.out.versions)
         ch_bam = ch_bam.mix(SAMBAMBA_MARKDUP.out.bam.map { meta, bam -> [meta + [is_deduplicated: true], bam] })
@@ -106,5 +158,6 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     flagstat  = BAM_INDEX_STATS_SAMTOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
     stat      = BAM_INDEX_STATS_SAMTOOLS.out.stats // channel: [ val(meta), path(stats) ]
     jsonstats // channel: [ val(meta), path(json) ]
+    umi_log   = UMITOOLS_DEDUP.out.log // channel: [ val(meta), path(log) ]
     versions  = ch_versions // channel: [ path(versions.yml) ]
 }

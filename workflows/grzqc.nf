@@ -112,8 +112,6 @@ workflow GRZQC {
         }
         .set { samplesheet_ch_alignments }
 
-    // missing samples samplesheet_ch_alignments.lng
-
     // split long read rows depending on if they are BAM (PacBio) or FASTQ (usually Nanopore)
     samplesheet_ch_reads.lng
         .branch { _meta, reads ->
@@ -132,6 +130,7 @@ workflow GRZQC {
 
     // Run FASTQC on short + long FASTQ files - per lane
     // using the 'other' output because long-reads won't be paired-end
+    // UMI-reads can be analysed with FASTQC
     FASTQC(
         samplesheet_ch_reads.srt.mix(samplesheet_ch_reads_lng.fastq).mix(SAMTOOLS_FASTQ.out.other)
     )
@@ -139,6 +138,7 @@ workflow GRZQC {
     ch_versions = ch_versions.mix(FASTQC.out.versions)
 
     // Run FASP on FASTQ files - per lane
+    // UMI-reads can be analysed with FASTP, pipeline will employ automatically the necessary umi tags
     save_trimmed_fail = false
     save_merged = false
     FASTP(
@@ -173,6 +173,7 @@ workflow GRZQC {
     ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.versions)
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.stat.collect { _meta, file -> file })
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.flagstat.collect { _meta, file -> file })
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.umi_log.collect { _meta, file -> file })
 
     ch_reads_long_trimmed = FASTPLONG.out.reads.map { meta, reads ->
         def sequencer_manufacturer = meta.sequencer.toLowerCase()
@@ -246,6 +247,7 @@ workflow GRZQC {
     ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.map { _meta, file -> file }.collect())
 
     // Remove laneId, read_group, flowcellId, bed_file from the metadata to enable sample based grouping
+    // Remove UMI based tags
     FASTP.out.json
         .mix(FASTPLONG.out.json)
         .map { meta, json ->
@@ -255,6 +257,10 @@ workflow GRZQC {
             newMeta.remove('flowcellId')
             newMeta.remove('bed_file')
             newMeta.remove('runId')
+            newMeta.remove('umi_base_skip')
+            newMeta.remove('umi_length')
+            newMeta.remove('umi_location')
+            newMeta.remove('umi_in_read_header')
             [newMeta + [id: newMeta.sample], json]
         }
         .set { ch_fastp_mosdepth }
@@ -286,7 +292,6 @@ workflow GRZQC {
 
     // Compare coverage with thresholds: writing the results file
     // input: FASTP Q30 ratio + mosdepth all genes + mosdepth target genes
-
     COMPARE_THRESHOLD(
         ch_fastp_mosdepth_merged
     )
