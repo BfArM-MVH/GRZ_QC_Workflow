@@ -8,12 +8,12 @@ Allowed types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `build`
 
 The PR title becomes the squash-merge commit subject and is parsed by release-please to determine the next version:
 
-| Title prefix | Version bump | Example |
-| --- | --- | --- |
-| `fix:` | patch | `1.3.1` -> `1.3.2` |
-| `feat:` | minor | `1.3.1` -> `1.4.0` |
-| `feat!:` (or `BREAKING CHANGE:` in body) | major | `1.3.1` -> `2.0.0` |
-| others (`chore`, `docs`, ...) | no release | |
+| Title prefix                             | Version bump | Example            |
+| ---------------------------------------- | ------------ | ------------------ |
+| `fix:`                                   | patch        | `1.3.1` -> `1.3.2` |
+| `feat:`                                  | minor        | `1.3.1` -> `1.4.0` |
+| `feat!:` (or `BREAKING CHANGE:` in body) | major        | `1.3.1` -> `2.0.0` |
+| others (`chore`, `docs`, ...)            | no release   |                    |
 
 Subject must start with a lowercase letter and not end with a period. WIP PRs are exempt while marked WIP.
 
