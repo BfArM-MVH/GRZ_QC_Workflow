@@ -10,6 +10,7 @@ def main(args: argparse.Namespace):
     # concat all csv files
     dfs = [pd.read_csv(f) for f in args.inputs]
     df_merged = pd.concat(dfs, ignore_index=True)
+    df_merged["grzQcWorkflowVersion"] = args.workflow_version
     df_merged.to_csv(f"{args.output_prefix}.csv", index=False)
     df_merged.to_excel(f"{args.output_prefix}.xlsx", index=False)
 
@@ -114,6 +115,9 @@ def main(args: argparse.Namespace):
         #         - s_eq: "PASS"
         #       fail:
         #         - s_eq: "TOO LOW"
+        #   grzQcWorkflowVersion:
+        #     title: "GRZ QC Workflow Version"
+        #     description: "Version of the GRZ QC workflow used to produce this report."
         """)
         )
         df_merged.to_csv(mqc_out, index=False)
@@ -126,6 +130,11 @@ if __name__ == "__main__":
     parser.add_argument("inputs", nargs="+", help="List of files to merge")
     parser.add_argument(
         "--output_prefix", "-o", required=True, help="Output file prefix"
+    )
+    parser.add_argument(
+        "--workflow_version",
+        required=True,
+        help="GRZ QC workflow version to record in the report",
     )
     args = parser.parse_args()
 

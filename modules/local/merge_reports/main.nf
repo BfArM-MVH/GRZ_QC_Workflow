@@ -18,9 +18,10 @@ process MERGE_REPORTS {
     def prefix = task.ext.prefix ?: ""
     def create_alias = task.ext.create_alias ? true : false
     def alias = task.ext.create_alias ?: ''
+    def version_suffix = task.ext.version_suffix ? "+${task.ext.version_suffix}" : ""
 
     """
-    merge_reports.py ${csv_files} --output_prefix ${prefix}report
+    merge_reports.py ${csv_files} --output_prefix ${prefix}report --workflow_version ${workflow.manifest.version}${version_suffix}
 
     # If enabled, create a symbolic link named 'report.csv' pointing to the prefixed output
     if [ "${create_alias}" = true ]; then
