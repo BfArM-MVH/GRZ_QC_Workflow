@@ -88,50 +88,6 @@
                         ],
                         "files": [
                             {
-                                "filePath": "donor_001/NIST7035_1_R1.fastq.gz",
-                                "fileType": "fastq",
-                                "checksumType": "sha256",
-                                "fileChecksum": "db53fb6c3bf25292880245e5375d636cc711a4e2c7226302cb599e341f9ce5a7",
-                                "fileSizeInBytes": 3343564,
-                                "readOrder": "R1",
-                                "readLength": 101,
-                                "flowcellId": "NIST7035",
-                                "laneId": "1"
-                            },
-                            {
-                                "filePath": "donor_001/NIST7035_1_R2.fastq.gz",
-                                "fileType": "fastq",
-                                "checksumType": "sha256",
-                                "fileChecksum": "e40aa2eadbbdbae958258a79d1f6c005a539f878466539f1e6d98a38faddca14",
-                                "fileSizeInBytes": 3454821,
-                                "readOrder": "R2",
-                                "readLength": 101,
-                                "flowcellId": "NIST7035",
-                                "laneId": "1"
-                            },
-                            {
-                                "filePath": "donor_001/NIST7035_2_R1.fastq.gz",
-                                "fileType": "fastq",
-                                "checksumType": "sha256",
-                                "fileChecksum": "21eb0497dbae3e74268d64ac543c2ad145d66bf044da5d0b0b021ffed978a792",
-                                "fileSizeInBytes": 3414245,
-                                "readOrder": "R1",
-                                "readLength": 101,
-                                "flowcellId": "NIST7035",
-                                "laneId": "2"
-                            },
-                            {
-                                "filePath": "donor_001/NIST7035_2_R2.fastq.gz",
-                                "fileType": "fastq",
-                                "checksumType": "sha256",
-                                "fileChecksum": "be172173202fe25b0e2f9ed049f3e945b089255a108e09e519453c6757a0b860",
-                                "fileSizeInBytes": 3518760,
-                                "readOrder": "R2",
-                                "readLength": 101,
-                                "flowcellId": "NIST7035",
-                                "laneId": "2"
-                            },
-                            {
                                 "filePath": "donor_001/NIST7086_1_R1.fastq.gz",
                                 "fileType": "fastq",
                                 "checksumType": "sha256",
@@ -193,7 +149,7 @@
                     }
                 },
                 {
-                    "labDataName": "Tumor DNA sample less samples",
+                    "labDataName": "Tumor DNA sample alt flowcell",
                     "tissueOntology": {
                         "name": "UBERON",
                         "version": "1.5"
