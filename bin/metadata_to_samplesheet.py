@@ -138,7 +138,6 @@ def main(submission_root: Path):
                                     30
                                     if thresholds is None
                                     else int(
-                                        # int cast to workaround wrong float type in grz-pydantic-models v2.4.0
                                         thresholds.percent_bases_above_quality_threshold.quality_threshold
                                     )
                                 ),
