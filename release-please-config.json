@@ -1,18 +1,18 @@
 {
-  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "merge-type": "squash",
-  "packages": {
-    ".": {
-      "release-type": "simple",
-      "package-name": "GRZ_QC_Workflow",
-      "include-component-in-tag": false,
-      "include-v-in-tag": true,
-      "extra-files": [
-        {
-          "type": "generic",
-          "path": "nextflow.config"
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+    "merge-type": "squash",
+    "packages": {
+        ".": {
+            "release-type": "simple",
+            "package-name": "GRZ_QC_Workflow",
+            "include-component-in-tag": false,
+            "include-v-in-tag": true,
+            "extra-files": [
+                {
+                    "type": "generic",
+                    "path": "nextflow.config"
+                }
+            ]
         }
-      ]
     }
-  }
 }
