@@ -1,5 +1,34 @@
 # Contributing
 
+## Pull requests
+
+PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/). The CI workflow `PR Title Lint` enforces this.
+
+Allowed types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `build`, `perf`, `style`, `revert`.
+
+The PR title becomes the squash-merge commit subject and is parsed by release-please to determine the next version:
+
+| Title prefix | Version bump | Example |
+| --- | --- | --- |
+| `fix:` | patch | `1.3.1` -> `1.3.2` |
+| `feat:` | minor | `1.3.1` -> `1.4.0` |
+| `feat!:` (or `BREAKING CHANGE:` in body) | major | `1.3.1` -> `2.0.0` |
+| others (`chore`, `docs`, ...) | no release | |
+
+Subject must start with a lowercase letter and not end with a period. WIP PRs are exempt while marked WIP.
+
+## Releases
+
+Releases are automated by [release-please](https://github.com/googleapis/release-please).
+
+On every push to `main`, release-please opens (or updates) a release PR titled `chore(main): release <version>`. The PR aggregates conventional commits since the last release and updates:
+
+- `CHANGELOG.md`
+- `manifest.version` in `nextflow.config`
+- `.release-please-manifest.json`
+
+Merging the release PR creates a Git tag and GitHub Release. Do not manually edit `CHANGELOG.md` or bump `manifest.version` in PRs.
+
 ## Formatting/linting files
 
 You can easily create a development environment with all the following software on Linux with:
