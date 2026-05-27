@@ -1,6 +1,7 @@
 email_template.html
 adaptivecard.json
 slackreport.json
+CHANGELOG.md
 .nextflow*
 work/
 data/
