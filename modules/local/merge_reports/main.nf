@@ -43,6 +43,7 @@ process MERGE_REPORTS {
     """
     touch ${prefix}report.csv
     touch ${prefix}report.xlsx
+    touch ${prefix}report_mqc.csv
 
     if [ "${create_alias}" = true ]; then
         ln -s ${prefix}report.csv ${alias}
