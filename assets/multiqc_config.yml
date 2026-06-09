@@ -5,6 +5,7 @@ report_comment: >
 
 module_order:
   - grz_qc:
+  - grz_qc_redundant:
   - fastqc:
       name: "FastQC"
   - fastp:

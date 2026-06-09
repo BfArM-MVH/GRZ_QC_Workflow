@@ -17,9 +17,9 @@ def main(args: argparse.Namespace):
     # write out annotated report for MultiQC
     with open(f"{args.output_prefix}_mqc.csv", "w") as mqc_out:
         mqc_out.write(
-            dedent("""\
-        # id: "grz_qc"
-        # section_name: "GRZ QC Results"
+            dedent(f"""\
+        # id: "{args.mqc_id}"
+        # section_name: "{args.mqc_section_name}"
         # description: "Results from the GRZ internal QC pipeline."
         # format: "csv"
         # plot_type: "table"
@@ -135,6 +135,16 @@ if __name__ == "__main__":
         "--workflow_version",
         required=True,
         help="GRZ QC workflow version to record in the report",
+    )
+    parser.add_argument(
+        "--mqc_id",
+        default="grz_qc",
+        help="MultiQC custom-content section id (must be unique per table to avoid collisions)",
+    )
+    parser.add_argument(
+        "--mqc_section_name",
+        default="GRZ QC Results",
+        help="MultiQC custom-content section display name",
     )
     args = parser.parse_args()
 
