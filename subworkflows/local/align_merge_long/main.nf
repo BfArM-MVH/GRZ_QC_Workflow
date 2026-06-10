@@ -34,8 +34,6 @@ workflow ALIGN_MERGE_LONG {
         mm2_write_long_cigar_to_bam_tag,
     )
 
-    ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions.first())
-
     // Remove laneId, read_group, flowcellId from the metadata to enable sample based grouping
     ch_bams = MINIMAP2_ALIGN.out.bam
         .map { meta, bam ->
@@ -50,12 +48,9 @@ workflow ALIGN_MERGE_LONG {
         .groupTuple()
     // Merge alignments from different lanes
     SAMTOOLS_MERGE(
-        ch_bams,
-        ch_fasta,
-        ch_fai,
-        [[], []],
+        ch_bams.map { meta, bams -> [meta, bams, []] },
+        ch_fasta.map { meta, fasta -> [meta, fasta, [], []] },
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
 
     // make sure ch_alignment has the same metadata for downstream joins
     def ch_alignments_newMeta = ch_alignments.map { meta, bam ->

@@ -128,7 +128,6 @@ workflow GRZQC {
         samplesheet_ch_reads_lng.bam,
         samtools_fastq_interleave,
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_FASTQ.out.versions)
 
     // Run FASTQC on short + long FASTQ files - per lane
     // using the 'other' output because long-reads won't be paired-end
@@ -136,7 +135,6 @@ workflow GRZQC {
         samplesheet_ch_reads.srt.mix(samplesheet_ch_reads_lng.fastq).mix(SAMTOOLS_FASTQ.out.other)
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect { it[1] })
-    ch_versions = ch_versions.mix(FASTQC.out.versions)
 
     // Run FASP on FASTQ files - per lane
     save_trimmed_fail = false
@@ -149,7 +147,6 @@ workflow GRZQC {
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json.collect { _meta, json -> json })
     ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.html.collect { _meta, html -> html })
-    ch_versions = ch_versions.mix(FASTP.out.versions)
 
     FASTPLONG(
         samplesheet_ch_reads_lng.fastq.mix(SAMTOOLS_FASTQ.out.other),
@@ -240,8 +237,8 @@ workflow GRZQC {
     MOSDEPTH(
         ch_bams_bed_targeted.mix(ch_bams_bed_wgs),
         fasta,
+        [],
     )
-    ch_versions = ch_versions.mix(MOSDEPTH.out.versions)
     ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.global_txt.map { _meta, file -> file }.collect())
     ch_multiqc_files = ch_multiqc_files.mix(MOSDEPTH.out.regions_txt.map { _meta, file -> file }.collect())
 
@@ -314,7 +311,27 @@ workflow GRZQC {
     ch_versions = ch_versions.mix(MERGE_REPORTS_UNDEDUPLICATED.out.versions)
 
     // Collate and save software versions
-    softwareVersionsToYAML(ch_versions)
+    // nf-core modules emit versions via the `versions` topic; local modules still
+    // emit a versions.yml file collected in ch_versions.
+    def topic_versions = channel.topic("versions")
+        .distinct()
+        .branch { entry ->
+            versions_file: entry instanceof Path
+            versions_tuple: true
+        }
+
+    def topic_versions_string = topic_versions.versions_tuple
+        .map { process, tool, version ->
+            [process[process.lastIndexOf(':') + 1..-1], "  ${tool}: ${version}"]
+        }
+        .groupTuple(by: 0)
+        .map { process, tool_versions ->
+            tool_versions.unique().sort()
+            "${process}:\n${tool_versions.join('\n')}"
+        }
+
+    softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
+        .mix(topic_versions_string)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
             name: 'nf_core_' + 'pipeline_software_' + 'mqc_' + 'versions.yml',
@@ -326,17 +343,6 @@ workflow GRZQC {
     //
     // MODULE: MultiQC
     //
-    ch_multiqc_config = Channel.fromPath(
-        "${projectDir}/assets/multiqc_config.yml",
-        checkIfExists: true
-    )
-    ch_multiqc_custom_config = params.multiqc_config
-        ? Channel.fromPath(params.multiqc_config, checkIfExists: true)
-        : Channel.empty()
-    ch_multiqc_logo = params.multiqc_logo
-        ? Channel.fromPath(params.multiqc_logo, checkIfExists: true)
-        : Channel.empty()
-
     summary_params = paramsSummaryMap(
         workflow,
         parameters_schema: "nextflow_schema.json"
@@ -348,13 +354,21 @@ workflow GRZQC {
 
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
 
+    def multiqc_config_files = params.multiqc_config
+        ? [file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true), file(params.multiqc_config, checkIfExists: true)]
+        : file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true)
+
     MULTIQC(
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList(),
-        [],
-        [],
+        ch_multiqc_files.flatten().collect().map { files ->
+            [
+                [id: 'grzqc'],
+                files,
+                multiqc_config_files,
+                params.multiqc_logo ? file(params.multiqc_logo, checkIfExists: true) : [],
+                [],
+                [],
+            ]
+        }
     )
 
     emit:

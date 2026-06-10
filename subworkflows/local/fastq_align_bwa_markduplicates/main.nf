@@ -43,8 +43,6 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
         val_sort_bam,
     )
 
-    ch_versions = ch_versions.mix(BWAMEM2_MEM.out.versions.first())
-
     // Remove laneId, read_group, flowcellId from the metadata to enable sample based grouping
     ch_bams = BWAMEM2_MEM.out.bam
         .map { meta, bam ->
@@ -58,12 +56,9 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
         .groupTuple()
     // Merge alignments from different lanes
     SAMTOOLS_MERGE(
-        ch_bams,
-        ch_fasta,
-        ch_fai,
-        [[], []],
+        ch_bams.map { meta, bams -> [meta, bams, []] },
+        ch_fasta.map { meta, fasta -> [meta, fasta, [], []] },
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
 
     // make sure ch_alignment has the same metadata for downstream joins
     def ch_alignments_newMeta = ch_alignments.map { meta, bam ->
