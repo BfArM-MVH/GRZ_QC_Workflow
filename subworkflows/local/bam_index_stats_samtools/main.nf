@@ -24,7 +24,7 @@ workflow BAM_INDEX_STATS_SAMTOOLS {
 
     BAM_STATS_SAMTOOLS(
         ch_bam_bai,
-        ch_fasta,
+        ch_fasta.map { meta, fasta -> [meta, fasta, []] },
     )
 
     emit:
