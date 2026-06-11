@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - nextflow =25.04.06
+  - nextflow =26.04.3
   - prettier =3.6
   - nf-core =3.5.1
   - conda-lock =3
