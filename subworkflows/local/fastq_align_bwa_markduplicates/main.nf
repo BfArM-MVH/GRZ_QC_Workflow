@@ -10,12 +10,12 @@ include { SAMBAMBA_MARKDUP         } from '../../../modules/nf-core/sambamba/mar
 
 workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     take:
-    ch_reads      // channel (optional): [ val(meta), [ path(reads) ] ]
+    ch_reads // channel (optional): [ val(meta), [ path(reads) ] ]
     ch_alignments // channel (optional): [ val(meta), path(alignments) ]
-    ch_index      // channel (mandatory): [ val(meta2), path(index) ]
-    val_sort_bam  // boolean (mandatory): true or false
-    ch_fasta      // channel (mandatory) : [ val(meta3), path(fasta) ]
-    ch_fai        // channel (mandatory) : [ val(meta4), path(fai) ]
+    ch_index // channel (mandatory): [ val(meta2), path(index) ]
+    val_sort_bam // boolean (mandatory): true or false
+    ch_fasta // channel (mandatory) : [ val(meta3), path(fasta) ]
+    ch_fai // channel (mandatory) : [ val(meta4), path(fai) ]
 
     main:
     ch_versions = Channel.empty()

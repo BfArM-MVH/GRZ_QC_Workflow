@@ -7,7 +7,7 @@ include { BAM_STATS_SAMTOOLS } from '../../nf-core/bam_stats_samtools/main'
 
 workflow BAM_INDEX_STATS_SAMTOOLS {
     take:
-    ch_bam   // channel: [ val(meta), [ bam ] ]
+    ch_bam // channel: [ val(meta), [ bam ] ]
     ch_fasta // channel: [ val(meta), path(fasta) ]
 
     main:

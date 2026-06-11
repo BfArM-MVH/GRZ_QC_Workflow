@@ -8,11 +8,11 @@ include { SAMTOOLS_MERGE           } from '../../../modules/nf-core/samtools/mer
 
 workflow ALIGN_MERGE_LONG {
     take:
-    ch_reads      // channel (optional): [ val(meta), [ path(reads) ] ]
+    ch_reads // channel (optional): [ val(meta), [ path(reads) ] ]
     ch_alignments // channel (optional): [ val(meta), path(alignments) ]
-    ch_index      // channel (mandatory): [ val(meta2), path(index) ]
-    ch_fasta      // channel (mandatory) : [ val(meta3), path(fasta) ]
-    ch_fai        // channel (mandatory) : [ val(meta4), path(fai) ]
+    ch_index // channel (mandatory): [ val(meta2), path(index) ]
+    ch_fasta // channel (mandatory) : [ val(meta3), path(fasta) ]
+    ch_fai // channel (mandatory) : [ val(meta4), path(fai) ]
 
     main:
     ch_versions = Channel.empty()
@@ -81,8 +81,8 @@ workflow ALIGN_MERGE_LONG {
     bai = BAM_INDEX_STATS_SAMTOOLS.out.bai.map { meta, bai -> [meta + [is_deduplicated: false], bai] }
 
     emit:
-    bam       // channel: [ val(meta), path(bam) ]
-    bai       // channel: [ val(meta), path(bai) ]
+    bam // channel: [ val(meta), path(bam) ]
+    bai // channel: [ val(meta), path(bai) ]
     flagstat  = BAM_INDEX_STATS_SAMTOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
     stat      = BAM_INDEX_STATS_SAMTOOLS.out.stats // channel: [ val(meta), path(stats) ]
     jsonstats // channel: [ val(meta), path(json) ]
