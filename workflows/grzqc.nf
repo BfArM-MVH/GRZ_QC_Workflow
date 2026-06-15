@@ -101,6 +101,8 @@ workflow GRZQC {
 
     def fasta = PREPARE_REFERENCES.out.fasta
     def fai = PREPARE_REFERENCES.out.fai
+    // Combined reference channel for modules that take [ meta, fasta, fai ]
+    def fasta_fai = fasta.combine(fai).map { meta, fa, _meta2, faidx -> [meta, fa, faidx] }.first()
     def bwa = PREPARE_REFERENCES.out.bwa
     def mmi = PREPARE_REFERENCES.out.mmi
 
@@ -164,8 +166,7 @@ workflow GRZQC {
         samplesheet_ch_alignments.srt,
         bwa,
         true,
-        fasta,
-        fai,
+        fasta_fai,
     )
     ch_versions = ch_versions.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.versions)
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_ALIGN_BWA_MARKDUPLICATES.out.stat.collect { _meta, file -> file })
@@ -182,8 +183,7 @@ workflow GRZQC {
         ch_reads_long_trimmed,
         samplesheet_ch_alignments.lng,
         mmi,
-        fasta,
-        fai,
+        fasta_fai,
     )
     ch_versions = ch_versions.mix(ALIGN_MERGE_LONG.out.versions)
     ch_multiqc_files = ch_multiqc_files.mix(ALIGN_MERGE_LONG.out.stat.collect { _meta, file -> file })

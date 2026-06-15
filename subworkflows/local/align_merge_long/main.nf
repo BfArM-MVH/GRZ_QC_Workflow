@@ -11,8 +11,7 @@ workflow ALIGN_MERGE_LONG {
     ch_reads // channel (optional): [ val(meta), [ path(reads) ] ]
     ch_alignments // channel (optional): [ val(meta), path(alignments) ]
     ch_index // channel (mandatory): [ val(meta2), path(index) ]
-    ch_fasta // channel (mandatory) : [ val(meta3), path(fasta) ]
-    ch_fai // channel (mandatory) : [ val(meta4), path(fai) ]
+    ch_fasta_fai // channel (mandatory) : [ val(meta3), path(fasta), path(fai) ]
 
     main:
     ch_versions = Channel.empty()
@@ -49,7 +48,7 @@ workflow ALIGN_MERGE_LONG {
     // Merge alignments from different lanes
     SAMTOOLS_MERGE(
         ch_bams.map { meta, bams -> [meta, bams, []] },
-        ch_fasta.combine(ch_fai).map { meta, fasta, _meta2, fai -> [meta, fasta, fai, []] }.first(),
+        ch_fasta_fai.map { meta, fasta, fai -> [meta, fasta, fai, []] },
     )
 
     // make sure ch_alignment has the same metadata for downstream joins
@@ -72,8 +71,7 @@ workflow ALIGN_MERGE_LONG {
     // Sort, index BAM file and run samtools stats, flagstat and idxstats
     BAM_INDEX_STATS_SAMTOOLS(
         SAMTOOLS_MERGE.out.bam.mix(ch_alignments_newMeta),
-        ch_fasta,
-        ch_fai,
+        ch_fasta_fai,
     )
 
     ch_versions = ch_versions.mix(BAM_INDEX_STATS_SAMTOOLS.out.versions)
