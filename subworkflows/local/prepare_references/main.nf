@@ -38,14 +38,11 @@ workflow PREPARE_REFERENCES {
         not_cached: true
     }
     def ch_fai_cached = ch_fai_state.cached.map { meta, _fasta -> [meta, fai_cached(meta.id, reference_path)] }
-    def faidx_fai = [[], []]
     def faidx_get_sizes = false
     SAMTOOLS_FAIDX(
-        ch_fai_state.not_cached.map { meta, _fai -> [meta] }.join(ch_fasta),
-        faidx_fai,
+        ch_fai_state.not_cached.map { meta, _fai -> [meta] }.join(ch_fasta).map { meta, fasta -> [meta, fasta, []] },
         faidx_get_sizes,
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
     def ch_fai = ch_fai_cached.mix(SAMTOOLS_FAIDX.out.fai).dump(tag: 'fai')
 
     // prepare bwa
@@ -59,7 +56,6 @@ workflow PREPARE_REFERENCES {
     BWAMEM2_INDEX(
         ch_bwa_state.not_cached.map { meta, _bwa -> [meta] }.join(ch_fasta_if_have_short_reads)
     )
-    ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
     def ch_bwa = ch_bwa_cached.mix(BWAMEM2_INDEX.out.index).dump(tag: 'bwa')
 
     // prepare mmi
@@ -73,7 +69,6 @@ workflow PREPARE_REFERENCES {
     MINIMAP2_INDEX(
         ch_mmi_state.not_cached.map { meta, _mmi -> [meta] }.join(ch_fasta_if_have_long_reads)
     )
-    ch_versions = ch_versions.mix(MINIMAP2_INDEX.out.versions)
     def ch_mmi = ch_mmi_cached.mix(MINIMAP2_INDEX.out.index).dump(tag: 'mmi')
 
     emit:

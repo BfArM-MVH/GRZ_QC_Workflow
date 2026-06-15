@@ -51,8 +51,9 @@ jobs:
           | (! grep 'formatted') \
           || (echo 'Some Nextflow scripts were not formatted properly!' && exit 1)
 
-      - name: Lint nf-core modules
-        run: nf-core --hide-progress modules lint --all
-
-      - name: Lint nf-core subworkflows
-        run: nf-core --hide-progress subworkflows lint --all
+      # nf-core modules and subworkflows are vendored from nf-core/modules, which
+      # lints them incrementally (only the components changed in a PR). Running
+      # `nf-core modules/subworkflows lint --all` here re-lints every vendored
+      # component against the latest tooling and surfaces upstream lint debt we
+      # cannot fix without diverging from the pinned git_sha. Local modules and
+      # subworkflows are linted by the "local Nextflow scripts" step above.
