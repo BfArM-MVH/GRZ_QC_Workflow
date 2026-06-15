@@ -9,6 +9,7 @@ workflow BAM_INDEX_STATS_SAMTOOLS {
     take:
     ch_bam // channel: [ val(meta), [ bam ] ]
     ch_fasta // channel: [ val(meta), path(fasta) ]
+    ch_fai // channel: [ val(meta), path(fai) ]
 
     main:
 
@@ -24,7 +25,7 @@ workflow BAM_INDEX_STATS_SAMTOOLS {
 
     BAM_STATS_SAMTOOLS(
         ch_bam_bai,
-        ch_fasta.map { meta, fasta -> [meta, fasta, []] },
+        ch_fasta.combine(ch_fai).map { meta, fasta, _meta2, fai -> [meta, fasta, fai] }.first(),
     )
 
     emit:

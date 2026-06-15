@@ -57,7 +57,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     // Merge alignments from different lanes
     SAMTOOLS_MERGE(
         ch_bams.map { meta, bams -> [meta, bams, []] },
-        ch_fasta.map { meta, fasta -> [meta, fasta, [], []] },
+        ch_fasta.combine(ch_fai).map { meta, fasta, _meta2, fai -> [meta, fasta, fai, []] }.first(),
     )
 
     // make sure ch_alignment has the same metadata for downstream joins
@@ -79,6 +79,7 @@ workflow FASTQ_ALIGN_BWA_MARKDUPLICATES {
     BAM_INDEX_STATS_SAMTOOLS(
         SAMTOOLS_MERGE.out.bam.mix(ch_alignments_newMeta),
         ch_fasta,
+        ch_fai,
     )
 
     ch_versions = ch_versions.mix(BAM_INDEX_STATS_SAMTOOLS.out.versions)
