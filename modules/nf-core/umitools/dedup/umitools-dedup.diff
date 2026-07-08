@@ -1,0 +1,244 @@
+Changes in component 'nf-core/umitools/dedup'
+Changes in 'umitools/dedup/environment.yml':
+--- modules/nf-core/umitools/dedup/environment.yml
++++ modules/nf-core/umitools/dedup/environment.yml
+@@ -1,17 +1,7 @@
+----
+-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/environment-schema.json
++name: umitools_dedup
+ channels:
+   - conda-forge
+   - bioconda
++  - defaults
+ dependencies:
+-  # renovate: datasource=conda depName=bioconda/umi_tools
+-  - bioconda::umi_tools=1.1.6
+-  - conda-forge::future=0.18.3
+-  - conda-forge::matplotlib=3.8.2
+-  - conda-forge::numpy=1.26.4
+-  - conda-forge::pandas=2.2.0
+-  - conda-forge::python=3.9.18
+-  - conda-forge::regex=2023.12.25
+-  - conda-forge::scipy=1.12.0
+-  - conda-forge::pybktree=1.1
+-  - bioconda::pysam=0.22.0
++  - bioconda::umi_tools=1.1.5
+Changes in 'umitools/dedup/meta.yml':
+--- modules/nf-core/umitools/dedup/meta.yml
++++ modules/nf-core/umitools/dedup/meta.yml
+@@ -1,6 +1,5 @@
+ name: umitools_dedup
+-description: Deduplicate reads based on the mapping co-ordinate and the UMI attached
+-  to the read.
++description: Deduplicate reads based on the mapping co-ordinate and the UMI attached to the read.
+ keywords:
+   - umitools
+   - deduplication
+@@ -8,116 +7,60 @@
+ tools:
+   - umi_tools:
+       description: >
+-        UMI-tools contains tools for dealing with Unique Molecular Identifiers (UMIs)/Random
+-        Molecular Tags (RMTs) and single cell RNA-Seq cell barcodes
++        UMI-tools contains tools for dealing with Unique Molecular Identifiers (UMIs)/Random Molecular Tags (RMTs) and single cell RNA-Seq cell barcodes
+ 
+       documentation: https://umi-tools.readthedocs.io/en/latest/
+       license: ["MIT"]
+-      identifier: ""
+ input:
+-  - - meta:
+-        type: map
+-        description: |
+-          Groovy Map containing sample information
+-          e.g. [ id:'test', single_end:false ]
+-    - bam:
+-        type: file
+-        description: |
+-          BAM file containing reads to be deduplicated via UMIs.
+-        pattern: "*.{bam}"
+-        ontologies: []
+-    - bai:
+-        type: file
+-        description: |
+-          BAM index files corresponding to the input BAM file.
+-        pattern: "*.{bai}"
+-        ontologies: []
++  - meta:
++      type: map
++      description: |
++        Groovy Map containing sample information
++        e.g. [ id:'test', single_end:false ]
++  - bam:
++      type: file
++      description: |
++        BAM file containing reads to be deduplicated via UMIs.
++      pattern: "*.{bam}"
++  - bai:
++      type: file
++      description: |
++        BAM index files corresponding to the input BAM file.
++      pattern: "*.{bai}"
+   - get_output_stats:
+       type: boolean
+       description: |
+         Whether or not to generate output stats.
+ output:
+-  bam:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - ${prefix}.bam:
+-          type: file
+-          description: BAM file with deduplicated UMIs.
+-          pattern: "*.{bam}"
+-          ontologies: []
+-  log:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - "*.log":
+-          type: file
+-          description: File with logging information
+-          pattern: "*.{log}"
+-          ontologies: []
+-  tsv_edit_distance:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - "*edit_distance.tsv":
+-          type: file
+-          description: Reports the (binned) average edit distance between the UMIs at
+-            each position.
+-          pattern: "*edit_distance.tsv"
+-          ontologies:
+-            - edam: http://edamontology.org/format_3475 # TSV
+-  tsv_per_umi:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - "*per_umi.tsv":
+-          type: file
+-          description: UMI-level summary statistics.
+-          pattern: "*per_umi.tsv"
+-          ontologies:
+-            - edam: http://edamontology.org/format_3475 # TSV
+-  tsv_umi_per_position:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - "*per_position.tsv":
+-          type: file
+-          description: Tabulates the counts for unique combinations of UMI and position.
+-          pattern: "*per_position.tsv"
+-          ontologies:
+-            - edam: http://edamontology.org/format_3475 # TSV
+-  versions_umitools:
+-    - - ${task.process}:
+-          type: string
+-          description: The name of the process
+-      - umitools:
+-          type: string
+-          description: The name of the tool
+-      - "umi_tools --version | sed 's/UMI-tools version: //'":
+-          type: eval
+-          description: The expression to obtain the version of the tool
+-
+-topics:
+-  versions:
+-    - - ${task.process}:
+-          type: string
+-          description: The name of the process
+-      - umitools:
+-          type: string
+-          description: The name of the tool
+-      - "umi_tools --version | sed 's/UMI-tools version: //'":
+-          type: eval
+-          description: The expression to obtain the version of the tool
++  - meta:
++      type: map
++      description: |
++        Groovy Map containing sample information
++        e.g. [ id:'test', single_end:false ]
++  - bam:
++      type: file
++      description: BAM file with deduplicated UMIs.
++      pattern: "*.{bam}"
++  - log:
++      type: file
++      description: File with logging information
++      pattern: "*.{log}"
++  - tsv_edit_distance:
++      type: file
++      description: Reports the (binned) average edit distance between the UMIs at each position.
++      pattern: "*edit_distance.tsv"
++  - tsv_per_umi:
++      type: file
++      description: UMI-level summary statistics.
++      pattern: "*per_umi.tsv"
++  - tsv_umi_per_position:
++      type: file
++      description: Tabulates the counts for unique combinations of UMI and position.
++      pattern: "*per_position.tsv"
++  - versions:
++      type: file
++      description: File containing software versions
++      pattern: "versions.yml"
+ authors:
+   - "@drpatelh"
+   - "@grst"
+@@ -125,4 +68,4 @@
+ maintainers:
+   - "@drpatelh"
+   - "@grst"
+-  - "@klkeys"
++  - "@klkeys"
+Changes in 'umitools/dedup/main.nf':
+--- modules/nf-core/umitools/dedup/main.nf
++++ modules/nf-core/umitools/dedup/main.nf
+@@ -17,7 +17,7 @@
+     tuple val(meta), path("*edit_distance.tsv"), optional:true, emit: tsv_edit_distance
+     tuple val(meta), path("*per_umi.tsv")      , optional:true, emit: tsv_per_umi
+     tuple val(meta), path("*per_position.tsv") , optional:true, emit: tsv_umi_per_position
+-    tuple val("${task.process}"), val('umitools'), eval("umi_tools --version | sed 's/UMI-tools version: //'"), emit: versions_umitools, topic: versions
++    path  "versions.yml"                       , emit: versions
+ 
+     when:
+     task.ext.when == null || task.ext.when
+@@ -42,6 +42,11 @@
+         $stats \\
+         $paired \\
+         $args
++
++    cat <<-END_VERSIONS > versions.yml
++    "${task.process}":
++        umitools: \$( umi_tools --version | sed '/version:/!d; s/.*: //' )
++    END_VERSIONS
+     """
+ 
+     stub:
+@@ -52,5 +57,10 @@
+     touch ${prefix}_edit_distance.tsv
+     touch ${prefix}_per_umi.tsv
+     touch ${prefix}_per_position.tsv
++
++    cat <<-END_VERSIONS > versions.yml
++    "${task.process}":
++        umitools: \$( umi_tools --version | sed '/version:/!d; s/.*: //' )
++    END_VERSIONS
+     """
+ }
+
+'modules/nf-core/umitools/dedup/tests/nextflow.config' is unchanged
+'modules/nf-core/umitools/dedup/tests/main.nf.test' is unchanged
+'modules/nf-core/umitools/dedup/tests/main.nf.test.snap' is unchanged
+************************************************************

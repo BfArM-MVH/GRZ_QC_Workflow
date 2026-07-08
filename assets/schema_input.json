@@ -166,7 +166,37 @@
                 "description": "Required percentage (0–100) of bases with base quality at or above qualityThreshold.",
                 "errorMessage": "percentBasesAboveQualityThresholdRequired must be a number between 0 and 100.",
                 "meta": ["percentBasesAboveQualityThresholdRequired"]
-            }
+            },
+            "umi_location": {
+                "type": "string",                    
+                "fa_icon": "fas fa-tape",
+                "description": "Location of the UMI(s) to be extracted with fastp.",
+                "help_text": "Use if UMIs are not present in the read header, but in a specific location within the reads/fastq header index. This will be used to extract UMIs from reads or index in the fastq header and store them in the RX tag.",
+                "enum": ["read1", "read2", "per_read", "index1", "index2", "per_index"],
+                "meta": ["umi_location"]
+            },
+            "umi_length": {                    
+                "type": "integer",
+                "minimum": 1,
+                "fa_icon": "fas fa-tape",
+                "description": "Length of the UMI(s) in the read.",
+                "help_text": "If UMIs are being extracted using fastp, specify the length of the UMI here. This will be used to extract UMIs from reads and store them in the RX tag.",
+                "meta": ["umi_length"]
+            },
+            "umi_base_skip": {
+                "type": "integer",
+                "minimum": 0,
+                "fa_icon": "fas fa-tape",
+                "description": "Number of bases to skip after the UMI(s) in the read when extracting with fastp.",
+                "help_text": "If UMIs are being extracted using fastp, specify the number of bases to skip after the UMI here. This will trim some bases after the UMI.",
+                "meta": ["umi_base_skip"]
+            },
+            "umi_in_read_header": {
+                "type": "boolean",
+                "fa_icon": "fas fa-tape",
+                "help_text": "Set to true if UMIs are already present in the header of the read, for instance from using OverrideCycles in bclconvert or umi_tools/extract.",
+                "meta": ["umi_in_read_header"]
+            }     
         },
         "oneOf": [
             {
