@@ -41,7 +41,12 @@ def main(args: argparse.Namespace):
         #     description: "Whether tumor and/or germline are tested."
         #   qualityControlStatus:
         #     title: "Overall QC Status"
-        #     description: "If pre-computed metrics were provided, this states whether deviation of pipeline-computed metrics from them are all less than the official deviation threshold."
+        #     description: "Whether deduplicated pipeline-computed metrics meet the thresholds required by BfArM. Deviations (> 10%) from the provided metrics lead to the reporting of the submission but do not lead to a failed quality control."
+        #     cond_formatting_rules:
+        #       pass:
+        #         - s_eq: "PASS"
+        #       fail:
+        #         - s_eq: "FAIL"
         #   meanDepthOfCoverage:
         #     title: "Mean Depth of Coverage"
         #     description: "Mean depth of coverage computed by the pipeline."
@@ -57,12 +62,13 @@ def main(args: argparse.Namespace):
         #     suffix: '%'
         #   meanDepthOfCoverageQCStatus:
         #     title: "Mean Depth of Coverage QC Status"
-        #     description: "Whether the sample passes the mean depth of coverage QC criteria or is too low/too high."
+        #     description: "'THRESHOLD NOT MET' if the computed mean depth of coverage is below the value required by BfArM (fails QC), 'TOO LOW' if it deviates by more than 10% below the provided value (reported, but does not fail QC), 'PASS' otherwise."
         #     cond_formatting_rules:
         #       pass:
         #         - s_eq: "PASS"
-        #       fail:
+        #       warn:
         #         - s_eq: "TOO LOW"
+        #       fail:
         #         - s_eq: "THRESHOLD NOT MET"
         #   percentBasesAboveQualityThreshold:
         #     title: "Percent Bases Above Quality Threshold"
@@ -85,12 +91,14 @@ def main(args: argparse.Namespace):
         #     suffix: '%'
         #   percentBasesAboveQualityThresholdQCStatus:
         #     title: "Percent Bases Above Quality Threshold QC Status"
-        #     description: "Whether the sample passes the percent bases above quality threshold QC criteria or is too low/too high."
+        #     description: "'THRESHOLD NOT MET' if the computed percentage of bases above the quality threshold is below the value required by BfArM (fails QC), 'TOO LOW' if it deviates by more than 10% below the provided value (reported, but does not fail QC), 'PASS' otherwise."
         #     cond_formatting_rules:
         #       pass:
         #         - s_eq: "PASS"
-        #       fail:
+        #       warn:
         #         - s_eq: "TOO LOW"
+        #       fail:
+        #         - s_eq: "THRESHOLD NOT MET"
         #   targetedRegionsAboveMinCoverage:
         #     title: "Targeted Regions Above Minimum Coverage"
         #     description: "Proportion of target regions above the minimum coverage threshold."
@@ -109,12 +117,14 @@ def main(args: argparse.Namespace):
         #     suffix: '%'
         #   targetedRegionsAboveMinCoverageQCStatus:
         #     title: "Targeted Regions Above Minimum Coverage QC Status"
-        #     description: "Whether the sample passes the targeted regions above minimum coverage QC criteria or is too low/too high."
+        #     description: "'THRESHOLD NOT MET' if the computed proportion of target regions above the minimum coverage is below the value required by BfArM (fails QC), 'TOO LOW' if it deviates by more than 10% below the provided value (reported, but does not fail QC), 'PASS' otherwise."
         #     cond_formatting_rules:
         #       pass:
         #         - s_eq: "PASS"
-        #       fail:
+        #       warn:
         #         - s_eq: "TOO LOW"
+        #       fail:
+        #         - s_eq: "THRESHOLD NOT MET"
         #   grzQcWorkflowVersion:
         #     title: "GRZ QC Workflow Version"
         #     description: "Version of the GRZ QC workflow used to produce this report."
