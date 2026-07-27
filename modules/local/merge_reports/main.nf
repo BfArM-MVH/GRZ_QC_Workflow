@@ -9,8 +9,8 @@ process MERGE_REPORTS {
     path csv_files
 
     output:
-    path "*report.csv"
-    path "*report.xlsx"
+    path "*report.csv", emit: csv
+    path "*report.xlsx", emit: xlsx
     path "*report_mqc.csv", emit: multiqc
     path ('versions.yml'), emit: versions
 

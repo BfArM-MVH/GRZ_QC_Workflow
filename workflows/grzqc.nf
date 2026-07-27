@@ -20,6 +20,7 @@ include { ALIGN_MERGE_LONG                              } from '../subworkflows/
 include { PREPARE_REFERENCES                            } from '../subworkflows/local/prepare_references'
 include { MERGE_REPORTS as MERGE_REPORTS_DEDUPLICATED   } from '../modules/local/merge_reports'
 include { MERGE_REPORTS as MERGE_REPORTS_UNDEDUPLICATED } from '../modules/local/merge_reports'
+include { PUBLISH_CANONICAL_REPORT                      } from '../modules/local/publish_canonical_report'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -309,6 +310,14 @@ workflow GRZQC {
 
     ch_multiqc_files = ch_multiqc_files.mix(MERGE_REPORTS_UNDEDUPLICATED.out.multiqc)
     ch_versions = ch_versions.mix(MERGE_REPORTS_UNDEDUPLICATED.out.versions)
+
+    PUBLISH_CANONICAL_REPORT(
+        MERGE_REPORTS_DEDUPLICATED.out.csv
+            .mix(MERGE_REPORTS_DEDUPLICATED.out.xlsx)
+            .mix(MERGE_REPORTS_UNDEDUPLICATED.out.csv)
+            .mix(MERGE_REPORTS_UNDEDUPLICATED.out.xlsx)
+            .collect()
+    )
 
     // Collate and save software versions
     // nf-core modules emit versions via the `versions` topic; local modules still
