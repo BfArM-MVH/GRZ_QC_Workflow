@@ -6,7 +6,11 @@ This document describes the output produced by the pipeline.
 
 ## `report.csv`
 
-This is the summary CSV report for the entire samplesheet/submission.
+This is the summary CSV report for the entire samplesheet/submission. It contains one row per sample and is an alias of `nonredundant_report.csv`, the report computed on duplicate-marked data.
+
+Long-read library types (`*_lr`) are never duplicate-marked, so each long-read row carries the same metrics in `report.csv` as in `redundant_report.csv`, differing only in its `grzQcWorkflowVersion` suffix.
+
+If `--skip_markdup` is used, no data is deduplicated and `report.csv` is an alias of `redundant_report.csv` instead.
 
 If no pre-computed metrics were provided, the quality control status and percent deviations columns will be empty and can be ignored.
 

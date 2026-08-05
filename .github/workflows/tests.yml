@@ -32,6 +32,7 @@ jobs:
           - wgs
           - wgs_lr
           - alignment
+          - wgs_lr_alignment
         environment:
           - docker
           - conda
@@ -45,6 +46,8 @@ jobs:
           - test: wgs_lr
             environment: docker
           - test: alignment
+            environment: conda
+          - test: wgs_lr_alignment
             environment: conda
 
     steps:
@@ -76,6 +79,17 @@ jobs:
 
       - name: Run test
         run: nextflow run main.nf -profile ${{ matrix.environment }},test_${{ matrix.test }}
+
+      - name: Check canonical report
+        run: |
+          test -f tests/results/report.csv
+          test -f tests/results/redundant_report.csv
+          # every sample must be reported, whether or not it was duplicate-marked
+          diff -u <(tail -n +2 tests/results/redundant_report.csv | cut -d, -f1 | sort) \
+                  <(tail -n +2 tests/results/report.csv | cut -d, -f1 | sort)
+          reported_samples=$(tail -n +2 tests/results/report.csv | grep -c . || true)
+          echo "report.csv covers ${reported_samples} samples"
+          test "${reported_samples}" -gt 0
 
       - name: Save workflow reports
         if: ${{ !cancelled() }}

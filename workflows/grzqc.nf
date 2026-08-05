@@ -289,22 +289,28 @@ workflow GRZQC {
     )
     ch_versions = ch_versions.mix(COMPARE_THRESHOLD.out.versions)
 
+    // Long reads are never duplicate-marked (ALIGN_MERGE_LONG has no markdup step), so their
+    // metrics are at the same time the redundant and the non-redundant ones: those rows belong
+    // in both reports. With --skip_markdup nothing is deduplicated, so everything stays redundant.
+    def deduplication_enabled = !params.skip_markdup
+
     COMPARE_THRESHOLD.out.result_csv
         .branch { meta, _file ->
+            both: deduplication_enabled && meta.libraryType.endsWith('_lr')
             deduplicated: meta.is_deduplicated == true
-            undeduplicated: meta.is_deduplicated == false
+            undeduplicated: true
         }
         .set { ch_compare_threshold_results }
 
     // Merge compare_threshold results for a final report
     MERGE_REPORTS_DEDUPLICATED(
-        ch_compare_threshold_results.deduplicated.collect { _meta, file -> file }
+        ch_compare_threshold_results.deduplicated.mix(ch_compare_threshold_results.both).collect { _meta, file -> file }
     )
     ch_multiqc_files = ch_multiqc_files.mix(MERGE_REPORTS_DEDUPLICATED.out.multiqc)
     ch_versions = ch_versions.mix(MERGE_REPORTS_DEDUPLICATED.out.versions)
 
     MERGE_REPORTS_UNDEDUPLICATED(
-        ch_compare_threshold_results.undeduplicated.collect { _meta, file -> file }
+        ch_compare_threshold_results.undeduplicated.mix(ch_compare_threshold_results.both).collect { _meta, file -> file }
     )
 
     ch_multiqc_files = ch_multiqc_files.mix(MERGE_REPORTS_UNDEDUPLICATED.out.multiqc)
