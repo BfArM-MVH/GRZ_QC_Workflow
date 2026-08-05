@@ -1,5 +1,4 @@
 process PUBLISH_CANONICAL_REPORT {
-
     input:
     path report_files
 

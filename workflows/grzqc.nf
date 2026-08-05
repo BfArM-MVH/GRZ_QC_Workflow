@@ -299,28 +299,20 @@ workflow GRZQC {
 
     // Merge compare_threshold results for a final report
     MERGE_REPORTS_DEDUPLICATED(
-        ch_compare_threshold_results.deduplicated
-            .collect { _meta, file -> file }
-            .filter { it.size() > 0 }
+        ch_compare_threshold_results.deduplicated.collect { _meta, file -> file }.filter { it.size() > 0 }
     )
     ch_multiqc_files = ch_multiqc_files.mix(MERGE_REPORTS_DEDUPLICATED.out.multiqc)
     ch_versions = ch_versions.mix(MERGE_REPORTS_DEDUPLICATED.out.versions)
 
     MERGE_REPORTS_UNDEDUPLICATED(
-        ch_compare_threshold_results.undeduplicated
-            .collect { _meta, file -> file }
-            .filter { it.size() > 0 }
+        ch_compare_threshold_results.undeduplicated.collect { _meta, file -> file }.filter { it.size() > 0 }
     )
 
     ch_multiqc_files = ch_multiqc_files.mix(MERGE_REPORTS_UNDEDUPLICATED.out.multiqc)
     ch_versions = ch_versions.mix(MERGE_REPORTS_UNDEDUPLICATED.out.versions)
 
     PUBLISH_CANONICAL_REPORT(
-        MERGE_REPORTS_DEDUPLICATED.out.csv
-            .mix(MERGE_REPORTS_DEDUPLICATED.out.xlsx)
-            .mix(MERGE_REPORTS_UNDEDUPLICATED.out.csv)
-            .mix(MERGE_REPORTS_UNDEDUPLICATED.out.xlsx)
-            .collect()
+        MERGE_REPORTS_DEDUPLICATED.out.csv.mix(MERGE_REPORTS_DEDUPLICATED.out.xlsx).mix(MERGE_REPORTS_UNDEDUPLICATED.out.csv).mix(MERGE_REPORTS_UNDEDUPLICATED.out.xlsx).collect()
     )
 
     // Collate and save software versions
