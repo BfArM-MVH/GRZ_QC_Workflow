@@ -299,13 +299,17 @@ workflow GRZQC {
 
     // Merge compare_threshold results for a final report
     MERGE_REPORTS_DEDUPLICATED(
-        ch_compare_threshold_results.deduplicated.collect { _meta, file -> file }
+        ch_compare_threshold_results.deduplicated
+            .collect { _meta, file -> file }
+            .filter { it.size() > 0 }
     )
     ch_multiqc_files = ch_multiqc_files.mix(MERGE_REPORTS_DEDUPLICATED.out.multiqc)
     ch_versions = ch_versions.mix(MERGE_REPORTS_DEDUPLICATED.out.versions)
 
     MERGE_REPORTS_UNDEDUPLICATED(
-        ch_compare_threshold_results.undeduplicated.collect { _meta, file -> file }
+        ch_compare_threshold_results.undeduplicated
+            .collect { _meta, file -> file }
+            .filter { it.size() > 0 }
     )
 
     ch_multiqc_files = ch_multiqc_files.mix(MERGE_REPORTS_UNDEDUPLICATED.out.multiqc)
