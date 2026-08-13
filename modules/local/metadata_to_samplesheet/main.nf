@@ -3,8 +3,8 @@ process METADATA_TO_SAMPLESHEET {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/97/97e40ef01757e3804562c0e7de9ada44dd8c4b6cdcee3e4d5d554aca68b22545/data'
-        : 'community.wave.seqera.io/library/pandas_grz-pydantic-models:1e97fd2149afc157'}"
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/42/427bd6491745418d288c4bdfb366b63f83ff7211c5b39c79f5e21e1646acb8e7/data'
+        : 'community.wave.seqera.io/library/pandas_grz-pydantic-models:2ab7f5e78743d861'}"
 
     input:
     path submission_basepath
