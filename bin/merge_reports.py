@@ -1,9 +1,29 @@
 #!/usr/bin/env python3
 
 import argparse
+from enum import StrEnum
 from textwrap import dedent
 
 import pandas as pd
+
+# Keep the following in sync with compare_threshold.py
+PCT_DEV_CUTOFF = 10
+
+
+class QCStatus(StrEnum):
+    PASS = "PASS"
+    DEVIATION = "DEVIATION"
+    THRESHOLD_NOT_MET = "THRESHOLD NOT MET"
+
+
+def qc_status_description(metric: str) -> str:
+    """Human-readable description of a per-metric QC status column."""
+    return (
+        f"'{QCStatus.THRESHOLD_NOT_MET}' if the computed {metric} is below the value "
+        f"required by BfArM (fails QC), '{QCStatus.DEVIATION}' if the provided value "
+        f"deviates by more than {PCT_DEV_CUTOFF}% from it in either direction (reported, "
+        f"but does not fail QC), '{QCStatus.PASS}' otherwise."
+    )
 
 
 def main(args: argparse.Namespace):
@@ -15,6 +35,13 @@ def main(args: argparse.Namespace):
     df_merged.to_excel(f"{args.output_prefix}.xlsx", index=False)
 
     # write out annotated report for MultiQC
+    mean_depth_qc_desc = qc_status_description("mean depth of coverage")
+    percent_bases_qc_desc = qc_status_description(
+        "percentage of bases above the quality threshold"
+    )
+    targeted_regions_qc_desc = qc_status_description(
+        "proportion of target regions above the minimum coverage"
+    )
     with open(f"{args.output_prefix}_mqc.csv", "w") as mqc_out:
         mqc_out.write(
             dedent(f"""\
@@ -41,7 +68,12 @@ def main(args: argparse.Namespace):
         #     description: "Whether tumor and/or germline are tested."
         #   qualityControlStatus:
         #     title: "Overall QC Status"
-        #     description: "If pre-computed metrics were provided, this states whether deviation of pipeline-computed metrics from them are all less than the official deviation threshold."
+        #     description: "Whether all pipeline-computed metrics meet the thresholds required by BfArM. A provided metric deviating more than {PCT_DEV_CUTOFF}% from the computed value leads to the reporting of the submission but does not lead to a failed quality control."
+        #     cond_formatting_rules:
+        #       pass:
+        #         - s_eq: "PASS"
+        #       fail:
+        #         - s_eq: "FAIL"
         #   meanDepthOfCoverage:
         #     title: "Mean Depth of Coverage"
         #     description: "Mean depth of coverage computed by the pipeline."
@@ -53,17 +85,18 @@ def main(args: argparse.Namespace):
         #     description: "Mean depth of coverage required to pass quality control."
         #   meanDepthOfCoverageDeviation:
         #     title: "Mean Depth of Coverage Deviation"
-        #     description: "Percent deviation of pipeline-computed mean depth of coverage from provided value."
+        #     description: "Signed percent deviation between the computed and provided mean depth of coverage, relative to the computed value. Negative if the provided value is higher (the Leistungserbringer reported too high)."
         #     suffix: '%'
         #   meanDepthOfCoverageQCStatus:
         #     title: "Mean Depth of Coverage QC Status"
-        #     description: "Whether the sample passes the mean depth of coverage QC criteria or is too low/too high."
+        #     description: "{mean_depth_qc_desc}"
         #     cond_formatting_rules:
         #       pass:
-        #         - s_eq: "PASS"
+        #         - s_eq: "{QCStatus.PASS}"
+        #       warn:
+        #         - s_eq: "{QCStatus.DEVIATION}"
         #       fail:
-        #         - s_eq: "TOO LOW"
-        #         - s_eq: "THRESHOLD NOT MET"
+        #         - s_eq: "{QCStatus.THRESHOLD_NOT_MET}"
         #   percentBasesAboveQualityThreshold:
         #     title: "Percent Bases Above Quality Threshold"
         #     description: "Percentage of unfiltered read bases that are above the minimum quality score."
@@ -81,16 +114,18 @@ def main(args: argparse.Namespace):
         #     suffix: '%'
         #   percentBasesAboveQualityThresholdDeviation:
         #     title: "Percent Bases Above Quality Threshold Deviation"
-        #     description: "Percent deviation of pipeline-computed percentage of bases above quality threshold from provided value."
+        #     description: "Signed percent deviation between the computed and provided percentage of bases above quality threshold, relative to the computed value. Negative if the provided value is higher (the Leistungserbringer reported too high)."
         #     suffix: '%'
         #   percentBasesAboveQualityThresholdQCStatus:
         #     title: "Percent Bases Above Quality Threshold QC Status"
-        #     description: "Whether the sample passes the percent bases above quality threshold QC criteria or is too low/too high."
+        #     description: "{percent_bases_qc_desc}"
         #     cond_formatting_rules:
         #       pass:
-        #         - s_eq: "PASS"
+        #         - s_eq: "{QCStatus.PASS}"
+        #       warn:
+        #         - s_eq: "{QCStatus.DEVIATION}"
         #       fail:
-        #         - s_eq: "TOO LOW"
+        #         - s_eq: "{QCStatus.THRESHOLD_NOT_MET}"
         #   targetedRegionsAboveMinCoverage:
         #     title: "Targeted Regions Above Minimum Coverage"
         #     description: "Proportion of target regions above the minimum coverage threshold."
@@ -105,16 +140,18 @@ def main(args: argparse.Namespace):
         #     description: "Minimum proportion of target regions above the minimum coverage threshold required to pass quality control."
         #   targetedRegionsAboveMinCoverageDeviation:
         #     title: "Targeted Regions Above Minimum Coverage Deviation"
-        #     description: "Percent deviation of pipeline-computed proportion of target regions above the minimum coverage threshold from provided value."
+        #     description: "Signed percent deviation between the computed and provided proportion of target regions above the minimum coverage threshold, relative to the computed value. Negative if the provided value is higher (the Leistungserbringer reported too high)."
         #     suffix: '%'
         #   targetedRegionsAboveMinCoverageQCStatus:
         #     title: "Targeted Regions Above Minimum Coverage QC Status"
-        #     description: "Whether the sample passes the targeted regions above minimum coverage QC criteria or is too low/too high."
+        #     description: "{targeted_regions_qc_desc}"
         #     cond_formatting_rules:
         #       pass:
-        #         - s_eq: "PASS"
+        #         - s_eq: "{QCStatus.PASS}"
+        #       warn:
+        #         - s_eq: "{QCStatus.DEVIATION}"
         #       fail:
-        #         - s_eq: "TOO LOW"
+        #         - s_eq: "{QCStatus.THRESHOLD_NOT_MET}"
         #   grzQcWorkflowVersion:
         #     title: "GRZ QC Workflow Version"
         #     description: "Version of the GRZ QC workflow used to produce this report."
